@@ -28,3 +28,6 @@ FOUNDATION_EXPORT const unsigned char CoreZenVersionString[];
 #pragma mark - Preferences
 #import <CoreZen/PreferencesWindowController.h>
 #import <CoreZen/PreferenceViewController.h>
+
+#pragma mark - Cache
+#import <CoreZen/ObjectCache.h>

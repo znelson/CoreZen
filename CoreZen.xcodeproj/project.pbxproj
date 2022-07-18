@@ -24,6 +24,8 @@
 		5309C4072885B14C00BC0AAE /* NSURL+CoreZen.m in Sources */ = {isa = PBXBuildFile; fileRef = 5309C4052885B14C00BC0AAE /* NSURL+CoreZen.m */; };
 		5309C40A2885B15400BC0AAE /* NSNumber+CoreZen.h in Headers */ = {isa = PBXBuildFile; fileRef = 5309C4082885B15400BC0AAE /* NSNumber+CoreZen.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5309C40B2885B15400BC0AAE /* NSNumber+CoreZen.m in Sources */ = {isa = PBXBuildFile; fileRef = 5309C4092885B15400BC0AAE /* NSNumber+CoreZen.m */; };
+		5309C40F2885B43B00BC0AAE /* ObjectCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 5309C40D2885B43B00BC0AAE /* ObjectCache.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		5309C4102885B43B00BC0AAE /* ObjectCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 5309C40E2885B43B00BC0AAE /* ObjectCache.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -55,6 +57,8 @@
 		5309C4052885B14C00BC0AAE /* NSURL+CoreZen.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSURL+CoreZen.m"; sourceTree = "<group>"; };
 		5309C4082885B15400BC0AAE /* NSNumber+CoreZen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSNumber+CoreZen.h"; sourceTree = "<group>"; };
 		5309C4092885B15400BC0AAE /* NSNumber+CoreZen.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSNumber+CoreZen.m"; sourceTree = "<group>"; };
+		5309C40D2885B43B00BC0AAE /* ObjectCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ObjectCache.h; sourceTree = "<group>"; };
+		5309C40E2885B43B00BC0AAE /* ObjectCache.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ObjectCache.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -97,6 +101,7 @@
 		5309C3AB2885A1DC00BC0AAE /* CoreZen */ = {
 			isa = PBXGroup;
 			children = (
+				5309C40C2885B43000BC0AAE /* Cache */,
 				5309C4032885B11A00BC0AAE /* Categories */,
 				5309C3EE2885A6C800BC0AAE /* Identifiers */,
 				5309C3E52885A37900BC0AAE /* Preferences */,
@@ -148,6 +153,15 @@
 			path = Categories;
 			sourceTree = "<group>";
 		};
+		5309C40C2885B43000BC0AAE /* Cache */ = {
+			isa = PBXGroup;
+			children = (
+				5309C40D2885B43B00BC0AAE /* ObjectCache.h */,
+				5309C40E2885B43B00BC0AAE /* ObjectCache.m */,
+			);
+			path = Cache;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -163,6 +177,7 @@
 				5309C3F12885A74A00BC0AAE /* ObjectIdentifier.h in Headers */,
 				5309C3EC2885A43100BC0AAE /* PreferenceViewController.h in Headers */,
 				5309C3E82885A39C00BC0AAE /* PreferencesWindowController.h in Headers */,
+				5309C40F2885B43B00BC0AAE /* ObjectCache.h in Headers */,
 				5309C3BA2885A1DC00BC0AAE /* CoreZen.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -268,6 +283,7 @@
 				5309C3AE2885A1DC00BC0AAE /* CoreZen.docc in Sources */,
 				5309C3F22885A74A00BC0AAE /* ObjectIdentifier.m in Sources */,
 				5309C4072885B14C00BC0AAE /* NSURL+CoreZen.m in Sources */,
+				5309C4102885B43B00BC0AAE /* ObjectCache.m in Sources */,
 				5309C40B2885B15400BC0AAE /* NSNumber+CoreZen.m in Sources */,
 				5309C4022885B11400BC0AAE /* NSFileManager+CoreZen.m in Sources */,
 			);

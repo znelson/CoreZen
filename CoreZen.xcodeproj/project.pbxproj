@@ -18,6 +18,12 @@
 		5309C3F22885A74A00BC0AAE /* ObjectIdentifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 5309C3F02885A74A00BC0AAE /* ObjectIdentifier.m */; };
 		5309C3F52885A84400BC0AAE /* Identifier.h in Headers */ = {isa = PBXBuildFile; fileRef = 5309C3F32885A84400BC0AAE /* Identifier.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5309C3F92885A86000BC0AAE /* Identifiable.h in Headers */ = {isa = PBXBuildFile; fileRef = 5309C3F72885A86000BC0AAE /* Identifiable.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		5309C4012885B11400BC0AAE /* NSFileManager+CoreZen.h in Headers */ = {isa = PBXBuildFile; fileRef = 5309C3FF2885B11400BC0AAE /* NSFileManager+CoreZen.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		5309C4022885B11400BC0AAE /* NSFileManager+CoreZen.m in Sources */ = {isa = PBXBuildFile; fileRef = 5309C4002885B11400BC0AAE /* NSFileManager+CoreZen.m */; };
+		5309C4062885B14C00BC0AAE /* NSURL+CoreZen.h in Headers */ = {isa = PBXBuildFile; fileRef = 5309C4042885B14C00BC0AAE /* NSURL+CoreZen.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		5309C4072885B14C00BC0AAE /* NSURL+CoreZen.m in Sources */ = {isa = PBXBuildFile; fileRef = 5309C4052885B14C00BC0AAE /* NSURL+CoreZen.m */; };
+		5309C40A2885B15400BC0AAE /* NSNumber+CoreZen.h in Headers */ = {isa = PBXBuildFile; fileRef = 5309C4082885B15400BC0AAE /* NSNumber+CoreZen.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		5309C40B2885B15400BC0AAE /* NSNumber+CoreZen.m in Sources */ = {isa = PBXBuildFile; fileRef = 5309C4092885B15400BC0AAE /* NSNumber+CoreZen.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -43,6 +49,12 @@
 		5309C3F02885A74A00BC0AAE /* ObjectIdentifier.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ObjectIdentifier.m; sourceTree = "<group>"; };
 		5309C3F32885A84400BC0AAE /* Identifier.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Identifier.h; sourceTree = "<group>"; };
 		5309C3F72885A86000BC0AAE /* Identifiable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Identifiable.h; sourceTree = "<group>"; };
+		5309C3FF2885B11400BC0AAE /* NSFileManager+CoreZen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSFileManager+CoreZen.h"; sourceTree = "<group>"; };
+		5309C4002885B11400BC0AAE /* NSFileManager+CoreZen.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSFileManager+CoreZen.m"; sourceTree = "<group>"; };
+		5309C4042885B14C00BC0AAE /* NSURL+CoreZen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSURL+CoreZen.h"; sourceTree = "<group>"; };
+		5309C4052885B14C00BC0AAE /* NSURL+CoreZen.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSURL+CoreZen.m"; sourceTree = "<group>"; };
+		5309C4082885B15400BC0AAE /* NSNumber+CoreZen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSNumber+CoreZen.h"; sourceTree = "<group>"; };
+		5309C4092885B15400BC0AAE /* NSNumber+CoreZen.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSNumber+CoreZen.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -85,6 +97,7 @@
 		5309C3AB2885A1DC00BC0AAE /* CoreZen */ = {
 			isa = PBXGroup;
 			children = (
+				5309C4032885B11A00BC0AAE /* Categories */,
 				5309C3EE2885A6C800BC0AAE /* Identifiers */,
 				5309C3E52885A37900BC0AAE /* Preferences */,
 				5309C3AC2885A1DC00BC0AAE /* CoreZen.h */,
@@ -122,6 +135,17 @@
 			path = Identifiers;
 			sourceTree = "<group>";
 		};
+		5309C4032885B11A00BC0AAE /* Categories */ = {
+			isa = PBXGroup;
+			children = (
+				5309C3FF2885B11400BC0AAE /* NSFileManager+CoreZen.h */,
+				5309C4002885B11400BC0AAE /* NSFileManager+CoreZen.m */,
+				5309C4042885B14C00BC0AAE /* NSURL+CoreZen.h */,
+				5309C4052885B14C00BC0AAE /* NSURL+CoreZen.m */,
+				5309C4082885B15400BC0AAE /* NSNumber+CoreZen.h */,
+				5309C4092885B15400BC0AAE /* NSNumber+CoreZen.m */,
+			);
+			path = Categories;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -131,6 +155,9 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5309C40A2885B15400BC0AAE /* NSNumber+CoreZen.h in Headers */,
+				5309C4012885B11400BC0AAE /* NSFileManager+CoreZen.h in Headers */,
+				5309C4062885B14C00BC0AAE /* NSURL+CoreZen.h in Headers */,
 				5309C3F52885A84400BC0AAE /* Identifier.h in Headers */,
 				5309C3F92885A86000BC0AAE /* Identifiable.h in Headers */,
 				5309C3F12885A74A00BC0AAE /* ObjectIdentifier.h in Headers */,
@@ -240,6 +267,9 @@
 				5309C3E92885A39C00BC0AAE /* PreferencesWindowController.m in Sources */,
 				5309C3AE2885A1DC00BC0AAE /* CoreZen.docc in Sources */,
 				5309C3F22885A74A00BC0AAE /* ObjectIdentifier.m in Sources */,
+				5309C4072885B14C00BC0AAE /* NSURL+CoreZen.m in Sources */,
+				5309C40B2885B15400BC0AAE /* NSNumber+CoreZen.m in Sources */,
+				5309C4022885B11400BC0AAE /* NSFileManager+CoreZen.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

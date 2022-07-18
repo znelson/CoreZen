@@ -26,6 +26,16 @@
 		5309C40B2885B15400BC0AAE /* NSNumber+CoreZen.m in Sources */ = {isa = PBXBuildFile; fileRef = 5309C4092885B15400BC0AAE /* NSNumber+CoreZen.m */; };
 		5309C40F2885B43B00BC0AAE /* ObjectCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 5309C40D2885B43B00BC0AAE /* ObjectCache.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5309C4102885B43B00BC0AAE /* ObjectCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 5309C40E2885B43B00BC0AAE /* ObjectCache.m */; };
+		5309C4142885C86500BC0AAE /* DatabaseQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 5309C4122885C86500BC0AAE /* DatabaseQueue.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		5309C4152885C86500BC0AAE /* DatabaseQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 5309C4132885C86500BC0AAE /* DatabaseQueue.m */; };
+		5309C4182885C9A800BC0AAE /* FMDB.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5309C4172885C9A800BC0AAE /* FMDB.framework */; };
+		5309C41D2885CAC300BC0AAE /* DatabaseStatement.h in Headers */ = {isa = PBXBuildFile; fileRef = 5309C41B2885CAC300BC0AAE /* DatabaseStatement.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		5309C41E2885CAC300BC0AAE /* DatabaseStatement.m in Sources */ = {isa = PBXBuildFile; fileRef = 5309C41C2885CAC300BC0AAE /* DatabaseStatement.m */; };
+		5309C4212885CB1400BC0AAE /* DataTransferObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 5309C41F2885CB1400BC0AAE /* DataTransferObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		5309C4222885CB1400BC0AAE /* DataTransferObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 5309C4202885CB1400BC0AAE /* DataTransferObject.m */; };
+		5309C4252885CDA500BC0AAE /* DatabaseSchema.h in Headers */ = {isa = PBXBuildFile; fileRef = 5309C4232885CDA500BC0AAE /* DatabaseSchema.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		5309C4262885CDA500BC0AAE /* DatabaseSchema.m in Sources */ = {isa = PBXBuildFile; fileRef = 5309C4242885CDA500BC0AAE /* DatabaseSchema.m */; };
+		5309C4292885D19400BC0AAE /* DatabaseTable.h in Headers */ = {isa = PBXBuildFile; fileRef = 5309C4272885D19400BC0AAE /* DatabaseTable.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -59,6 +69,16 @@
 		5309C4092885B15400BC0AAE /* NSNumber+CoreZen.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSNumber+CoreZen.m"; sourceTree = "<group>"; };
 		5309C40D2885B43B00BC0AAE /* ObjectCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ObjectCache.h; sourceTree = "<group>"; };
 		5309C40E2885B43B00BC0AAE /* ObjectCache.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ObjectCache.m; sourceTree = "<group>"; };
+		5309C4122885C86500BC0AAE /* DatabaseQueue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DatabaseQueue.h; sourceTree = "<group>"; };
+		5309C4132885C86500BC0AAE /* DatabaseQueue.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DatabaseQueue.m; sourceTree = "<group>"; };
+		5309C4172885C9A800BC0AAE /* FMDB.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FMDB.framework; path = Carthage/Build/Mac/FMDB.framework; sourceTree = "<group>"; };
+		5309C41B2885CAC300BC0AAE /* DatabaseStatement.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DatabaseStatement.h; sourceTree = "<group>"; };
+		5309C41C2885CAC300BC0AAE /* DatabaseStatement.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DatabaseStatement.m; sourceTree = "<group>"; };
+		5309C41F2885CB1400BC0AAE /* DataTransferObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DataTransferObject.h; sourceTree = "<group>"; };
+		5309C4202885CB1400BC0AAE /* DataTransferObject.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DataTransferObject.m; sourceTree = "<group>"; };
+		5309C4232885CDA500BC0AAE /* DatabaseSchema.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DatabaseSchema.h; sourceTree = "<group>"; };
+		5309C4242885CDA500BC0AAE /* DatabaseSchema.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DatabaseSchema.m; sourceTree = "<group>"; };
+		5309C4272885D19400BC0AAE /* DatabaseTable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DatabaseTable.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -168,6 +188,15 @@
 		5309C4112885B66000BC0AAE /* Database */ = {
 			isa = PBXGroup;
 			children = (
+				5309C4122885C86500BC0AAE /* DatabaseQueue.h */,
+				5309C4132885C86500BC0AAE /* DatabaseQueue.m */,
+				5309C4232885CDA500BC0AAE /* DatabaseSchema.h */,
+				5309C4242885CDA500BC0AAE /* DatabaseSchema.m */,
+				5309C41B2885CAC300BC0AAE /* DatabaseStatement.h */,
+				5309C41C2885CAC300BC0AAE /* DatabaseStatement.m */,
+				5309C4272885D19400BC0AAE /* DatabaseTable.h */,
+				5309C41F2885CB1400BC0AAE /* DataTransferObject.h */,
+				5309C4202885CB1400BC0AAE /* DataTransferObject.m */,
 			);
 			path = Database;
 			sourceTree = "<group>";
@@ -194,8 +223,13 @@
 				5309C3F92885A86000BC0AAE /* Identifiable.h in Headers */,
 				5309C3F12885A74A00BC0AAE /* ObjectIdentifier.h in Headers */,
 				5309C3EC2885A43100BC0AAE /* PreferenceViewController.h in Headers */,
+				5309C4252885CDA500BC0AAE /* DatabaseSchema.h in Headers */,
+				5309C4292885D19400BC0AAE /* DatabaseTable.h in Headers */,
 				5309C3E82885A39C00BC0AAE /* PreferencesWindowController.h in Headers */,
+				5309C41D2885CAC300BC0AAE /* DatabaseStatement.h in Headers */,
+				5309C4212885CB1400BC0AAE /* DataTransferObject.h in Headers */,
 				5309C40F2885B43B00BC0AAE /* ObjectCache.h in Headers */,
+				5309C4142885C86500BC0AAE /* DatabaseQueue.h in Headers */,
 				5309C3BA2885A1DC00BC0AAE /* CoreZen.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -298,9 +332,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				5309C3E92885A39C00BC0AAE /* PreferencesWindowController.m in Sources */,
+				5309C4222885CB1400BC0AAE /* DataTransferObject.m in Sources */,
+				5309C4262885CDA500BC0AAE /* DatabaseSchema.m in Sources */,
+				5309C41E2885CAC300BC0AAE /* DatabaseStatement.m in Sources */,
 				5309C3AE2885A1DC00BC0AAE /* CoreZen.docc in Sources */,
 				5309C3F22885A74A00BC0AAE /* ObjectIdentifier.m in Sources */,
 				5309C4072885B14C00BC0AAE /* NSURL+CoreZen.m in Sources */,
+				5309C4152885C86500BC0AAE /* DatabaseQueue.m in Sources */,
 				5309C4102885B43B00BC0AAE /* ObjectCache.m in Sources */,
 				5309C40B2885B15400BC0AAE /* NSNumber+CoreZen.m in Sources */,
 				5309C4022885B11400BC0AAE /* NSFileManager+CoreZen.m in Sources */,

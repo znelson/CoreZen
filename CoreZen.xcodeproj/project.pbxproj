@@ -28,12 +28,15 @@
 		5309C4102885B43B00BC0AAE /* ObjectCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 5309C40E2885B43B00BC0AAE /* ObjectCache.m */; };
 		5309C4142885C86500BC0AAE /* DatabaseQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 5309C4122885C86500BC0AAE /* DatabaseQueue.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5309C4152885C86500BC0AAE /* DatabaseQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 5309C4132885C86500BC0AAE /* DatabaseQueue.m */; };
-		5309C4182885C9A800BC0AAE /* FMDB.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5309C4172885C9A800BC0AAE /* FMDB.framework */; };
 		5309C4212885CB1400BC0AAE /* DataTransferObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 5309C41F2885CB1400BC0AAE /* DataTransferObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5309C4222885CB1400BC0AAE /* DataTransferObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 5309C4202885CB1400BC0AAE /* DataTransferObject.m */; };
 		5309C4252885CDA500BC0AAE /* DatabaseSchema.h in Headers */ = {isa = PBXBuildFile; fileRef = 5309C4232885CDA500BC0AAE /* DatabaseSchema.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5309C4262885CDA500BC0AAE /* DatabaseSchema.m in Sources */ = {isa = PBXBuildFile; fileRef = 5309C4242885CDA500BC0AAE /* DatabaseSchema.m */; };
 		5309C4292885D19400BC0AAE /* DatabaseTable.h in Headers */ = {isa = PBXBuildFile; fileRef = 5309C4272885D19400BC0AAE /* DatabaseTable.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		5350F8A42886020500F8CA68 /* DatabaseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5350F8A32886020500F8CA68 /* DatabaseTests.m */; };
+		5350F8B42886074F00F8CA68 /* ObjectCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5350F8B32886074F00F8CA68 /* ObjectCacheTests.m */; };
+		5350F8B72886080500F8CA68 /* CategoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5350F8B62886080500F8CA68 /* CategoryTests.m */; };
+		538499112885FF21004ED6A1 /* FMDB.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 538499102885FF21004ED6A1 /* FMDB.framework */; };
 		538E05032885DCED00CE9DE7 /* DomainObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 538E05012885DCED00CE9DE7 /* DomainObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		538E05042885DCED00CE9DE7 /* DomainObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 538E05022885DCED00CE9DE7 /* DomainObject.m */; };
 		538E05072885DD1D00CE9DE7 /* DomainCallbacks.h in Headers */ = {isa = PBXBuildFile; fileRef = 538E05052885DD1D00CE9DE7 /* DomainCallbacks.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -41,6 +44,7 @@
 		538E050C2885E53700CE9DE7 /* DomainCommon.m in Sources */ = {isa = PBXBuildFile; fileRef = 538E050A2885E53700CE9DE7 /* DomainCommon.m */; };
 		538E05132885ED2200CE9DE7 /* ObjectRepository.h in Headers */ = {isa = PBXBuildFile; fileRef = 538E05112885ED2200CE9DE7 /* ObjectRepository.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		538E05142885ED2200CE9DE7 /* ObjectRepository.m in Sources */ = {isa = PBXBuildFile; fileRef = 538E05122885ED2200CE9DE7 /* ObjectRepository.m */; };
+		538E052E2885FB5400CE9DE7 /* TestIdentifiable.m in Sources */ = {isa = PBXBuildFile; fileRef = 538E052D2885FB5400CE9DE7 /* TestIdentifiable.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -76,12 +80,15 @@
 		5309C40E2885B43B00BC0AAE /* ObjectCache.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ObjectCache.m; sourceTree = "<group>"; };
 		5309C4122885C86500BC0AAE /* DatabaseQueue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DatabaseQueue.h; sourceTree = "<group>"; };
 		5309C4132885C86500BC0AAE /* DatabaseQueue.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DatabaseQueue.m; sourceTree = "<group>"; };
-		5309C4172885C9A800BC0AAE /* FMDB.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FMDB.framework; path = Carthage/Build/Mac/FMDB.framework; sourceTree = "<group>"; };
 		5309C41F2885CB1400BC0AAE /* DataTransferObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DataTransferObject.h; sourceTree = "<group>"; };
 		5309C4202885CB1400BC0AAE /* DataTransferObject.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DataTransferObject.m; sourceTree = "<group>"; };
 		5309C4232885CDA500BC0AAE /* DatabaseSchema.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DatabaseSchema.h; sourceTree = "<group>"; };
 		5309C4242885CDA500BC0AAE /* DatabaseSchema.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DatabaseSchema.m; sourceTree = "<group>"; };
 		5309C4272885D19400BC0AAE /* DatabaseTable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DatabaseTable.h; sourceTree = "<group>"; };
+		5350F8A32886020500F8CA68 /* DatabaseTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DatabaseTests.m; sourceTree = "<group>"; };
+		5350F8B32886074F00F8CA68 /* ObjectCacheTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ObjectCacheTests.m; sourceTree = "<group>"; };
+		5350F8B62886080500F8CA68 /* CategoryTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CategoryTests.m; sourceTree = "<group>"; };
+		538499102885FF21004ED6A1 /* FMDB.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FMDB.framework; path = Carthage/Build/Mac/FMDB.framework; sourceTree = "<group>"; };
 		538E05012885DCED00CE9DE7 /* DomainObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DomainObject.h; sourceTree = "<group>"; };
 		538E05022885DCED00CE9DE7 /* DomainObject.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DomainObject.m; sourceTree = "<group>"; };
 		538E05052885DD1D00CE9DE7 /* DomainCallbacks.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DomainCallbacks.h; sourceTree = "<group>"; };
@@ -89,6 +96,8 @@
 		538E050A2885E53700CE9DE7 /* DomainCommon.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DomainCommon.m; sourceTree = "<group>"; };
 		538E05112885ED2200CE9DE7 /* ObjectRepository.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ObjectRepository.h; sourceTree = "<group>"; };
 		538E05122885ED2200CE9DE7 /* ObjectRepository.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ObjectRepository.m; sourceTree = "<group>"; };
+		538E052C2885FB5400CE9DE7 /* TestIdentifiable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestIdentifiable.h; sourceTree = "<group>"; };
+		538E052D2885FB5400CE9DE7 /* TestIdentifiable.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestIdentifiable.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -96,7 +105,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5309C4182885C9A800BC0AAE /* FMDB.framework in Frameworks */,
+				538499112885FF21004ED6A1 /* FMDB.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -148,7 +157,11 @@
 		5309C3B72885A1DC00BC0AAE /* CoreZenTests */ = {
 			isa = PBXGroup;
 			children = (
+				5350F8B52886079F00F8CA68 /* Classes */,
 				5309C3B82885A1DC00BC0AAE /* CoreZenTests.m */,
+				5350F8A32886020500F8CA68 /* DatabaseTests.m */,
+				5350F8B32886074F00F8CA68 /* ObjectCacheTests.m */,
+				5350F8B62886080500F8CA68 /* CategoryTests.m */,
 			);
 			path = CoreZenTests;
 			sourceTree = "<group>";
@@ -213,9 +226,18 @@
 		5309C4162885C9A800BC0AAE /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				5309C4172885C9A800BC0AAE /* FMDB.framework */,
+				538499102885FF21004ED6A1 /* FMDB.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		5350F8B52886079F00F8CA68 /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+				538E052C2885FB5400CE9DE7 /* TestIdentifiable.h */,
+				538E052D2885FB5400CE9DE7 /* TestIdentifiable.m */,
+			);
+			path = Classes;
 			sourceTree = "<group>";
 		};
 		538E05002885DCD300CE9DE7 /* Domain */ = {
@@ -286,8 +308,8 @@
 			buildConfigurationList = 5309C3C02885A1DC00BC0AAE /* Build configuration list for PBXNativeTarget "CoreZenTests" */;
 			buildPhases = (
 				5309C3AF2885A1DC00BC0AAE /* Sources */,
-				5309C3B02885A1DC00BC0AAE /* Frameworks */,
 				5309C3B12885A1DC00BC0AAE /* Resources */,
+				5309C3B02885A1DC00BC0AAE /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -378,6 +400,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				5309C3B92885A1DC00BC0AAE /* CoreZenTests.m in Sources */,
+				5350F8A42886020500F8CA68 /* DatabaseTests.m in Sources */,
+				538E052E2885FB5400CE9DE7 /* TestIdentifiable.m in Sources */,
+				5350F8B72886080500F8CA68 /* CategoryTests.m in Sources */,
+				5350F8B42886074F00F8CA68 /* ObjectCacheTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -577,6 +603,10 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 5N7Y5W34VF;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/Mac",
+				);
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.zdnelson.CoreZenTests;
@@ -591,6 +621,10 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 5N7Y5W34VF;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/Mac",
+				);
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.zdnelson.CoreZenTests;

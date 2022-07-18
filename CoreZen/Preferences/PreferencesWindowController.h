@@ -5,7 +5,7 @@
 //  Created by Zach Nelson on 7/11/22.
 //
 
-// The CZNPreferencesWindowController concept was adapted
+// The ZENPreferencesWindowController concept was adapted
 // from CCNPreferencesWindowController at:
 // https://github.com/phranck/CCNPreferencesWindowController
 //
@@ -42,9 +42,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-NS_ASSUME_NONNULL_BEGIN
-
-@interface CZNPreferencesWindowController : NSWindowController
+@interface ZENPreferencesWindowController : NSWindowController
 
 - (void)setPreferenceViewControllers:(NSArray *)viewControllers;
 
@@ -52,5 +50,3 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)dismissPreferencesWindow;
 
 @end
-
-NS_ASSUME_NONNULL_END

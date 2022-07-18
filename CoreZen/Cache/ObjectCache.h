@@ -8,15 +8,15 @@
 #import <Foundation/Foundation.h>
 
 #import <CoreZen/Identifier.h>
-@protocol CZNIdentifiable;
+@protocol ZENIdentifiable;
 
-@interface CZNObjectCache : NSObject
+@interface ZENObjectCache : NSObject
 
 + (instancetype)weakObjectCache;
 + (instancetype)strongObjectCache;
 
-- (id)cachedObject:(CZNIdentifier)identifier;
-- (void)cacheObject:(id<CZNIdentifiable>)object;
-- (void)removeObject:(CZNIdentifier)identifier;
+- (id)cachedObject:(ZENIdentifier)identifier;
+- (void)cacheObject:(id<ZENIdentifiable>)object;
+- (void)removeObject:(ZENIdentifier)identifier;
 
 @end

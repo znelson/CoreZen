@@ -9,17 +9,17 @@
 
 @interface NSURL (AlchemistCore)
 
-- (BOOL)czn_volumeName:(NSString **)outVolumeName
+- (BOOL)zen_volumeName:(NSString **)outVolumeName
 			 volumeURL:(NSURL **)outVolumeURL
 			volumeUUID:(NSUUID **)outVolumeUUID
 				 error:(NSError **)outError;
 
-+ (BOOL)czn_volumeInfoForUUID:(NSUUID *)volumeUUID
++ (BOOL)zen_volumeInfoForUUID:(NSUUID *)volumeUUID
 				   volumeName:(NSString **)outVolumeName
 					volumeURL:(NSURL **)outVolumeURL;
 
-- (NSString *)czn_relativePathToURL:(NSURL *)url;
+- (NSString *)zen_relativePathToURL:(NSURL *)url;
 
-- (NSUInteger)czn_fileSize;
+- (NSUInteger)zen_fileSize;
 
 @end

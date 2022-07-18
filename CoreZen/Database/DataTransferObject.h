@@ -8,8 +8,8 @@
 #include <CoreZen/Identifiable.h>
 #include <Foundation/Foundation.h>
 
-@interface CZNDTO : NSObject <CZNIdentifiable>
+@interface ZENDataTransferObject : NSObject <ZENIdentifiable>
 
-- (instancetype)initWithIdentifier:(CZNIdentifier)identifier;
+- (instancetype)initWithIdentifier:(ZENIdentifier)identifier;
 
 @end

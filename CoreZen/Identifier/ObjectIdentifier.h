@@ -9,6 +9,6 @@
 
 @import Foundation;
 
-void CZNSetLargestObjectIdentifier(CZNIdentifier inIdentifier);
+void ZENSetLargestObjectIdentifier(ZENIdentifier inIdentifier);
 
-CZNIdentifier CZNGetNextObjectIdentifier(void);
+ZENIdentifier ZENGetNextObjectIdentifier(void);

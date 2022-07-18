@@ -9,8 +9,8 @@
 
 @import Foundation;
 
-@protocol CZNIdentifiable
+@protocol ZENIdentifiable
 
-@property (nonatomic, readonly) CZNIdentifier identifier;
+@property (nonatomic, readonly) ZENIdentifier identifier;
 
 @end

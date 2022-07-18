@@ -9,6 +9,6 @@
 
 @interface NSNumber (AlchemistCore)
 
-+ (NSInteger)czn_randomInteger;
++ (NSInteger)zen_randomInteger;
 
 @end

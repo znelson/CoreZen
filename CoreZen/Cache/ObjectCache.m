@@ -8,7 +8,7 @@
 #import "ObjectCache.h"
 #import "Identifiable.h"
 
-@interface CZNObjectCache ()
+@interface ZENObjectCache ()
 
 @property (nonatomic, strong, readonly) NSMapTable *mapTable;
 @property (nonatomic, strong, readonly) dispatch_queue_t isolationQueue;
@@ -18,7 +18,7 @@
 
 @end
 
-@implementation CZNObjectCache
+@implementation ZENObjectCache
 
 - (instancetype)init {
 	return [self initWeakObjectCache];
@@ -28,29 +28,29 @@
 	self = [super init];
 	if (self) {
 		_mapTable = [NSMapTable strongToWeakObjectsMapTable];
-		_isolationQueue = dispatch_queue_create(@"CZNWeakObjectCache".UTF8String, DISPATCH_QUEUE_CONCURRENT);
+		_isolationQueue = dispatch_queue_create(@"ZENWeakObjectCache".UTF8String, DISPATCH_QUEUE_CONCURRENT);
 	}
 	return self;
 }
 
 + (instancetype)weakObjectCache {
-	return [[CZNObjectCache alloc] initWeakObjectCache];
+	return [[ZENObjectCache alloc] initWeakObjectCache];
 }
 
 - (instancetype)initStrongObjectCache {
 	self = [super init];
 	if (self) {
 		_mapTable = [NSMapTable strongToStrongObjectsMapTable];
-		_isolationQueue = dispatch_queue_create(@"CZNStrongObjectCache".UTF8String, DISPATCH_QUEUE_CONCURRENT);
+		_isolationQueue = dispatch_queue_create(@"ZENStrongObjectCache".UTF8String, DISPATCH_QUEUE_CONCURRENT);
 	}
 	return self;
 }
 
 + (instancetype)strongObjectCache {
-	return [[CZNObjectCache alloc] initStrongObjectCache];
+	return [[ZENObjectCache alloc] initStrongObjectCache];
 }
 
-- (id)cachedObject:(CZNIdentifier)identifier {
+- (id)cachedObject:(ZENIdentifier)identifier {
 	__block id object = nil;
 	dispatch_sync(self.isolationQueue, ^{
 		object = [self.mapTable objectForKey:@(identifier)];
@@ -61,7 +61,7 @@
 	return object;
 }
 
-- (void)cacheObject:(id<CZNIdentifiable>)object {
+- (void)cacheObject:(id<ZENIdentifiable>)object {
 	dispatch_barrier_async(self.isolationQueue, ^{
 		NSNumber *identifier = @(object.identifier);
 		id existing = [self.mapTable objectForKey:identifier];
@@ -72,7 +72,7 @@
 	});
 }
 
-- (void)removeObject:(CZNIdentifier)identifier {
+- (void)removeObject:(ZENIdentifier)identifier {
 	dispatch_barrier_async(self.isolationQueue, ^{
 		[self.mapTable removeObjectForKey:@(identifier)];
 	});

@@ -9,11 +9,11 @@
 
 @class FMDatabase;
 @class FMResultSet;
-@class CZNDTO;
+@class ZENDataTransferObject;
 
 #import <CoreZen/Identifier.h>
 
-@protocol CZNDatabaseTable
+@protocol ZENDatabaseTable
 
 #pragma mark - Metadata
 
@@ -24,26 +24,26 @@
 
 #pragma mark - Create
 
-- (BOOL)insertDTO:(CZNDTO *)dto
+- (BOOL)insertDTO:(ZENDataTransferObject *)dto
 		 database:(FMDatabase *)database;
 
 #pragma mark - Update
 
-- (BOOL)updateDTO:(CZNDTO *)dto
+- (BOOL)updateDTO:(ZENDataTransferObject *)dto
 		 database:(FMDatabase *)database;
 
 #pragma mark - Delete
 
-- (BOOL)deleteByIdentifier:(CZNIdentifier)identifier
+- (BOOL)deleteByIdentifier:(ZENIdentifier)identifier
 				  database:(FMDatabase *)database;
 
 #pragma mark - Read
 
-- (CZNDTO *)dtoFromRow:(FMResultSet *)row;
+- (ZENDataTransferObject *)dtoFromRow:(FMResultSet *)row;
 
 - (FMResultSet *)allRows:(FMDatabase *)database;
 
-- (FMResultSet *)rowByIdentifier:(CZNIdentifier)identifier
+- (FMResultSet *)rowByIdentifier:(ZENIdentifier)identifier
 						database:(FMDatabase *)database;
 
 #pragma mark - Count

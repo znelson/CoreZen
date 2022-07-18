@@ -9,7 +9,7 @@
 
 @implementation NSURL (AlchemistCore)
 
-- (BOOL)czn_volumeName:(NSString **)outVolumeName
+- (BOOL)zen_volumeName:(NSString **)outVolumeName
 			 volumeURL:(NSURL **)outVolumeURL
 			volumeUUID:(NSUUID **)outVolumeUUID
 				 error:(NSError **)outError {
@@ -23,7 +23,7 @@
 	return NO;
 }
 
-+ (BOOL)czn_volumeInfoForUUID:(NSUUID *)volumeUUID
++ (BOOL)zen_volumeInfoForUUID:(NSUUID *)volumeUUID
 				   volumeName:(NSString **)outVolumeName
 					volumeURL:(NSURL **)outVolumeURL {
 	NSArray<NSURLResourceKey> *resourceKeys =
@@ -53,7 +53,7 @@
 	return NO;
 }
 
-- (NSString *)czn_relativePathToURL:(NSURL *)url {
+- (NSString *)zen_relativePathToURL:(NSURL *)url {
 	
 	NSString *fullPath = [url absoluteString];
 	NSString *basePath = [self absoluteString];
@@ -64,7 +64,7 @@
 	return nil;
 }
 
-- (NSUInteger)czn_fileSize {
+- (NSUInteger)zen_fileSize {
 	NSError *error;
 	NSDictionary *attributes = [NSFileManager.defaultManager attributesOfItemAtPath:self.absoluteString error:&error];
 	if (attributes) {

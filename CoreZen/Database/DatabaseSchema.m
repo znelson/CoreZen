@@ -11,7 +11,7 @@
 
 @import FMDB;
 
-@interface CZNDatabaseSchema ()
+@interface ZENDatabaseSchema ()
 
 @property (nonatomic, strong) NSArray *tableClasses;
 
@@ -24,7 +24,7 @@
 
 @end
 
-@implementation CZNDatabaseSchema
+@implementation ZENDatabaseSchema
 
 - (instancetype)initWithTableClasses:(NSArray *)tableClasses {
 	self = [super init];
@@ -35,7 +35,7 @@
 }
 
 + (instancetype)schemaWithTableClasses:(NSArray *)tables {
-	return [[CZNDatabaseSchema alloc] initWithTableClasses:tables];
+	return [[ZENDatabaseSchema alloc] initWithTableClasses:tables];
 }
 
 - (void)initializeDatabase:(FMDatabase *)database {
@@ -54,7 +54,7 @@
 	static NSMutableArray *tableNames = nil;
 	if (!tableNames) {
 		tableNames = [NSMutableArray array];
-		for (Class<CZNDatabaseTable> tableClass in self.tableClasses) {
+		for (Class<ZENDatabaseTable> tableClass in self.tableClasses) {
 			[tableNames addObject:[tableClass tableName]];
 		}
 	}
@@ -73,7 +73,7 @@
 	
 	while (YES) {
 		NSUInteger updatedVersion = schemaVersion + 1;
-		for (Class<CZNDatabaseTable> tableClass in self.tableClasses) {
+		for (Class<ZENDatabaseTable> tableClass in self.tableClasses) {
 			if ([tableClass updateSchema:database version:updatedVersion]) {
 				schemaVersion = updatedVersion;
 			}
@@ -97,9 +97,9 @@
 		NSString *statement = [NSString stringWithFormat:@"SELECT identifier FROM %@ ORDER BY identifier DESC LIMIT 1;", tableName];
 		FMResultSet *rs = [database executeQuery:statement];
 		if ([rs next]) {
-			CZNIdentifier largestIdentifier = [rs longLongIntForColumnIndex:0];
+			ZENIdentifier largestIdentifier = [rs longLongIntForColumnIndex:0];
 			NSLog(@"Setting largest identifier to %lli (from %@)", largestIdentifier, tableName);
-			CZNSetLargestObjectIdentifier(largestIdentifier);
+			ZENSetLargestObjectIdentifier(largestIdentifier);
 		}
 		[rs close];
 	}

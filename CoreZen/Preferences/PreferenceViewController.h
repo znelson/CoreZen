@@ -5,7 +5,7 @@
 //  Created by Zach Nelson on 7/11/22.
 //
 
-// The CZNPreferenceViewController concept was adapted
+// The ZENPreferenceViewController concept was adapted
 // from CCNPreferencesWindowController at:
 // https://github.com/phranck/CCNPreferencesWindowController
 //
@@ -40,11 +40,9 @@
  THE SOFTWARE.
  */
 
-#import <Cocoa/Cocoa.h>
+#import <Foundation/Foundation.h>
 
-NS_ASSUME_NONNULL_BEGIN
-
-@protocol CZNPreferenceViewController
+@protocol ZENPreferenceViewController
 
 // UI display name for preference window
 - (NSString *)preferenceDisplayName;
@@ -60,5 +58,3 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSString *)preferenceToolTip;
 
 @end
-
-NS_ASSUME_NONNULL_END

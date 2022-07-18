@@ -9,7 +9,7 @@
 
 @class FMDatabase;
 
-@interface CZNDatabaseSchema : NSObject
+@interface ZENDatabaseSchema : NSObject
 
 + (instancetype)schemaWithTableClasses:(NSArray *)tables;
 

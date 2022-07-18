@@ -14,10 +14,10 @@
 // signed 64-bit integer, instead of switching to unsigned, because SQLite3 uses signed 64-bit integers.
 static atomic_int_fast64_t nextIdentifier = 1;
 
-void CZNSetLargestObjectIdentifier(CZNIdentifier identifier) {
+void ZENSetLargestObjectIdentifier(ZENIdentifier identifier) {
 	atomic_store(&nextIdentifier, identifier+1);
 }
 
-CZNIdentifier CZNGetNextObjectIdentifier(void) {
+ZENIdentifier ZENGetNextObjectIdentifier(void) {
 	return atomic_fetch_add(&nextIdentifier, 1);
 }

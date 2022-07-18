@@ -7,6 +7,6 @@
 
 #include <stdint.h>
 
-typedef int64_t CZNIdentifier;
+typedef int64_t ZENIdentifier;
 
-static const CZNIdentifier CZNInvalidIdentifier = -1;
+static const ZENIdentifier ZENInvalidIdentifier = -1;

@@ -9,20 +9,20 @@
 
 @class FMDatabase;
 
-typedef void (^CZNDatabaseBlock)(FMDatabase *database);
+typedef void (^ZENDatabaseBlock)(FMDatabase *database);
 
-@interface CZNDatabaseQueue : NSObject
+@interface ZENDatabaseQueue : NSObject
 
 + (instancetype)databaseQueueInMemory;
 + (instancetype)databaseQueueWithURL:(NSURL *)URL;
 
 - (void)shutdown;
-- (void)shutdown:(CZNDatabaseBlock)updateBlock;
+- (void)shutdown:(ZENDatabaseBlock)updateBlock;
 
-- (void)transactionAsync:(CZNDatabaseBlock)updateBlock;
-- (void)transactionSync:(CZNDatabaseBlock)updateBlock;
-- (void)fetchAsync:(CZNDatabaseBlock)fetchBlock;
-- (void)fetchSync:(CZNDatabaseBlock)fetchBlock;
+- (void)transactionAsync:(ZENDatabaseBlock)updateBlock;
+- (void)transactionSync:(ZENDatabaseBlock)updateBlock;
+- (void)fetchAsync:(ZENDatabaseBlock)fetchBlock;
+- (void)fetchSync:(ZENDatabaseBlock)fetchBlock;
 - (void)vacuumAsync;
 
 @end

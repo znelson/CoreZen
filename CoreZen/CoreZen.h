@@ -26,7 +26,6 @@ FOUNDATION_EXPORT const unsigned char CoreZenVersionString[];
 #pragma mark - Database
 #import <CoreZen/DatabaseQueue.h>
 #import <CoreZen/DatabaseSchema.h>
-#import <CoreZen/DatabaseStatement.h>
 #import <CoreZen/DatabaseTable.h>
 #import <CoreZen/DataTransferObject.h>
 

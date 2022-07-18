@@ -14,6 +14,10 @@
 		5309C3E82885A39C00BC0AAE /* PreferencesWindowController.h in Headers */ = {isa = PBXBuildFile; fileRef = 5309C3E62885A39C00BC0AAE /* PreferencesWindowController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5309C3E92885A39C00BC0AAE /* PreferencesWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5309C3E72885A39C00BC0AAE /* PreferencesWindowController.m */; };
 		5309C3EC2885A43100BC0AAE /* PreferenceViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 5309C3EA2885A43100BC0AAE /* PreferenceViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		5309C3F12885A74A00BC0AAE /* ObjectIdentifier.h in Headers */ = {isa = PBXBuildFile; fileRef = 5309C3EF2885A74A00BC0AAE /* ObjectIdentifier.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		5309C3F22885A74A00BC0AAE /* ObjectIdentifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 5309C3F02885A74A00BC0AAE /* ObjectIdentifier.m */; };
+		5309C3F52885A84400BC0AAE /* Identifier.h in Headers */ = {isa = PBXBuildFile; fileRef = 5309C3F32885A84400BC0AAE /* Identifier.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		5309C3F92885A86000BC0AAE /* Identifiable.h in Headers */ = {isa = PBXBuildFile; fileRef = 5309C3F72885A86000BC0AAE /* Identifiable.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -35,6 +39,10 @@
 		5309C3E62885A39C00BC0AAE /* PreferencesWindowController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PreferencesWindowController.h; sourceTree = "<group>"; };
 		5309C3E72885A39C00BC0AAE /* PreferencesWindowController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PreferencesWindowController.m; sourceTree = "<group>"; };
 		5309C3EA2885A43100BC0AAE /* PreferenceViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PreferenceViewController.h; sourceTree = "<group>"; };
+		5309C3EF2885A74A00BC0AAE /* ObjectIdentifier.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ObjectIdentifier.h; sourceTree = "<group>"; };
+		5309C3F02885A74A00BC0AAE /* ObjectIdentifier.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ObjectIdentifier.m; sourceTree = "<group>"; };
+		5309C3F32885A84400BC0AAE /* Identifier.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Identifier.h; sourceTree = "<group>"; };
+		5309C3F72885A86000BC0AAE /* Identifiable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Identifiable.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -77,6 +85,7 @@
 		5309C3AB2885A1DC00BC0AAE /* CoreZen */ = {
 			isa = PBXGroup;
 			children = (
+				5309C3EE2885A6C800BC0AAE /* Identifier */,
 				5309C3E52885A37900BC0AAE /* Preferences */,
 				5309C3AC2885A1DC00BC0AAE /* CoreZen.h */,
 				5309C3AD2885A1DC00BC0AAE /* CoreZen.docc */,
@@ -102,6 +111,17 @@
 			path = Preferences;
 			sourceTree = "<group>";
 		};
+		5309C3EE2885A6C800BC0AAE /* Identifier */ = {
+			isa = PBXGroup;
+			children = (
+				5309C3F32885A84400BC0AAE /* Identifier.h */,
+				5309C3F72885A86000BC0AAE /* Identifiable.h */,
+				5309C3EF2885A74A00BC0AAE /* ObjectIdentifier.h */,
+				5309C3F02885A74A00BC0AAE /* ObjectIdentifier.m */,
+			);
+			path = Identifier;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -109,8 +129,11 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5309C3E82885A39C00BC0AAE /* PreferencesWindowController.h in Headers */,
+				5309C3F52885A84400BC0AAE /* Identifier.h in Headers */,
+				5309C3F92885A86000BC0AAE /* Identifiable.h in Headers */,
+				5309C3F12885A74A00BC0AAE /* ObjectIdentifier.h in Headers */,
 				5309C3EC2885A43100BC0AAE /* PreferenceViewController.h in Headers */,
+				5309C3E82885A39C00BC0AAE /* PreferencesWindowController.h in Headers */,
 				5309C3BA2885A1DC00BC0AAE /* CoreZen.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -214,6 +237,7 @@
 			files = (
 				5309C3E92885A39C00BC0AAE /* PreferencesWindowController.m in Sources */,
 				5309C3AE2885A1DC00BC0AAE /* CoreZen.docc in Sources */,
+				5309C3F22885A74A00BC0AAE /* ObjectIdentifier.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -370,6 +394,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 12.3;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.zdnelson.CoreZen;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
@@ -397,6 +422,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 12.3;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.zdnelson.CoreZen;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";

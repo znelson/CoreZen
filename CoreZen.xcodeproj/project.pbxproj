@@ -34,6 +34,13 @@
 		5309C4252885CDA500BC0AAE /* DatabaseSchema.h in Headers */ = {isa = PBXBuildFile; fileRef = 5309C4232885CDA500BC0AAE /* DatabaseSchema.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5309C4262885CDA500BC0AAE /* DatabaseSchema.m in Sources */ = {isa = PBXBuildFile; fileRef = 5309C4242885CDA500BC0AAE /* DatabaseSchema.m */; };
 		5309C4292885D19400BC0AAE /* DatabaseTable.h in Headers */ = {isa = PBXBuildFile; fileRef = 5309C4272885D19400BC0AAE /* DatabaseTable.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		538E05032885DCED00CE9DE7 /* DomainObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 538E05012885DCED00CE9DE7 /* DomainObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		538E05042885DCED00CE9DE7 /* DomainObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 538E05022885DCED00CE9DE7 /* DomainObject.m */; };
+		538E05072885DD1D00CE9DE7 /* DomainCallbacks.h in Headers */ = {isa = PBXBuildFile; fileRef = 538E05052885DD1D00CE9DE7 /* DomainCallbacks.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		538E050B2885E53700CE9DE7 /* DomainCommon.h in Headers */ = {isa = PBXBuildFile; fileRef = 538E05092885E53700CE9DE7 /* DomainCommon.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		538E050C2885E53700CE9DE7 /* DomainCommon.m in Sources */ = {isa = PBXBuildFile; fileRef = 538E050A2885E53700CE9DE7 /* DomainCommon.m */; };
+		538E05132885ED2200CE9DE7 /* ObjectRepository.h in Headers */ = {isa = PBXBuildFile; fileRef = 538E05112885ED2200CE9DE7 /* ObjectRepository.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		538E05142885ED2200CE9DE7 /* ObjectRepository.m in Sources */ = {isa = PBXBuildFile; fileRef = 538E05122885ED2200CE9DE7 /* ObjectRepository.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -75,6 +82,13 @@
 		5309C4232885CDA500BC0AAE /* DatabaseSchema.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DatabaseSchema.h; sourceTree = "<group>"; };
 		5309C4242885CDA500BC0AAE /* DatabaseSchema.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DatabaseSchema.m; sourceTree = "<group>"; };
 		5309C4272885D19400BC0AAE /* DatabaseTable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DatabaseTable.h; sourceTree = "<group>"; };
+		538E05012885DCED00CE9DE7 /* DomainObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DomainObject.h; sourceTree = "<group>"; };
+		538E05022885DCED00CE9DE7 /* DomainObject.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DomainObject.m; sourceTree = "<group>"; };
+		538E05052885DD1D00CE9DE7 /* DomainCallbacks.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DomainCallbacks.h; sourceTree = "<group>"; };
+		538E05092885E53700CE9DE7 /* DomainCommon.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DomainCommon.h; sourceTree = "<group>"; };
+		538E050A2885E53700CE9DE7 /* DomainCommon.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DomainCommon.m; sourceTree = "<group>"; };
+		538E05112885ED2200CE9DE7 /* ObjectRepository.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ObjectRepository.h; sourceTree = "<group>"; };
+		538E05122885ED2200CE9DE7 /* ObjectRepository.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ObjectRepository.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -122,6 +136,7 @@
 				5309C40C2885B43000BC0AAE /* Cache */,
 				5309C4032885B11A00BC0AAE /* Categories */,
 				5309C4112885B66000BC0AAE /* Database */,
+				538E05002885DCD300CE9DE7 /* Domain */,
 				5309C3EE2885A6C800BC0AAE /* Identifier */,
 				5309C3E52885A37900BC0AAE /* Preferences */,
 				5309C3AC2885A1DC00BC0AAE /* CoreZen.h */,
@@ -203,6 +218,20 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		538E05002885DCD300CE9DE7 /* Domain */ = {
+			isa = PBXGroup;
+			children = (
+				538E05012885DCED00CE9DE7 /* DomainObject.h */,
+				538E05022885DCED00CE9DE7 /* DomainObject.m */,
+				538E05052885DD1D00CE9DE7 /* DomainCallbacks.h */,
+				538E05092885E53700CE9DE7 /* DomainCommon.h */,
+				538E050A2885E53700CE9DE7 /* DomainCommon.m */,
+				538E05112885ED2200CE9DE7 /* ObjectRepository.h */,
+				538E05122885ED2200CE9DE7 /* ObjectRepository.m */,
+			);
+			path = Domain;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -220,8 +249,12 @@
 				5309C4252885CDA500BC0AAE /* DatabaseSchema.h in Headers */,
 				5309C4292885D19400BC0AAE /* DatabaseTable.h in Headers */,
 				5309C3E82885A39C00BC0AAE /* PreferencesWindowController.h in Headers */,
+				538E05072885DD1D00CE9DE7 /* DomainCallbacks.h in Headers */,
+				538E050B2885E53700CE9DE7 /* DomainCommon.h in Headers */,
+				538E05032885DCED00CE9DE7 /* DomainObject.h in Headers */,
 				5309C4212885CB1400BC0AAE /* DataTransferObject.h in Headers */,
 				5309C40F2885B43B00BC0AAE /* ObjectCache.h in Headers */,
+				538E05132885ED2200CE9DE7 /* ObjectRepository.h in Headers */,
 				5309C4142885C86500BC0AAE /* DatabaseQueue.h in Headers */,
 				5309C3BA2885A1DC00BC0AAE /* CoreZen.h in Headers */,
 			);
@@ -328,11 +361,14 @@
 				5309C4222885CB1400BC0AAE /* DataTransferObject.m in Sources */,
 				5309C4262885CDA500BC0AAE /* DatabaseSchema.m in Sources */,
 				5309C3AE2885A1DC00BC0AAE /* CoreZen.docc in Sources */,
+				538E05142885ED2200CE9DE7 /* ObjectRepository.m in Sources */,
 				5309C3F22885A74A00BC0AAE /* ObjectIdentifier.m in Sources */,
 				5309C4072885B14C00BC0AAE /* NSURL+CoreZen.m in Sources */,
+				538E05042885DCED00CE9DE7 /* DomainObject.m in Sources */,
 				5309C4152885C86500BC0AAE /* DatabaseQueue.m in Sources */,
 				5309C4102885B43B00BC0AAE /* ObjectCache.m in Sources */,
 				5309C40B2885B15400BC0AAE /* NSNumber+CoreZen.m in Sources */,
+				538E050C2885E53700CE9DE7 /* DomainCommon.m in Sources */,
 				5309C4022885B11400BC0AAE /* NSFileManager+CoreZen.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -40,6 +40,9 @@ FOUNDATION_EXPORT const unsigned char CoreZenVersionString[];
 #import <CoreZen/Identifiable.h>
 #import <CoreZen/ObjectIdentifier.h>
 
+#pragma mark - Media
+#import <CoreZen/MediaFile.h>
+
 #pragma mark - Preferences
 #import <CoreZen/PreferencesWindowController.h>
 #import <CoreZen/PreferenceViewController.h>

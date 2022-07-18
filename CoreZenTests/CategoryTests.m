@@ -33,7 +33,7 @@
 	if (anotherRelativePath) {
 		XCTAssert([relativePath isEqualToString:anotherRelativePath], @"Relative paths should match, %@ != %@", relativePath, anotherRelativePath);
 	} else {
-		XCTFail(@"ALKGetRelativePath failed, %@ vs %@", urlOne, urlTwo);
+		XCTFail(@"NSURL zen_relativePathToURL: failed, %@ vs %@", urlOne, urlTwo);
 	}
 }
 
@@ -52,10 +52,10 @@
 			XCTAssert([volumeName isEqual:anotherVolumeName], @"Volume names should match, %@ != %@", volumeName, anotherVolumeName);
 			XCTAssert([volumeURL isEqual:anotherVolumeURL]);
 		} else {
-			XCTFail(@"ALKFindVolumeInfoForUUID failed, UUID: %@", volumeUUID);
+			XCTFail(@"NSURL zen_volumeInfoForUUID:volumeName:volumeURL: failed, UUID: %@", volumeUUID);
 		}
 	} else {
-		XCTFail(@"ALKGetVolumeInfoForURL failed, URL: %@, error: %@", url, error);
+		XCTFail(@"NSURL zen_volumeName:volumeURL:volumeUUID:error: failed, URL: %@, error: %@", url, error);
 	}
 }
 

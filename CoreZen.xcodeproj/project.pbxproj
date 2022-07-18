@@ -11,6 +11,9 @@
 		5309C3B42885A1DC00BC0AAE /* CoreZen.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5309C3A92885A1DC00BC0AAE /* CoreZen.framework */; };
 		5309C3B92885A1DC00BC0AAE /* CoreZenTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5309C3B82885A1DC00BC0AAE /* CoreZenTests.m */; };
 		5309C3BA2885A1DC00BC0AAE /* CoreZen.h in Headers */ = {isa = PBXBuildFile; fileRef = 5309C3AC2885A1DC00BC0AAE /* CoreZen.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		5309C3E82885A39C00BC0AAE /* PreferencesWindowController.h in Headers */ = {isa = PBXBuildFile; fileRef = 5309C3E62885A39C00BC0AAE /* PreferencesWindowController.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		5309C3E92885A39C00BC0AAE /* PreferencesWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5309C3E72885A39C00BC0AAE /* PreferencesWindowController.m */; };
+		5309C3EC2885A43100BC0AAE /* PreferenceViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 5309C3EA2885A43100BC0AAE /* PreferenceViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -29,6 +32,9 @@
 		5309C3AD2885A1DC00BC0AAE /* CoreZen.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = CoreZen.docc; sourceTree = "<group>"; };
 		5309C3B32885A1DC00BC0AAE /* CoreZenTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CoreZenTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5309C3B82885A1DC00BC0AAE /* CoreZenTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CoreZenTests.m; sourceTree = "<group>"; };
+		5309C3E62885A39C00BC0AAE /* PreferencesWindowController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PreferencesWindowController.h; sourceTree = "<group>"; };
+		5309C3E72885A39C00BC0AAE /* PreferencesWindowController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PreferencesWindowController.m; sourceTree = "<group>"; };
+		5309C3EA2885A43100BC0AAE /* PreferenceViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PreferenceViewController.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,6 +77,7 @@
 		5309C3AB2885A1DC00BC0AAE /* CoreZen */ = {
 			isa = PBXGroup;
 			children = (
+				5309C3E52885A37900BC0AAE /* Preferences */,
 				5309C3AC2885A1DC00BC0AAE /* CoreZen.h */,
 				5309C3AD2885A1DC00BC0AAE /* CoreZen.docc */,
 			);
@@ -85,6 +92,16 @@
 			path = CoreZenTests;
 			sourceTree = "<group>";
 		};
+		5309C3E52885A37900BC0AAE /* Preferences */ = {
+			isa = PBXGroup;
+			children = (
+				5309C3E62885A39C00BC0AAE /* PreferencesWindowController.h */,
+				5309C3E72885A39C00BC0AAE /* PreferencesWindowController.m */,
+				5309C3EA2885A43100BC0AAE /* PreferenceViewController.h */,
+			);
+			path = Preferences;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -92,6 +109,8 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5309C3E82885A39C00BC0AAE /* PreferencesWindowController.h in Headers */,
+				5309C3EC2885A43100BC0AAE /* PreferenceViewController.h in Headers */,
 				5309C3BA2885A1DC00BC0AAE /* CoreZen.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -193,6 +212,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5309C3E92885A39C00BC0AAE /* PreferencesWindowController.m in Sources */,
 				5309C3AE2885A1DC00BC0AAE /* CoreZen.docc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

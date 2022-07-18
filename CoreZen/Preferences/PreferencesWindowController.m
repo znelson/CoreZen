@@ -5,7 +5,7 @@
 //  Created by Zach Nelson on 7/11/22.
 //
 
-// The CZNPreferencesWindowController concept was adapted
+// The ZENPreferencesWindowController concept was adapted
 // from CCNPreferencesWindowController at:
 // https://github.com/phranck/CCNPreferencesWindowController
 //
@@ -45,20 +45,20 @@
 
 #import <QuartzCore/QuartzCore.h>
 
-#pragma mark - CZNPreferencesWindow
+#pragma mark - ZENPreferencesWindow
 
-@interface CZNPreferencesWindow : NSWindow
+@interface ZENPreferencesWindow : NSWindow
 @end
 
-@implementation CZNPreferencesWindow
+@implementation ZENPreferencesWindow
 
 - (instancetype)init {
 	NSWindowStyleMask windowStyle = NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskUnifiedTitleAndToolbar;
 	self = [super initWithContentRect:NSMakeRect(0, 0, 420, 240) styleMask:windowStyle backing:NSBackingStoreBuffered defer:YES];
 	if (self) {
 		[self center];
-		self.frameAutosaveName = @"CZNPreferencesWindow";
-		[self setFrameFromString:@"CZNPreferencesWindow"];
+		self.frameAutosaveName = @"ZENPreferencesWindow";
+		[self setFrameFromString:@"ZENPreferencesWindow"];
 	}
 	return self;
 }
@@ -74,20 +74,20 @@
 
 @end
 
-#pragma mark - CZNPreferencesWindowController
+#pragma mark - ZENPreferencesWindowController
 
-@interface CZNPreferencesWindowController () <NSToolbarDelegate>
+@interface ZENPreferencesWindowController () <NSToolbarDelegate>
 
 @property (nonatomic, strong) NSMutableOrderedSet *viewControllers;
-@property (nonatomic, strong) NSViewController<CZNPreferenceViewController> *activeViewController;
+@property (nonatomic, strong) NSViewController<ZENPreferenceViewController> *activeViewController;
 
-- (void)activateViewController:(NSViewController<CZNPreferenceViewController> *)viewController animate:(BOOL)animate;
-- (NSViewController<CZNPreferenceViewController> *)viewControllerWithIdentifier:(NSString *)identifier;
+- (void)activateViewController:(NSViewController<ZENPreferenceViewController> *)viewController animate:(BOOL)animate;
+- (NSViewController<ZENPreferenceViewController> *)viewControllerWithIdentifier:(NSString *)identifier;
 - (void)toolbarItemAction:(NSToolbarItem *)toolbarItem;
 
 @end
 
-@implementation CZNPreferencesWindowController
+@implementation ZENPreferencesWindowController
 
 - (instancetype)init {
 	self = [super init];
@@ -95,13 +95,13 @@
 		self.viewControllers = [NSMutableOrderedSet new];
 		self.activeViewController = nil;
 		
-		self.window = [CZNPreferencesWindow new];
+		self.window = [ZENPreferencesWindow new];
 		self.window.titlebarAppearsTransparent = NO;
 	}
 	return self;
 }
 
-- (void)activateViewController:(NSViewController<CZNPreferenceViewController> *)viewController animate:(BOOL)animate {
+- (void)activateViewController:(NSViewController<ZENPreferenceViewController> *)viewController animate:(BOOL)animate {
 	NSRect currentWindowFrame = self.window.frame;
 	NSRect viewControllerFrame = viewController.view.frame;
 	NSRect frameRectForContentRect = [self.window frameRectForContentRect:viewControllerFrame];
@@ -132,8 +132,8 @@
 	}];
 }
 
-- (NSViewController<CZNPreferenceViewController> *)viewControllerWithIdentifier:(NSString *)identifier {
-	for (NSViewController<CZNPreferenceViewController> *viewController in self.viewControllers) {
+- (NSViewController<ZENPreferenceViewController> *)viewControllerWithIdentifier:(NSString *)identifier {
+	for (NSViewController<ZENPreferenceViewController> *viewController in self.viewControllers) {
 		if ([viewController.preferenceIdentifier isEqualToString:identifier]) {
 			return viewController;
 		}
@@ -143,7 +143,7 @@
 
 - (void)toolbarItemAction:(NSToolbarItem *)toolbarItem {
 	if (![self.activeViewController.preferenceIdentifier isEqualToString:toolbarItem.itemIdentifier]) {
-		NSViewController<CZNPreferenceViewController> *viewController = [self viewControllerWithIdentifier:toolbarItem.itemIdentifier];
+		NSViewController<ZENPreferenceViewController> *viewController = [self viewControllerWithIdentifier:toolbarItem.itemIdentifier];
 		[self activateViewController:viewController animate:YES];
 	}
 }
@@ -151,8 +151,8 @@
 #pragma mark - Public API
 
 - (void)setPreferenceViewControllers:(NSArray *)viewControllers {
-	for (NSViewController<CZNPreferenceViewController> *viewController in viewControllers) {
-		NSAssert([viewController conformsToProtocol:@protocol(CZNPreferenceViewController)], @"ERROR: The viewController [%@] must conform to protocol <CZNPreferenceViewController>", [viewController class]);
+	for (NSViewController<ZENPreferenceViewController> *viewController in viewControllers) {
+		NSAssert([viewController conformsToProtocol:@protocol(ZENPreferenceViewController)], @"ERROR: The viewController [%@] must conform to protocol <ZENPreferenceViewController>", [viewController class]);
 		[self.viewControllers addObject:viewController];
 	}
 }
@@ -162,7 +162,7 @@
 	[self.window makeKeyAndOrderFront:self];
 	[self activateViewController:self.viewControllers.firstObject animate:NO];
 	
-	NSToolbar *toolbar = [[NSToolbar alloc] initWithIdentifier:@"CZNPreferencesWindowController"];
+	NSToolbar *toolbar = [[NSToolbar alloc] initWithIdentifier:@"ZENPreferencesWindowController"];
 	toolbar.allowsUserCustomization = NO;
 	toolbar.autosavesConfiguration = YES;
 	toolbar.showsBaselineSeparator = YES;
@@ -189,7 +189,7 @@
 - (NSArray<NSToolbarItemIdentifier> *)toolbarAllowedItemIdentifiers:(NSToolbar *)toolbar {
 	NSMutableArray *identifiers = [NSMutableArray new];
 	
-	[self.viewControllers enumerateObjectsUsingBlock:^(NSViewController<CZNPreferenceViewController> *viewController, NSUInteger idx, BOOL *stop) {
+	[self.viewControllers enumerateObjectsUsingBlock:^(NSViewController<ZENPreferenceViewController> *viewController, NSUInteger idx, BOOL *stop) {
 		[identifiers addObject:viewController.preferenceIdentifier];
 	}];
 	
@@ -197,7 +197,7 @@
 }
 
 - (NSToolbarItem *)toolbar:(NSToolbar *)toolbar itemForItemIdentifier:(NSToolbarItemIdentifier)itemIdentifier willBeInsertedIntoToolbar:(BOOL)flag {
-	NSViewController<CZNPreferenceViewController> *viewController = [self viewControllerWithIdentifier:itemIdentifier];
+	NSViewController<ZENPreferenceViewController> *viewController = [self viewControllerWithIdentifier:itemIdentifier];
 	
 	NSToolbarItem *toolbarItem = [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
 	toolbarItem.label = viewController.preferenceDisplayName;

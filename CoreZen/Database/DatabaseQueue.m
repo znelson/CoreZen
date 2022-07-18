@@ -14,7 +14,7 @@
 #define RETURN_IF_TERMINATING if (atomic_load(&self->_terminating)) { return; }
 #define RETURN_IF_TERMINATED if (self->_terminated) { return; }
 
-@interface CZNDatabaseQueue ()
+@interface ZENDatabaseQueue ()
 {
 	atomic_bool _terminating;
 	BOOL _terminated;
@@ -32,7 +32,7 @@
 
 @end;
 
-@implementation CZNDatabaseQueue
+@implementation ZENDatabaseQueue
 
 - (void)internalInit:(NSString *)queueLabel {
 	_queueLabel = queueLabel;
@@ -52,7 +52,7 @@
 		
 		_databaseKey = [NSString stringWithFormat:@"file:%@?mode=memory&cache=shared", databaseID];
 	
-		NSString *queueLabel = [NSString stringWithFormat:@"CZNDatabaseQueue-InMemory-%lu", cacheID];
+		NSString *queueLabel = [NSString stringWithFormat:@"ZENDatabaseQueue-InMemory-%lu", cacheID];
 		[self internalInit:queueLabel];
 		
 		cacheID++;
@@ -61,7 +61,7 @@
 }
 
 + (instancetype)databaseQueueInMemory {
-	return [[CZNDatabaseQueue alloc] initInMemory];
+	return [[ZENDatabaseQueue alloc] initInMemory];
 }
 
 - (instancetype)initWithURL:(NSURL *)URL {
@@ -71,21 +71,21 @@
 		_databaseURL = URL;
 		_databaseKey = URL.path;
 		
-		NSString *queueLabel = [NSString stringWithFormat:@"CZNDatabaseQueue-%@", [URL lastPathComponent]];
+		NSString *queueLabel = [NSString stringWithFormat:@"ZENDatabaseQueue-%@", [URL lastPathComponent]];
 		[self internalInit:queueLabel];
 	}
 	return self;
 }
 
 + (instancetype)databaseQueueWithURL:(NSURL *)URL {
-	return [[CZNDatabaseQueue alloc] initWithURL:URL];
+	return [[ZENDatabaseQueue alloc] initWithURL:URL];
 }
 
 - (void)shutdown {
 	[self shutdown:nil];
 }
 
-- (void)shutdown:(CZNDatabaseBlock)updateBlock {
+- (void)shutdown:(ZENDatabaseBlock)updateBlock {
 	bool expected = false;
 	if (!atomic_compare_exchange_strong(&_terminating, &expected, true)) {
 		return;
@@ -133,7 +133,7 @@
 	return database;
 }
 
-- (void)transactionAsync:(CZNDatabaseBlock)updateBlock {
+- (void)transactionAsync:(ZENDatabaseBlock)updateBlock {
 	RETURN_IF_TERMINATING;
 	dispatch_async(self.dispatchQueue, ^{
 		RETURN_IF_TERMINATED;
@@ -146,7 +146,7 @@
 	});
 }
 
-- (void)transactionSync:(CZNDatabaseBlock)updateBlock {
+- (void)transactionSync:(ZENDatabaseBlock)updateBlock {
 	RETURN_IF_TERMINATING;
 	dispatch_sync(self.dispatchQueue, ^{
 		RETURN_IF_TERMINATED;
@@ -159,7 +159,7 @@
 	});
 }
 
-- (void)fetchAsync:(CZNDatabaseBlock)fetchBlock {
+- (void)fetchAsync:(ZENDatabaseBlock)fetchBlock {
 	RETURN_IF_TERMINATING;
 	dispatch_async(self.dispatchQueue, ^{
 		RETURN_IF_TERMINATED;
@@ -170,7 +170,7 @@
 	});
 }
 
-- (void)fetchSync:(CZNDatabaseBlock)fetchBlock {
+- (void)fetchSync:(ZENDatabaseBlock)fetchBlock {
 	RETURN_IF_TERMINATING;
 	dispatch_sync(self.dispatchQueue, ^{
 		RETURN_IF_TERMINATED;

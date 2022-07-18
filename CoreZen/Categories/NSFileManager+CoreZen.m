@@ -9,7 +9,7 @@
 
 @implementation NSFileManager (AlchemistCore)
 
-- (NSURL *)czn_findOrCreateURLForDirectory:(NSSearchPathDirectory)searchPathDirectory
+- (NSURL *)zen_findOrCreateURLForDirectory:(NSSearchPathDirectory)searchPathDirectory
 								  inDomain:(NSSearchPathDomainMask)domain
 					   appendPathComponent:(NSString *)appendComponent
 									create:(BOOL)create
@@ -36,17 +36,17 @@
 	return url;
 }
 
-- (NSURL *)czn_applicationSupportDirectory {
-	NSString *executableName = NSFileManager.czn_executableName;
+- (NSURL *)zen_applicationSupportDirectory {
+	NSString *executableName = NSFileManager.zen_executableName;
 	NSError *error;
-	NSURL *url = [self czn_findOrCreateURLForDirectory:NSApplicationSupportDirectory inDomain:NSUserDomainMask appendPathComponent:executableName create:YES error:&error];
+	NSURL *url = [self zen_findOrCreateURLForDirectory:NSApplicationSupportDirectory inDomain:NSUserDomainMask appendPathComponent:executableName create:YES error:&error];
 	if (!url) {
 		NSLog(@"Unable to find or create application support directory: %@", error);
 	}
 	return url;
 }
 
-+ (NSString *)czn_executableName {
++ (NSString *)zen_executableName {
 	return [NSBundle.mainBundle.infoDictionary objectForKey:(NSString*)kCFBundleExecutableKey];
 }
 

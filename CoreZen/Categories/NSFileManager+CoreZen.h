@@ -9,14 +9,14 @@
 
 @interface NSFileManager (AlchemistCore)
 
-- (NSURL *)czn_findOrCreateURLForDirectory:(NSSearchPathDirectory)searchPathDirectory
+- (NSURL *)zen_findOrCreateURLForDirectory:(NSSearchPathDirectory)searchPathDirectory
 								  inDomain:(NSSearchPathDomainMask)domain
 					   appendPathComponent:(NSString *)appendComponent
 									create:(BOOL)create
 									 error:(NSError **)outError;
 
-- (NSURL *)czn_applicationSupportDirectory;
+- (NSURL *)zen_applicationSupportDirectory;
 
-+ (NSString *)czn_executableName;
++ (NSString *)zen_executableName;
 
 @end

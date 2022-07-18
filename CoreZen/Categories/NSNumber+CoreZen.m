@@ -11,7 +11,7 @@
 
 @implementation NSNumber (AlchemistCore)
 
-+ (NSInteger)czn_randomInteger {
++ (NSInteger)zen_randomInteger {
 	int64_t randomBytes;
 	int result = SecRandomCopyBytes(kSecRandomDefault, 8, &randomBytes);
 	assert(result == errSecSuccess);

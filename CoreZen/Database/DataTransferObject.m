@@ -7,23 +7,23 @@
 
 #import "DataTransferObject.h"
 
-@interface CZNDTO ()
+@interface ZENDataTransferObject ()
 
-@property (nonatomic) CZNIdentifier identifier;
+@property (nonatomic) ZENIdentifier identifier;
 
 @end
 
-@implementation CZNDTO
+@implementation ZENDataTransferObject
 
 - (instancetype)init {
 	self = [super init];
 	if (self) {
-		_identifier = CZNInvalidIdentifier;
+		_identifier = ZENInvalidIdentifier;
 	}
 	return self;
 }
 
-- (instancetype)initWithIdentifier:(CZNIdentifier)identifier {
+- (instancetype)initWithIdentifier:(ZENIdentifier)identifier {
 	self = [self init];
 	if (self) {
 		_identifier = identifier;

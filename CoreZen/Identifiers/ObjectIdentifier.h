@@ -9,10 +9,6 @@
 
 @import Foundation;
 
-NS_ASSUME_NONNULL_BEGIN
-
 void CZNSetLargestObjectIdentifier(CZNIdentifier inIdentifier);
 
 CZNIdentifier CZNGetNextObjectIdentifier(void);
-
-NS_ASSUME_NONNULL_END

@@ -9,12 +9,8 @@
 
 @import Foundation;
 
-NS_ASSUME_NONNULL_BEGIN
-
 @protocol CZNIdentifiable
 
 @property (nonatomic, readonly) CZNIdentifier identifier;
 
 @end
-
-NS_ASSUME_NONNULL_END

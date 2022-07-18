@@ -85,7 +85,7 @@
 		5309C3AB2885A1DC00BC0AAE /* CoreZen */ = {
 			isa = PBXGroup;
 			children = (
-				5309C3EE2885A6C800BC0AAE /* Identifier */,
+				5309C3EE2885A6C800BC0AAE /* Identifiers */,
 				5309C3E52885A37900BC0AAE /* Preferences */,
 				5309C3AC2885A1DC00BC0AAE /* CoreZen.h */,
 				5309C3AD2885A1DC00BC0AAE /* CoreZen.docc */,
@@ -111,7 +111,7 @@
 			path = Preferences;
 			sourceTree = "<group>";
 		};
-		5309C3EE2885A6C800BC0AAE /* Identifier */ = {
+		5309C3EE2885A6C800BC0AAE /* Identifiers */ = {
 			isa = PBXGroup;
 			children = (
 				5309C3F32885A84400BC0AAE /* Identifier.h */,
@@ -119,7 +119,9 @@
 				5309C3EF2885A74A00BC0AAE /* ObjectIdentifier.h */,
 				5309C3F02885A74A00BC0AAE /* ObjectIdentifier.m */,
 			);
-			path = Identifier;
+			path = Identifiers;
+			sourceTree = "<group>";
+		};
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

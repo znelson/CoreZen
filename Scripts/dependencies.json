@@ -1,0 +1,19 @@
+{
+	"dependencies": {
+		"libmpv": 1
+	},
+	"headers": [
+		"libmpv",
+		"libavutil",
+		"libavcodec",
+		"libavformat",
+		"libavdevice",
+		"libavfilter",
+		"libswscale",
+		"libswresample",
+		"libpostproc"
+	],
+	"search_paths": [
+		"/opt/homebrew"
+	]
+}

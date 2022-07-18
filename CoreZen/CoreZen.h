@@ -15,4 +15,5 @@ FOUNDATION_EXPORT const unsigned char CoreZenVersionString[];
 
 // In this header, you should import all the public headers of your framework using statements like #import <CoreZen/PublicHeader.h>
 
-
+#import <CoreZen/PreferencesWindowController.h>
+#import <CoreZen/PreferenceViewController.h>

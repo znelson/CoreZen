@@ -15,6 +15,8 @@ FOUNDATION_EXPORT const unsigned char CoreZenVersionString[];
 
 // In this header, you should import all the public headers of your framework using statements like #import <CoreZen/PublicHeader.h>
 
+@import FMDB;
+
 #pragma mark - Cache
 #import <CoreZen/ObjectCache.h>
 
@@ -28,6 +30,12 @@ FOUNDATION_EXPORT const unsigned char CoreZenVersionString[];
 #import <CoreZen/DatabaseSchema.h>
 #import <CoreZen/DatabaseTable.h>
 #import <CoreZen/DataTransferObject.h>
+
+#pragma mark - Domain
+#import <CoreZen/DomainCommon.h>
+#import <CoreZen/DomainObject.h>
+#import <CoreZen/DomainCallbacks.h>
+#import <CoreZen/ObjectRepository.h>
 
 #pragma mark - Identifiers
 #import <CoreZen/Identifier.h>

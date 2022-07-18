@@ -2,7 +2,7 @@
 //  PreferencesWindowController.h
 //  CoreZen
 //
-//  Created by Zach Nelson on 7/18/22.
+//  Created by Zach Nelson on 7/11/22.
 //
 
 // The CZNPreferencesWindowController concept was adapted

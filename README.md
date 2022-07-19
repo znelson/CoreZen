@@ -2,6 +2,8 @@
 
 A macOS Cocoa framework made up of useful bits of code from my side projects.
 
+Written by [Zach Nelson](https://github.com/znelson). See the LICENSE file for license info (it's the MIT license).
+
 ## Getting Started
 
 ### FMDB.framework Dependency

@@ -48,7 +48,7 @@ Atomic [64-bit integer object identifiers](https://github.com/znelson/CoreZen/tr
 * [`NSURL+CoreZen`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Categories/NSURL%2BCoreZen.h): find volume details from a URL or volume UUID, get relative paths between URLs, find a URL file size
 
 ### [Media](https://github.com/znelson/CoreZen/blob/main/CoreZen/Media)
-[Classes to support reading audio and video media files]((https://github.com/znelson/CoreZen/blob/main/CoreZen/Media):
+[Classes to support reading audio and video media files](https://github.com/znelson/CoreZen/blob/main/CoreZen/Media):
 * [`ZENMediaFile`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Media/MediaFile.h) is a **_Work In Progress_**. Currently supports only basic media metadata retrieval including: video frame size, media duration, and audio and video codec names.
 
 *Note on dependencies:* [`ZENMediaFile`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Media/MediaFile.h) and other classes in `CoreZen` depend on [libmpv](https://github.com/mpv-player/mpv/blob/master/DOCS/man/libmpv.rst) and [libav](https://github.com/libav/libav#readme). [See above for installation from Homebrew.](#mpv-and-libav-dependencies)

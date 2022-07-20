@@ -32,7 +32,7 @@ _**Installation:**_
 ### 3. Domain Data Modeling and Persistence
 
 #### I. Object Identifiers
-[`ZENIdentifier`](https://github.com/znelson/CoreZen/tree/main/CoreZen/Identifier/Identifier.h) is an atomic 64-bit integer identifier and the [`ZENIdentifiable`](https://github.com/znelson/CoreZen/tree/main/CoreZen/Identifier/Identifiable.h) protocol is for objects with such an identifier.
+[`ZENIdentifier`](https://github.com/znelson/CoreZen/tree/main/CoreZen/Identifier/Identifier.h) is an _(atomically unique increasing)_ 64-bit integer identifier and the [`ZENIdentifiable`](https://github.com/znelson/CoreZen/tree/main/CoreZen/Identifier/Identifiable.h) protocol is for objects with such an identifier.
 
 #### II. Object Cache
 [`ZENObjectCache`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Cache/ObjectCache.h) is a thread safe object cache for [`ZENIdentifiable`](https://github.com/znelson/CoreZen/tree/main/CoreZen/Identifier/Identifiable.h) objects, configurable to hold either weak or strong refs to cached objects.

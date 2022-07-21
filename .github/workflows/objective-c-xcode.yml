@@ -27,10 +27,6 @@ jobs:
 
           # Decode base64 certificate secret into .p12 file
           echo -n "$SECRET_MACOS_CERTIFICATE_B64" | base64 --decode --output $CERTIFICATE_PATH
-          echo `file $CERTIFICATE_PATH`
-
-          # REMOVE AFTER TESTING
-          echo Keychain password: $SECRET_KEYCHAIN_PWD
 
           # Set up path for keychain database
           KEYCHAIN_PATH=$RUNNER_TEMP/signing_keychain.keychain-db
@@ -46,9 +42,6 @@ jobs:
           # Import the signing certificate into keychain database
           security import $CERTIFICATE_PATH -P "$SECRET_MACOS_CERTIFICATE_PWD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
           security list-keychain -d user -s $KEYCHAIN_PATH
-
-          echo Signing certificate added to keychain
-          echo `file $KEYCHAIN_PATH`
 
       - name: Set Default Scheme
         run: |

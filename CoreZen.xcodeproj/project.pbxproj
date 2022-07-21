@@ -76,7 +76,6 @@
 		5350FAB028861C6700F8CA68 /* libluajit-5.1.2.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 5350F97728861C3100F8CA68 /* libluajit-5.1.2.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		5350FAB128861C6700F8CA68 /* liblz4.1.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 5350F99D28861C3100F8CA68 /* liblz4.1.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		5350FAB228861C6700F8CA68 /* liblzma.5.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 5350F9A128861C3100F8CA68 /* liblzma.5.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		5350FAB328861C6700F8CA68 /* libmbedcrypto.11.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 5350F95628861C3100F8CA68 /* libmbedcrypto.11.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		5350FAB428861C6700F8CA68 /* libmp3lame.0.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 5350F97828861C3100F8CA68 /* libmp3lame.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		5350FAB528861C6700F8CA68 /* libmpv.1.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 5350F97D28861C3100F8CA68 /* libmpv.1.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		5350FAB628861C6700F8CA68 /* libmujs.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 5350F96D28861C3100F8CA68 /* libmujs.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -143,6 +142,8 @@
 		538E05132885ED2200CE9DE7 /* ObjectRepository.h in Headers */ = {isa = PBXBuildFile; fileRef = 538E05112885ED2200CE9DE7 /* ObjectRepository.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		538E05142885ED2200CE9DE7 /* ObjectRepository.m in Sources */ = {isa = PBXBuildFile; fileRef = 538E05122885ED2200CE9DE7 /* ObjectRepository.m */; };
 		538E052E2885FB5400CE9DE7 /* TestIdentifiable.m in Sources */ = {isa = PBXBuildFile; fileRef = 538E052D2885FB5400CE9DE7 /* TestIdentifiable.m */; };
+		53A7AC642889DC7D004EB3E8 /* libmbedcrypto.12.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 53A7AC632889DC7D004EB3E8 /* libmbedcrypto.12.dylib */; };
+		53A7AC652889DC88004EB3E8 /* libmbedcrypto.12.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 53A7AC632889DC7D004EB3E8 /* libmbedcrypto.12.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -175,6 +176,7 @@
 				5350FAA428861C6600F8CA68 /* libglib-2.0.0.dylib in CopyFiles */,
 				5350FAB728861C6700F8CA68 /* libnettle.8.dylib in CopyFiles */,
 				5350FA9928861C6600F8CA68 /* libbrotlicommon.1.dylib in CopyFiles */,
+				53A7AC652889DC88004EB3E8 /* libmbedcrypto.12.dylib in CopyFiles */,
 				5350FACF28861C6800F8CA68 /* libtesseract.5.dylib in CopyFiles */,
 				5350FA9228861C4C00F8CA68 /* libavdevice.58.dylib in CopyFiles */,
 				5350FAD128861C6800F8CA68 /* libtheoraenc.1.dylib in CopyFiles */,
@@ -194,7 +196,6 @@
 				5350FA8F28861C4900F8CA68 /* libass.9.dylib in CopyFiles */,
 				5350FAE028861C6900F8CA68 /* libXau.6.dylib in CopyFiles */,
 				5350FAC628861C6700F8CA68 /* libsnappy.1.dylib in CopyFiles */,
-				5350FAB328861C6700F8CA68 /* libmbedcrypto.11.dylib in CopyFiles */,
 				5350FAA828861C6600F8CA68 /* libharfbuzz.0.dylib in CopyFiles */,
 				5350FABE28861C6700F8CA68 /* libpcre.1.dylib in CopyFiles */,
 				5350FAC828861C6800F8CA68 /* libsoxr.0.dylib in CopyFiles */,
@@ -424,7 +425,6 @@
 		5350F95228861C3100F8CA68 /* version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = version.h; sourceTree = "<group>"; };
 		5350F95328861C3100F8CA68 /* swresample.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = swresample.h; sourceTree = "<group>"; };
 		5350F95528861C3100F8CA68 /* libtheoraenc.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libtheoraenc.1.dylib; sourceTree = "<group>"; };
-		5350F95628861C3100F8CA68 /* libmbedcrypto.11.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libmbedcrypto.11.dylib; sourceTree = "<group>"; };
 		5350F95728861C3100F8CA68 /* libvpx.7.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libvpx.7.dylib; sourceTree = "<group>"; };
 		5350F95828861C3100F8CA68 /* libp11-kit.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = "libp11-kit.0.dylib"; sourceTree = "<group>"; };
 		5350F95928861C3100F8CA68 /* libvmaf.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libvmaf.1.dylib; sourceTree = "<group>"; };
@@ -526,6 +526,7 @@
 		538E05122885ED2200CE9DE7 /* ObjectRepository.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ObjectRepository.m; sourceTree = "<group>"; };
 		538E052C2885FB5400CE9DE7 /* TestIdentifiable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestIdentifiable.h; sourceTree = "<group>"; };
 		538E052D2885FB5400CE9DE7 /* TestIdentifiable.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestIdentifiable.m; sourceTree = "<group>"; };
+		53A7AC632889DC7D004EB3E8 /* libmbedcrypto.12.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libmbedcrypto.12.dylib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -534,6 +535,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				538499112885FF21004ED6A1 /* FMDB.framework in Frameworks */,
+				53A7AC642889DC7D004EB3E8 /* libmbedcrypto.12.dylib in Frameworks */,
 				5350FAE928861D0E00F8CA68 /* libavcodec.58.dylib in Frameworks */,
 				5350FAEA28861D1300F8CA68 /* libavformat.58.dylib in Frameworks */,
 			);
@@ -941,7 +943,7 @@
 				5350F97728861C3100F8CA68 /* libluajit-5.1.2.dylib */,
 				5350F99D28861C3100F8CA68 /* liblz4.1.dylib */,
 				5350F9A128861C3100F8CA68 /* liblzma.5.dylib */,
-				5350F95628861C3100F8CA68 /* libmbedcrypto.11.dylib */,
+				53A7AC632889DC7D004EB3E8 /* libmbedcrypto.12.dylib */,
 				5350F97828861C3100F8CA68 /* libmp3lame.0.dylib */,
 				5350F97D28861C3100F8CA68 /* libmpv.1.dylib */,
 				5350F96D28861C3100F8CA68 /* libmujs.dylib */,

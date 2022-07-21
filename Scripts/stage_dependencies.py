@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 
-import os, sys, json, subprocess, pathlib, shutil
+import os, sys, json, subprocess, pathlib, shutil, argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-y', '--skip-prompt', action='store_true', help='Skip prompt before deleting old dependencies folder')
+parser.add_argument('-d', '--download', action='store_true', help='Download dependencies from AWS instead of searching locally')
+args = parser.parse_args()
 
 ##
 k_framework_extension = '.framework'
@@ -210,8 +215,8 @@ def locate_dependency(dylib_name, search_paths):
 			found = dylib_path
 			break
 
-		else:
-			print(f'  No file at {dylib_path}')
+		#else:
+		#	print(f'  No file at {dylib_path}')
 	
 	if not found:
 		print(f'ERROR: No match found for {dylib_name}!')
@@ -230,6 +235,7 @@ with open(dependencies_json_path, 'r') as json_file:
 search_paths = dependencies_json['search_paths']
 dependency_versions = dependencies_json['dependencies']
 header_libraries = dependencies_json['headers']
+download_url = dependencies_json['download_url']
 
 destination_path = os.path.abspath(os.path.join(scripts_path, '..', 'Dependencies'))
 
@@ -239,7 +245,8 @@ print(f'Destination path: {destination_path}')
 if os.path.exists(destination_path):
 	print('Deleting existing Dependencies directory:')
 	print(f'  {destination_path}')
-	input('Press enter to continue...')
+	if not args.skip_prompt:
+		input('Press enter to continue...')
 	shutil.rmtree(destination_path)
 
 lib_destination_path = os.path.join(destination_path, 'lib')
@@ -247,6 +254,17 @@ include_destination_path = os.path.join(destination_path, 'include')
 
 print(f'Libraries path: {lib_destination_path}')
 print(f'Includes path: {include_destination_path}')
+
+if (args.download):
+	print(f'Downloading from {download_url}...')
+	download_path = os.path.abspath(os.path.join(scripts_path, '..', 'Dependencies.tar.gz'))
+	proc = subprocess.Popen(['wget', '-nv', '-O', download_path, download_url])
+	proc.communicate()
+
+	print(f'Extracting from {download_path}...')
+	proc = subprocess.Popen(['tar', '-xvzf', download_path])
+	proc.communicate()
+	exit()
 
 os.makedirs(lib_destination_path)
 os.makedirs(include_destination_path)
@@ -359,3 +377,10 @@ for header_library in header_libraries:
 	else:
 		print(f'ERROR: Include directory not found for {dylib_path}')
 		exit(1)
+
+staged_txt_path = os.path.join(destination_path, 'dependencies.resolved')
+with open(staged_txt_path, 'w') as text_file:
+	for dylib_path in sorted(processed_dylibs):
+		text_file.write(dylib_path)
+		text_file.write(os.linesep)
+print(f'Staged dependency list: {staged_txt_path}')

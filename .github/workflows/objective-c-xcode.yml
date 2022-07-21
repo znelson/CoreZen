@@ -16,16 +16,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Set Default Scheme
-        run: |
-          scheme_list=$(xcodebuild -list -json | tr -d "\n")
-          default=$(echo $scheme_list | ruby -e "require 'json'; puts JSON.parse(STDIN.gets)['project']['targets'][0]")
-          echo $default | cat >default
-          echo Using default scheme: $default
-
-      - name: Build
+      - name: Prepare Keychain For Signing
         env:
-          scheme: ${{ 'default' }}
           SECRET_MACOS_CERTIFICATE_B64: ${{ secrets.MACOS_CERTIFICATE }}
           SECRET_MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
           SECRET_KEYCHAIN_PWD: ${{ secrets.KEYCHAIN_PWD }}
@@ -58,8 +50,22 @@ jobs:
           echo Keychains after:
           security list-keychains
 
-          # Build
-          if [ $scheme = default ]; then scheme=$(cat default); fi
-          if [ "`ls -A | grep -i \\.xcworkspace\$`" ]; then filetype_parameter="workspace" && file_to_build="`ls -A | grep -i \\.xcworkspace\$`"; else filetype_parameter="project" && file_to_build="`ls -A | grep -i \\.xcodeproj\$`"; fi
-          file_to_build=`echo $file_to_build | awk '{$1=$1;print}'`
-          xcodebuild clean build analyze -scheme "$scheme" -"$filetype_parameter" "$file_to_build" | xcpretty && exit ${PIPESTATUS[0]}
+      - name: Carthage Dependencies
+        run: |
+          carthage update --platform mac
+
+      - name: Download Dependencies
+        run: |
+          Scripts/stage_dependencies.py --skip-prompt --download
+
+      - name: Clean
+        run: |
+          xcodebuild clean -scheme CoreZen -project CoreZen.xcodeproj
+
+      - name: Build
+        run: |
+          xcodebuild build -scheme CoreZen -project CoreZen.xcodeproj
+
+      - name: Analyze
+        run: |
+          xcodebuild analyze -scheme CoreZen -project CoreZen.xcodeproj

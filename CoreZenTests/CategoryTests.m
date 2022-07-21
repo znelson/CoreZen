@@ -24,7 +24,7 @@
 }
 
 - (void)testRelativePath {
-	NSURL *urlOne = [NSURL fileURLWithPath:@"/Users/Alchemist" isDirectory:YES];
+	NSURL *urlOne = [NSURL fileURLWithPath:@"/Users/CoreZen" isDirectory:YES];
 	
 	NSString *relativePath = @"Documents/foo.pdf";
 	NSURL *urlTwo = [NSURL URLWithString:relativePath relativeToURL:urlOne];

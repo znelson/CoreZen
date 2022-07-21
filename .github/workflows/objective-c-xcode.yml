@@ -33,15 +33,15 @@ jobs:
           echo Using signing keychain at: $KEYCHAIN_PATH
 
           # Create and configure keychain database
-          security -v create-keychain -p "$SECRET_KEYCHAIN_PWD" $KEYCHAIN_PATH
-          security -v set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security create-keychain -p "$SECRET_KEYCHAIN_PWD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
 
           # Unlock keychain before build process
-          security -v unlock-keychain -p "$SECRET_KEYCHAIN_PWD" $KEYCHAIN_PATH
+          security unlock-keychain -p "$SECRET_KEYCHAIN_PWD" $KEYCHAIN_PATH
 
           # Import the signing certificate into keychain database
-          security -v import $CERTIFICATE_PATH -P "$SECRET_MACOS_CERTIFICATE_PWD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
-          security -v list-keychain -d user -s $KEYCHAIN_PATH
+          security import $CERTIFICATE_PATH -P "$SECRET_MACOS_CERTIFICATE_PWD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security list-keychain -d user -s $KEYCHAIN_PATH
 
       - name: Set Default Scheme
         run: |

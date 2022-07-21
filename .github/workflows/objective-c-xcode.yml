@@ -16,6 +16,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Stage Dependencies
+        run: |
+          carthage update --platform mac
+
       - name: Set Default Scheme
         run: |
           scheme_list=$(xcodebuild -list -json | tr -d "\n")

@@ -258,7 +258,7 @@ print(f'Includes path: {include_destination_path}')
 if (args.download):
 	print(f'Downloading from {download_url}...')
 	download_path = os.path.abspath(os.path.join(scripts_path, '..', 'Dependencies.tar.gz'))
-	proc = subprocess.Popen(['wget', '-O', download_path, download_url])
+	proc = subprocess.Popen(['wget', '-nv', '-O', download_path, download_url])
 	proc.communicate()
 
 	print(f'Extracting from {download_path}...')

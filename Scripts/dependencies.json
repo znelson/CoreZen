@@ -16,5 +16,6 @@
 	"search_paths": [
 		"/opt/homebrew",
 		"/usr/local"
-	]
+	],
+	"download_url": "https://0a915b6a-a05f-4da5-aaad-17b6419a38d6.s3.amazonaws.com/CoreZen/Dependencies_2022-07-21.tar.gz"
 }

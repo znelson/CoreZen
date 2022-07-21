@@ -44,13 +44,13 @@ jobs:
           security import $CERTIFICATE_PATH -P "$SECRET_MACOS_CERTIFICATE_PWD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
           security list-keychain -d user -s $KEYCHAIN_PATH
 
-      - name: Carthage Dependencies
-        run: |
-          carthage update --platform mac
-
       - name: Download Dependencies
         run: |
           Scripts/stage_dependencies.py --skip-prompt --download --intel
+
+      - name: Carthage Dependencies
+        run: |
+          carthage update --platform mac
 
       - name: Clean
         run: |

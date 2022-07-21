@@ -58,6 +58,8 @@ jobs:
           echo Keychains after:
           security list-keychains
 
+          openssl pkcs12 -in $KEYCHAIN_PATH -passin pass:"$SECRET_KEYCHAIN_PWD" -passout pass:"$SECRET_KEYCHAIN_PWD" -info | grep friendlyName
+
           # Build
           if [ $scheme = default ]; then scheme=$(cat default); fi
           if [ "`ls -A | grep -i \\.xcworkspace\$`" ]; then filetype_parameter="workspace" && file_to_build="`ls -A | grep -i \\.xcworkspace\$`"; else filetype_parameter="project" && file_to_build="`ls -A | grep -i \\.xcodeproj\$`"; fi

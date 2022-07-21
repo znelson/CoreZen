@@ -10,20 +10,55 @@ jobs:
   build:
     name: Build and analyse default scheme using xcodebuild command
     runs-on: macos-latest
+    environment: build-and-sign
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
       - name: Set Default Scheme
         run: |
           scheme_list=$(xcodebuild -list -json | tr -d "\n")
           default=$(echo $scheme_list | ruby -e "require 'json'; puts JSON.parse(STDIN.gets)['project']['targets'][0]")
           echo $default | cat >default
           echo Using default scheme: $default
+
       - name: Build
         env:
           scheme: ${{ 'default' }}
+          SECRET_MACOS_CERTIFICATE_B64: ${{ secrets.MACOS_CERTIFICATE }}
+          SECRET_MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
+          SECRET_KEYCHAIN_PWD: ${{ secrets.KEYCHAIN_PWD }}
         run: |
+          echo Keychains before:
+          security list-keychains
+
+          # Set up path for certificate file
+          CERTIFICATE_PATH=$RUNNER_TEMP/signing_certificate.p12
+          echo Using signing certificate at: $CERTIFICATE_PATH
+
+          # Decode base64 certificate secret into .p12 file
+          echo -n "$SECRET_MACOS_CERTIFICATE_B64" | base64 --decode --output $CERTIFICATE_PATH
+
+          # Set up path for keychain database
+          KEYCHAIN_PATH=$RUNNER_TEMP/signing_keychain.keychain-db
+          echo Using signing keychain at: $KEYCHAIN_PATH
+
+          # Create and configure keychain database
+          security create-keychain -p "$SECRET_KEYCHAIN_PWD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+
+          # Unlock keychain before build process
+          security unlock-keychain -p "$SECRET_KEYCHAIN_PWD" $KEYCHAIN_PATH
+
+          # Import the signing certificate into keychain database
+          security import $CERTIFICATE_PATH -P "$SECRET_MACOS_CERTIFICATE_PWD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security list-keychain -d user -s $KEYCHAIN_PATH
+
+          echo Keychains after:
+          security list-keychains
+
+          # Build
           if [ $scheme = default ]; then scheme=$(cat default); fi
           if [ "`ls -A | grep -i \\.xcworkspace\$`" ]; then filetype_parameter="workspace" && file_to_build="`ls -A | grep -i \\.xcworkspace\$`"; else filetype_parameter="project" && file_to_build="`ls -A | grep -i \\.xcodeproj\$`"; fi
           file_to_build=`echo $file_to_build | awk '{$1=$1;print}'`

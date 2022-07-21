@@ -132,6 +132,8 @@
 		5350FAE828861C6900F8CA68 /* libzstd.1.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 5350F9A228861C3100F8CA68 /* libzstd.1.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		5350FAE928861D0E00F8CA68 /* libavcodec.58.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5350F9AD28861C3100F8CA68 /* libavcodec.58.dylib */; };
 		5350FAEA28861D1300F8CA68 /* libavformat.58.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5350F97128861C3100F8CA68 /* libavformat.58.dylib */; };
+		5350FB0628889E7400F8CA68 /* Node.h in Headers */ = {isa = PBXBuildFile; fileRef = 5350FB0428889E7400F8CA68 /* Node.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		5350FB0728889E7400F8CA68 /* Node.m in Sources */ = {isa = PBXBuildFile; fileRef = 5350FB0528889E7400F8CA68 /* Node.m */; };
 		538499112885FF21004ED6A1 /* FMDB.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 538499102885FF21004ED6A1 /* FMDB.framework */; };
 		538E05032885DCED00CE9DE7 /* DomainObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 538E05012885DCED00CE9DE7 /* DomainObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		538E05042885DCED00CE9DE7 /* DomainObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 538E05022885DCED00CE9DE7 /* DomainObject.m */; };
@@ -512,6 +514,8 @@
 		5350F9AD28861C3100F8CA68 /* libavcodec.58.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libavcodec.58.dylib; sourceTree = "<group>"; };
 		5350F9AE28861C3100F8CA68 /* libogg.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libogg.0.dylib; sourceTree = "<group>"; };
 		5350F9AF28861C3100F8CA68 /* libopus.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libopus.0.dylib; sourceTree = "<group>"; };
+		5350FB0428889E7400F8CA68 /* Node.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Node.h; sourceTree = "<group>"; };
+		5350FB0528889E7400F8CA68 /* Node.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Node.m; sourceTree = "<group>"; };
 		538499102885FF21004ED6A1 /* FMDB.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FMDB.framework; path = Carthage/Build/Mac/FMDB.framework; sourceTree = "<group>"; };
 		538E05012885DCED00CE9DE7 /* DomainObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DomainObject.h; sourceTree = "<group>"; };
 		538E05022885DCED00CE9DE7 /* DomainObject.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DomainObject.m; sourceTree = "<group>"; };
@@ -574,6 +578,7 @@
 				5309C4112885B66000BC0AAE /* Database */,
 				538E05002885DCD300CE9DE7 /* Domain */,
 				5350F8BF2886192E00F8CA68 /* Media */,
+				5350FB0328889E5F00F8CA68 /* Node */,
 				5309C3EE2885A6C800BC0AAE /* Identifier */,
 				5309C3E52885A37900BC0AAE /* Preferences */,
 				5309C3AC2885A1DC00BC0AAE /* CoreZen.h */,
@@ -994,6 +999,15 @@
 			path = lib;
 			sourceTree = "<group>";
 		};
+		5350FB0328889E5F00F8CA68 /* Node */ = {
+			isa = PBXGroup;
+			children = (
+				5350FB0428889E7400F8CA68 /* Node.h */,
+				5350FB0528889E7400F8CA68 /* Node.m */,
+			);
+			path = Node;
+			sourceTree = "<group>";
+		};
 		538E05002885DCD300CE9DE7 /* Domain */ = {
 			isa = PBXGroup;
 			children = (
@@ -1032,6 +1046,7 @@
 				5309C4212885CB1400BC0AAE /* DataTransferObject.h in Headers */,
 				5309C40F2885B43B00BC0AAE /* ObjectCache.h in Headers */,
 				538E05132885ED2200CE9DE7 /* ObjectRepository.h in Headers */,
+				5350FB0628889E7400F8CA68 /* Node.h in Headers */,
 				5309C4142885C86500BC0AAE /* DatabaseQueue.h in Headers */,
 				5309C3BA2885A1DC00BC0AAE /* CoreZen.h in Headers */,
 			);
@@ -1140,6 +1155,7 @@
 				5309C4262885CDA500BC0AAE /* DatabaseSchema.m in Sources */,
 				5309C3AE2885A1DC00BC0AAE /* CoreZen.docc in Sources */,
 				538E05142885ED2200CE9DE7 /* ObjectRepository.m in Sources */,
+				5350FB0728889E7400F8CA68 /* Node.m in Sources */,
 				5309C3F22885A74A00BC0AAE /* ObjectIdentifier.m in Sources */,
 				5350F8C32886194200F8CA68 /* MediaFile.m in Sources */,
 				5309C4072885B14C00BC0AAE /* NSURL+CoreZen.m in Sources */,

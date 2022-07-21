@@ -365,3 +365,10 @@ for header_library in header_libraries:
 	else:
 		print(f'ERROR: Include directory not found for {dylib_path}')
 		exit(1)
+
+staged_txt_path = os.path.join(destination_path, 'dependencies.resolved')
+with open(staged_txt_path, 'w') as text_file:
+	for dylib_path in sorted(processed_dylibs):
+		text_file.write(dylib_path)
+		text_file.write(os.linesep)
+print(f'Staged dependency list: {staged_txt_path}')

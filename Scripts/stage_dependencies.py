@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 
-import os, sys, json, subprocess, pathlib, shutil
+import os, sys, json, subprocess, pathlib, shutil, argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-y', '--skip-prompt', action='store_true', help='Skip prompt before deleting old dependencies folder')
+args = parser.parse_args()
+print(args)
 
 ##
 k_framework_extension = '.framework'
@@ -239,7 +244,8 @@ print(f'Destination path: {destination_path}')
 if os.path.exists(destination_path):
 	print('Deleting existing Dependencies directory:')
 	print(f'  {destination_path}')
-	input('Press enter to continue...')
+	if not args.skip_prompt:
+		input('Press enter to continue...')
 	shutil.rmtree(destination_path)
 
 lib_destination_path = os.path.join(destination_path, 'lib')

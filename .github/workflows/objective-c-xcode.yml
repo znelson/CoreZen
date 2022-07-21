@@ -52,10 +52,6 @@ jobs:
         run: |
           carthage update --platform mac
 
-      - name: Clean
-        run: |
-          xcodebuild clean -scheme CoreZen -project CoreZen.xcodeproj
-
       - name: Build
         run: |
           xcodebuild build -scheme CoreZen -project CoreZen.xcodeproj

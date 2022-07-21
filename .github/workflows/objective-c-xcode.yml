@@ -19,6 +19,7 @@ jobs:
       - name: Stage Dependencies
         run: |
           carthage update --platform mac
+          Scripts/stage_dependencies.py
 
       - name: Set Default Scheme
         run: |

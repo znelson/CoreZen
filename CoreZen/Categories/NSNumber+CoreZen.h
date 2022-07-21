@@ -7,7 +7,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface NSNumber (AlchemistCore)
+@interface NSNumber (CoreZen)
 
 + (NSInteger)zen_randomInteger;
 

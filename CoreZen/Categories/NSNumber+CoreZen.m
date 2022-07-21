@@ -9,7 +9,7 @@
 
 @import Security;
 
-@implementation NSNumber (AlchemistCore)
+@implementation NSNumber (CoreZen)
 
 + (NSInteger)zen_randomInteger {
 	int64_t randomBytes;

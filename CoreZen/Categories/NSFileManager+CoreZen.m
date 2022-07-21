@@ -7,7 +7,7 @@
 
 #import "NSFileManager+CoreZen.h"
 
-@implementation NSFileManager (AlchemistCore)
+@implementation NSFileManager (CoreZen)
 
 - (NSURL *)zen_findOrCreateURLForDirectory:(NSSearchPathDirectory)searchPathDirectory
 								  inDomain:(NSSearchPathDomainMask)domain

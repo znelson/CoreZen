@@ -19,7 +19,6 @@ jobs:
       - name: Stage Dependencies
         run: |
           carthage update --platform mac
-          brew install ffmpeg mpv
           Scripts/stage_dependencies.py --skip-prompt --download
 
       - name: Set Default Scheme

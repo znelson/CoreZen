@@ -5,6 +5,7 @@ import os, sys, json, subprocess, pathlib, shutil, argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('-y', '--skip-prompt', action='store_true', help='Skip prompt before deleting old dependencies folder')
 parser.add_argument('-d', '--download', action='store_true', help='Download dependencies from AWS instead of searching locally')
+parser.add_argument('--intel', action='store_true', help='Download dependencies for Intel instead of Apple Silicon (only applies if --download is set)')
 args = parser.parse_args()
 
 ##
@@ -256,6 +257,8 @@ print(f'Libraries path: {lib_destination_path}')
 print(f'Includes path: {include_destination_path}')
 
 if (args.download):
+	if (args.intel):
+		download_url = download_url.replace('_arm.', '_intel.')
 	print(f'Downloading from {download_url}...')
 	download_path = os.path.abspath(os.path.join(scripts_path, '..', 'Dependencies.tar.gz'))
 	proc = subprocess.Popen(['wget', '-nv', '-O', download_path, download_url])

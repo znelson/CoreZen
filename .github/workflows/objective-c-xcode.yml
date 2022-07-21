@@ -64,8 +64,8 @@ jobs:
 
       - name: Build
         run: |
-          xcodebuild clean -scheme CoreZen -project CoreZen.xcodeproj
+          xcodebuild build -scheme CoreZen -project CoreZen.xcodeproj
 
       - name: Analyze
         run: |
-          xcodebuild clean -scheme CoreZen -project CoreZen.xcodeproj
+          xcodebuild analyze -scheme CoreZen -project CoreZen.xcodeproj

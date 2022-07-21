@@ -4,8 +4,8 @@ import os, sys, json, subprocess, pathlib, shutil, argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-y', '--skip-prompt', action='store_true', help='Skip prompt before deleting old dependencies folder')
+parser.add_argument('-d', '--download', action='store_true', help='Download dependencies from AWS instead of searching locally')
 args = parser.parse_args()
-print(args)
 
 ##
 k_framework_extension = '.framework'
@@ -235,6 +235,7 @@ with open(dependencies_json_path, 'r') as json_file:
 search_paths = dependencies_json['search_paths']
 dependency_versions = dependencies_json['dependencies']
 header_libraries = dependencies_json['headers']
+download_url = dependencies_json['download_url']
 
 destination_path = os.path.abspath(os.path.join(scripts_path, '..', 'Dependencies'))
 
@@ -253,6 +254,17 @@ include_destination_path = os.path.join(destination_path, 'include')
 
 print(f'Libraries path: {lib_destination_path}')
 print(f'Includes path: {include_destination_path}')
+
+if (args.download):
+	print(f'Downloading from {download_url}...')
+	download_path = os.path.abspath(os.path.join(scripts_path, '..', 'Dependencies.tar.gz'))
+	proc = subprocess.Popen(['wget', '-O', download_path, download_url])
+	proc.communicate()
+
+	print(f'Extracting from {download_path}...')
+	proc = subprocess.Popen(['tar', '-xvzf', download_path])
+	proc.communicate()
+	exit()
 
 os.makedirs(lib_destination_path)
 os.makedirs(include_destination_path)

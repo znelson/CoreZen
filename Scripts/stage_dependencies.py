@@ -210,8 +210,8 @@ def locate_dependency(dylib_name, search_paths):
 			found = dylib_path
 			break
 
-		else:
-			print(f'  No file at {dylib_path}')
+		#else:
+		#	print(f'  No file at {dylib_path}')
 	
 	if not found:
 		print(f'ERROR: No match found for {dylib_name}!')

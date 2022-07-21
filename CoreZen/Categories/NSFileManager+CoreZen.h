@@ -7,7 +7,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface NSFileManager (AlchemistCore)
+@interface NSFileManager (CoreZen)
 
 - (NSURL *)zen_findOrCreateURLForDirectory:(NSSearchPathDirectory)searchPathDirectory
 								  inDomain:(NSSearchPathDomainMask)domain

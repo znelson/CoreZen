@@ -7,7 +7,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface NSURL (AlchemistCore)
+@interface NSURL (CoreZen)
 
 - (BOOL)zen_volumeName:(NSString **)outVolumeName
 			 volumeURL:(NSURL **)outVolumeURL

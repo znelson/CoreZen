@@ -1,5 +1,7 @@
 # CoreZen.framework
 
+[![Xcode - Build and Analyze](https://github.com/znelson/CoreZen/actions/workflows/objective-c-xcode.yml/badge.svg?branch=main)](https://github.com/znelson/CoreZen/actions/workflows/objective-c-xcode.yml)
+
 A macOS Cocoa framework made up of useful bits of code from my side projects.
 
 Written by [Zach Nelson](https://github.com/znelson). See the [LICENSE file](https://github.com/znelson/CoreZen/blob/main/LICENSE) for license info (it's the MIT license).

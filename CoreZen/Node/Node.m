@@ -63,6 +63,14 @@
 	return self.mutableChildren;
 }
 
+- (NSUInteger)childCount {
+	return self.mutableChildren.count;
+}
+
+- (BOOL)isChildless {
+	return (self.mutableChildren.count == 0);
+}
+
 - (void)addChildNode:(ZENNode *)child {
 	NSUInteger childIndex = [self.mutableChildren indexOfObject:child];
 	if (childIndex == NSNotFound) {

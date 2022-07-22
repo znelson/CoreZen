@@ -59,7 +59,7 @@
 	return node;
 }
 
-- (NSArray<ZENNode *> *)children {
+- (NSArray *)children {
 	return self.mutableChildren;
 }
 

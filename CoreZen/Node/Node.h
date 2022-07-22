@@ -18,7 +18,7 @@ typedef void (^ZENNodeEnumerateBlock)(id node, NSUInteger index, BOOL *stop);
 @property (nonatomic, readonly) NSInteger size;
 
 @property (nonatomic, readonly, weak) ZENNode *parent;
-@property (nonatomic, readonly, strong) NSArray<ZENNode *> *children;
+@property (nonatomic, readonly, strong) NSArray *children;
 
 - (instancetype)initWithName:(NSString *)name;
 - (instancetype)initWithName:(NSString *)name

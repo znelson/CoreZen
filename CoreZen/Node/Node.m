@@ -59,6 +59,24 @@
 	return node;
 }
 
+- (NSUInteger)countLeaves {
+	__block NSUInteger count = 0;
+	[self enumerateDepthFirstUsingBlock:^(ZENNode *node, NSUInteger index, BOOL *stop) {
+		if (node.isChildless) {
+			++count;
+		}
+	}];
+	return count;
+}
+
+- (NSUInteger)countChildrenAndDescendants {
+	__block NSUInteger count = 0;
+	[self enumerateDepthFirstUsingBlock:^(ZENNode *node, NSUInteger index, BOOL *stop) {
+		count = index;
+	}];
+	return count;
+}
+
 - (NSArray *)children {
 	return self.mutableChildren;
 }
@@ -85,7 +103,7 @@
 			
 			[self childWasAdded:child];
 			[self enumerateParentsWithBlock:^(ZENNode *node, NSUInteger index, BOOL *stop) {
-				[node descendentWasAdded:child];
+				[node descendantWasAdded:child];
 			}];
 		}
 	}
@@ -99,7 +117,7 @@
 		
 		[self childWasRemoved:child];
 		[self enumerateParentsWithBlock:^(ZENNode *node, NSUInteger index, BOOL *stop) {
-			[node descendentWasRemoved:child];
+			[node descendantWasRemoved:child];
 		}];
 	}
 }
@@ -126,16 +144,16 @@
 	self.size -= child.size;
 }
 
-- (void)descendentWasAdded:(ZENNode *)descendent {
+- (void)descendantWasAdded:(ZENNode *)descendant {
 	// To be overridden in derived classes
-	// Be sure to call [super descendentWasAdded:child]
-	self.size += descendent.size;
+	// Be sure to call [super descendantWasAdded:child]
+	self.size += descendant.size;
 }
 
-- (void)descendentWasRemoved:(ZENNode *)descendent {
+- (void)descendantWasRemoved:(ZENNode *)descendant {
 	// To be overridden in derived classes
-	// Be sure to call [super descendentWasRemoved:child]
-	self.size -= descendent.size;
+	// Be sure to call [super descendantWasRemoved:child]
+	self.size -= descendant.size;
 }
 
 - (void)resetSize {

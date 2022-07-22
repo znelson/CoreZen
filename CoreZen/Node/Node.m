@@ -59,8 +59,16 @@
 	return node;
 }
 
-- (NSArray<ZENNode *> *)children {
+- (NSArray *)children {
 	return self.mutableChildren;
+}
+
+- (NSUInteger)childCount {
+	return self.mutableChildren.count;
+}
+
+- (BOOL)isChildless {
+	return (self.mutableChildren.count == 0);
 }
 
 - (void)addChildNode:(ZENNode *)child {

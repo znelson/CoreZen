@@ -59,6 +59,24 @@
 	return node;
 }
 
+- (NSUInteger)countLeaves {
+	__block NSUInteger count = 0;
+	[self enumerateDepthFirstUsingBlock:^(ZENNode *node, NSUInteger index, BOOL *stop) {
+		if (node.isChildless) {
+			++count;
+		}
+	}];
+	return count;
+}
+
+- (NSUInteger)countChildrenAndDescendants {
+	__block NSUInteger count = 0;
+	[self enumerateDepthFirstUsingBlock:^(ZENNode *node, NSUInteger index, BOOL *stop) {
+		count = index;
+	}];
+	return count;
+}
+
 - (NSArray *)children {
 	return self.mutableChildren;
 }

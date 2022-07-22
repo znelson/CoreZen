@@ -27,6 +27,8 @@ typedef void (^ZENNodeEnumerateBlock)(id node, NSUInteger index, BOOL *stop);
 						size:(NSInteger)size;
 
 - (id)rootNode;
+- (NSUInteger)countLeaves;
+- (NSUInteger)countChildrenAndDescendants;
 
 - (void)addChildNode:(id)child;
 - (void)removeChildNode:(id)child;

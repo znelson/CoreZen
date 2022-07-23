@@ -142,8 +142,10 @@
 		538E05132885ED2200CE9DE7 /* ObjectRepository.h in Headers */ = {isa = PBXBuildFile; fileRef = 538E05112885ED2200CE9DE7 /* ObjectRepository.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		538E05142885ED2200CE9DE7 /* ObjectRepository.m in Sources */ = {isa = PBXBuildFile; fileRef = 538E05122885ED2200CE9DE7 /* ObjectRepository.m */; };
 		538E052E2885FB5400CE9DE7 /* TestIdentifiable.m in Sources */ = {isa = PBXBuildFile; fileRef = 538E052D2885FB5400CE9DE7 /* TestIdentifiable.m */; };
-		53964F0A288C4C48007B53EC /* MPVController.h in Headers */ = {isa = PBXBuildFile; fileRef = 53964F08288C4C48007B53EC /* MPVController.h */; };
+		53964F0A288C4C48007B53EC /* MPVController.h in Headers */ = {isa = PBXBuildFile; fileRef = 53964F08288C4C48007B53EC /* MPVController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		53964F0B288C4C48007B53EC /* MPVController.m in Sources */ = {isa = PBXBuildFile; fileRef = 53964F09288C4C48007B53EC /* MPVController.m */; };
+		53964F0E288C533B007B53EC /* MPVTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 53964F0C288C533B007B53EC /* MPVTypes.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		53964F0F288C533B007B53EC /* MPVTypes.m in Sources */ = {isa = PBXBuildFile; fileRef = 53964F0D288C533B007B53EC /* MPVTypes.m */; };
 		53964F10288C8B1B007B53EC /* libmpv.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5350F97D28861C3100F8CA68 /* libmpv.1.dylib */; };
 		53A7AC642889DC7D004EB3E8 /* libmbedcrypto.12.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 53A7AC632889DC7D004EB3E8 /* libmbedcrypto.12.dylib */; };
 		53A7AC652889DC88004EB3E8 /* libmbedcrypto.12.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 53A7AC632889DC7D004EB3E8 /* libmbedcrypto.12.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -531,6 +533,8 @@
 		538E052D2885FB5400CE9DE7 /* TestIdentifiable.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestIdentifiable.m; sourceTree = "<group>"; };
 		53964F08288C4C48007B53EC /* MPVController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MPVController.h; sourceTree = "<group>"; };
 		53964F09288C4C48007B53EC /* MPVController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MPVController.m; sourceTree = "<group>"; };
+		53964F0C288C533B007B53EC /* MPVTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MPVTypes.h; sourceTree = "<group>"; };
+		53964F0D288C533B007B53EC /* MPVTypes.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MPVTypes.m; sourceTree = "<group>"; };
 		53A7AC632889DC7D004EB3E8 /* libmbedcrypto.12.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libmbedcrypto.12.dylib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -1036,6 +1040,8 @@
 			children = (
 				53964F08288C4C48007B53EC /* MPVController.h */,
 				53964F09288C4C48007B53EC /* MPVController.m */,
+				53964F0C288C533B007B53EC /* MPVTypes.h */,
+				53964F0D288C533B007B53EC /* MPVTypes.m */,
 			);
 			path = Player;
 			sourceTree = "<group>";
@@ -1057,7 +1063,6 @@
 				5309C4252885CDA500BC0AAE /* DatabaseSchema.h in Headers */,
 				5309C4292885D19400BC0AAE /* DatabaseTable.h in Headers */,
 				5350F8C22886194200F8CA68 /* MediaFile.h in Headers */,
-				53964F0A288C4C48007B53EC /* MPVController.h in Headers */,
 				5309C3E82885A39C00BC0AAE /* PreferencesWindowController.h in Headers */,
 				538E05072885DD1D00CE9DE7 /* DomainCallbacks.h in Headers */,
 				538E050B2885E53700CE9DE7 /* DomainCommon.h in Headers */,
@@ -1065,6 +1070,8 @@
 				5309C4212885CB1400BC0AAE /* DataTransferObject.h in Headers */,
 				5309C40F2885B43B00BC0AAE /* ObjectCache.h in Headers */,
 				538E05132885ED2200CE9DE7 /* ObjectRepository.h in Headers */,
+				53964F0E288C533B007B53EC /* MPVTypes.h in Headers */,
+				53964F0A288C4C48007B53EC /* MPVController.h in Headers */,
 				5350FB0628889E7400F8CA68 /* Node.h in Headers */,
 				5309C4142885C86500BC0AAE /* DatabaseQueue.h in Headers */,
 				5309C3BA2885A1DC00BC0AAE /* CoreZen.h in Headers */,
@@ -1177,6 +1184,7 @@
 				538E05142885ED2200CE9DE7 /* ObjectRepository.m in Sources */,
 				5350FB0728889E7400F8CA68 /* Node.m in Sources */,
 				5309C3F22885A74A00BC0AAE /* ObjectIdentifier.m in Sources */,
+				53964F0F288C533B007B53EC /* MPVTypes.m in Sources */,
 				5350F8C32886194200F8CA68 /* MediaFile.m in Sources */,
 				5309C4072885B14C00BC0AAE /* NSURL+CoreZen.m in Sources */,
 				538E05042885DCED00CE9DE7 /* DomainObject.m in Sources */,

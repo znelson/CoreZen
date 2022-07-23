@@ -47,6 +47,10 @@ FOUNDATION_EXPORT const unsigned char CoreZenVersionString[];
 #pragma mark - Node
 #import <CoreZen/Node.h>
 
+#pragma mark - Player
+#import <CoreZen/MPVController.h>
+#import <CoreZen/MPVTypes.h>
+
 #pragma mark - Preferences
 #import <CoreZen/PreferencesWindowController.h>
 #import <CoreZen/PreferenceViewController.h>

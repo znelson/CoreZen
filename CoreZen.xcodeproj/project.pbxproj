@@ -144,6 +144,7 @@
 		538E052E2885FB5400CE9DE7 /* TestIdentifiable.m in Sources */ = {isa = PBXBuildFile; fileRef = 538E052D2885FB5400CE9DE7 /* TestIdentifiable.m */; };
 		53964F0A288C4C48007B53EC /* MPVController.h in Headers */ = {isa = PBXBuildFile; fileRef = 53964F08288C4C48007B53EC /* MPVController.h */; };
 		53964F0B288C4C48007B53EC /* MPVController.m in Sources */ = {isa = PBXBuildFile; fileRef = 53964F09288C4C48007B53EC /* MPVController.m */; };
+		53964F10288C8B1B007B53EC /* libmpv.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5350F97D28861C3100F8CA68 /* libmpv.1.dylib */; };
 		53A7AC642889DC7D004EB3E8 /* libmbedcrypto.12.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 53A7AC632889DC7D004EB3E8 /* libmbedcrypto.12.dylib */; };
 		53A7AC652889DC88004EB3E8 /* libmbedcrypto.12.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 53A7AC632889DC7D004EB3E8 /* libmbedcrypto.12.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 /* End PBXBuildFile section */
@@ -542,6 +543,7 @@
 				53A7AC642889DC7D004EB3E8 /* libmbedcrypto.12.dylib in Frameworks */,
 				5350FAE928861D0E00F8CA68 /* libavcodec.58.dylib in Frameworks */,
 				5350FAEA28861D1300F8CA68 /* libavformat.58.dylib in Frameworks */,
+				53964F10288C8B1B007B53EC /* libmpv.1.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

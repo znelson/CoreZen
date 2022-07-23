@@ -142,6 +142,8 @@
 		538E05132885ED2200CE9DE7 /* ObjectRepository.h in Headers */ = {isa = PBXBuildFile; fileRef = 538E05112885ED2200CE9DE7 /* ObjectRepository.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		538E05142885ED2200CE9DE7 /* ObjectRepository.m in Sources */ = {isa = PBXBuildFile; fileRef = 538E05122885ED2200CE9DE7 /* ObjectRepository.m */; };
 		538E052E2885FB5400CE9DE7 /* TestIdentifiable.m in Sources */ = {isa = PBXBuildFile; fileRef = 538E052D2885FB5400CE9DE7 /* TestIdentifiable.m */; };
+		53964F0A288C4C48007B53EC /* MPVController.h in Headers */ = {isa = PBXBuildFile; fileRef = 53964F08288C4C48007B53EC /* MPVController.h */; };
+		53964F0B288C4C48007B53EC /* MPVController.m in Sources */ = {isa = PBXBuildFile; fileRef = 53964F09288C4C48007B53EC /* MPVController.m */; };
 		53A7AC642889DC7D004EB3E8 /* libmbedcrypto.12.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 53A7AC632889DC7D004EB3E8 /* libmbedcrypto.12.dylib */; };
 		53A7AC652889DC88004EB3E8 /* libmbedcrypto.12.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 53A7AC632889DC7D004EB3E8 /* libmbedcrypto.12.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 /* End PBXBuildFile section */
@@ -526,6 +528,8 @@
 		538E05122885ED2200CE9DE7 /* ObjectRepository.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ObjectRepository.m; sourceTree = "<group>"; };
 		538E052C2885FB5400CE9DE7 /* TestIdentifiable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestIdentifiable.h; sourceTree = "<group>"; };
 		538E052D2885FB5400CE9DE7 /* TestIdentifiable.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestIdentifiable.m; sourceTree = "<group>"; };
+		53964F08288C4C48007B53EC /* MPVController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MPVController.h; sourceTree = "<group>"; };
+		53964F09288C4C48007B53EC /* MPVController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MPVController.m; sourceTree = "<group>"; };
 		53A7AC632889DC7D004EB3E8 /* libmbedcrypto.12.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libmbedcrypto.12.dylib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -582,6 +586,7 @@
 				5350F8BF2886192E00F8CA68 /* Media */,
 				5350FB0328889E5F00F8CA68 /* Node */,
 				5309C3EE2885A6C800BC0AAE /* Identifier */,
+				53964F07288C4BF1007B53EC /* Player */,
 				5309C3E52885A37900BC0AAE /* Preferences */,
 				5309C3AC2885A1DC00BC0AAE /* CoreZen.h */,
 				5309C3AD2885A1DC00BC0AAE /* CoreZen.docc */,
@@ -1024,6 +1029,15 @@
 			path = Domain;
 			sourceTree = "<group>";
 		};
+		53964F07288C4BF1007B53EC /* Player */ = {
+			isa = PBXGroup;
+			children = (
+				53964F08288C4C48007B53EC /* MPVController.h */,
+				53964F09288C4C48007B53EC /* MPVController.m */,
+			);
+			path = Player;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -1041,6 +1055,7 @@
 				5309C4252885CDA500BC0AAE /* DatabaseSchema.h in Headers */,
 				5309C4292885D19400BC0AAE /* DatabaseTable.h in Headers */,
 				5350F8C22886194200F8CA68 /* MediaFile.h in Headers */,
+				53964F0A288C4C48007B53EC /* MPVController.h in Headers */,
 				5309C3E82885A39C00BC0AAE /* PreferencesWindowController.h in Headers */,
 				538E05072885DD1D00CE9DE7 /* DomainCallbacks.h in Headers */,
 				538E050B2885E53700CE9DE7 /* DomainCommon.h in Headers */,
@@ -1153,6 +1168,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5309C3E92885A39C00BC0AAE /* PreferencesWindowController.m in Sources */,
+				53964F0B288C4C48007B53EC /* MPVController.m in Sources */,
 				5309C4222885CB1400BC0AAE /* DataTransferObject.m in Sources */,
 				5309C4262885CDA500BC0AAE /* DatabaseSchema.m in Sources */,
 				5309C3AE2885A1DC00BC0AAE /* CoreZen.docc in Sources */,

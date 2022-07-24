@@ -142,11 +142,13 @@
 		538E05132885ED2200CE9DE7 /* ObjectRepository.h in Headers */ = {isa = PBXBuildFile; fileRef = 538E05112885ED2200CE9DE7 /* ObjectRepository.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		538E05142885ED2200CE9DE7 /* ObjectRepository.m in Sources */ = {isa = PBXBuildFile; fileRef = 538E05122885ED2200CE9DE7 /* ObjectRepository.m */; };
 		538E052E2885FB5400CE9DE7 /* TestIdentifiable.m in Sources */ = {isa = PBXBuildFile; fileRef = 538E052D2885FB5400CE9DE7 /* TestIdentifiable.m */; };
-		53964F0A288C4C48007B53EC /* MPVController.h in Headers */ = {isa = PBXBuildFile; fileRef = 53964F08288C4C48007B53EC /* MPVController.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		53964F0A288C4C48007B53EC /* MPVController.h in Headers */ = {isa = PBXBuildFile; fileRef = 53964F08288C4C48007B53EC /* MPVController.h */; };
 		53964F0B288C4C48007B53EC /* MPVController.m in Sources */ = {isa = PBXBuildFile; fileRef = 53964F09288C4C48007B53EC /* MPVController.m */; };
-		53964F0E288C533B007B53EC /* MPVTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 53964F0C288C533B007B53EC /* MPVTypes.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		53964F0F288C533B007B53EC /* MPVTypes.m in Sources */ = {isa = PBXBuildFile; fileRef = 53964F0D288C533B007B53EC /* MPVTypes.m */; };
+		53964F0E288C533B007B53EC /* MPVConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 53964F0C288C533B007B53EC /* MPVConstants.h */; };
+		53964F0F288C533B007B53EC /* MPVConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 53964F0D288C533B007B53EC /* MPVConstants.m */; };
 		53964F10288C8B1B007B53EC /* libmpv.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5350F97D28861C3100F8CA68 /* libmpv.1.dylib */; };
+		53964F13288CC101007B53EC /* MediaPlayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 53964F11288CC101007B53EC /* MediaPlayer.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		53964F14288CC101007B53EC /* MediaPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 53964F12288CC101007B53EC /* MediaPlayer.m */; };
 		53A7AC642889DC7D004EB3E8 /* libmbedcrypto.12.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 53A7AC632889DC7D004EB3E8 /* libmbedcrypto.12.dylib */; };
 		53A7AC652889DC88004EB3E8 /* libmbedcrypto.12.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 53A7AC632889DC7D004EB3E8 /* libmbedcrypto.12.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 /* End PBXBuildFile section */
@@ -261,6 +263,7 @@
 				5350FA9A28861C6600F8CA68 /* libbrotlidec.1.dylib in CopyFiles */,
 				5350FA8E28861C4800F8CA68 /* libaom.3.dylib in CopyFiles */,
 			);
+			name = CopyFiles;
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -533,8 +536,10 @@
 		538E052D2885FB5400CE9DE7 /* TestIdentifiable.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestIdentifiable.m; sourceTree = "<group>"; };
 		53964F08288C4C48007B53EC /* MPVController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MPVController.h; sourceTree = "<group>"; };
 		53964F09288C4C48007B53EC /* MPVController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MPVController.m; sourceTree = "<group>"; };
-		53964F0C288C533B007B53EC /* MPVTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MPVTypes.h; sourceTree = "<group>"; };
-		53964F0D288C533B007B53EC /* MPVTypes.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MPVTypes.m; sourceTree = "<group>"; };
+		53964F0C288C533B007B53EC /* MPVConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MPVConstants.h; sourceTree = "<group>"; };
+		53964F0D288C533B007B53EC /* MPVConstants.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MPVConstants.m; sourceTree = "<group>"; };
+		53964F11288CC101007B53EC /* MediaPlayer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MediaPlayer.h; sourceTree = "<group>"; };
+		53964F12288CC101007B53EC /* MediaPlayer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MediaPlayer.m; sourceTree = "<group>"; };
 		53A7AC632889DC7D004EB3E8 /* libmbedcrypto.12.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libmbedcrypto.12.dylib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -592,7 +597,6 @@
 				5350F8BF2886192E00F8CA68 /* Media */,
 				5350FB0328889E5F00F8CA68 /* Node */,
 				5309C3EE2885A6C800BC0AAE /* Identifier */,
-				53964F07288C4BF1007B53EC /* Player */,
 				5309C3E52885A37900BC0AAE /* Preferences */,
 				5309C3AC2885A1DC00BC0AAE /* CoreZen.h */,
 				5309C3AD2885A1DC00BC0AAE /* CoreZen.docc */,
@@ -689,8 +693,14 @@
 		5350F8BF2886192E00F8CA68 /* Media */ = {
 			isa = PBXGroup;
 			children = (
+				53964F08288C4C48007B53EC /* MPVController.h */,
+				53964F09288C4C48007B53EC /* MPVController.m */,
+				53964F0C288C533B007B53EC /* MPVConstants.h */,
+				53964F0D288C533B007B53EC /* MPVConstants.m */,
 				5350F8C02886194200F8CA68 /* MediaFile.h */,
 				5350F8C12886194200F8CA68 /* MediaFile.m */,
+				53964F11288CC101007B53EC /* MediaPlayer.h */,
+				53964F12288CC101007B53EC /* MediaPlayer.m */,
 			);
 			path = Media;
 			sourceTree = "<group>";
@@ -1035,17 +1045,6 @@
 			path = Domain;
 			sourceTree = "<group>";
 		};
-		53964F07288C4BF1007B53EC /* Player */ = {
-			isa = PBXGroup;
-			children = (
-				53964F08288C4C48007B53EC /* MPVController.h */,
-				53964F09288C4C48007B53EC /* MPVController.m */,
-				53964F0C288C533B007B53EC /* MPVTypes.h */,
-				53964F0D288C533B007B53EC /* MPVTypes.m */,
-			);
-			path = Player;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -1070,11 +1069,12 @@
 				5309C4212885CB1400BC0AAE /* DataTransferObject.h in Headers */,
 				5309C40F2885B43B00BC0AAE /* ObjectCache.h in Headers */,
 				538E05132885ED2200CE9DE7 /* ObjectRepository.h in Headers */,
-				53964F0E288C533B007B53EC /* MPVTypes.h in Headers */,
-				53964F0A288C4C48007B53EC /* MPVController.h in Headers */,
 				5350FB0628889E7400F8CA68 /* Node.h in Headers */,
 				5309C4142885C86500BC0AAE /* DatabaseQueue.h in Headers */,
+				53964F13288CC101007B53EC /* MediaPlayer.h in Headers */,
 				5309C3BA2885A1DC00BC0AAE /* CoreZen.h in Headers */,
+				53964F0E288C533B007B53EC /* MPVConstants.h in Headers */,
+				53964F0A288C4C48007B53EC /* MPVController.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1184,11 +1184,12 @@
 				538E05142885ED2200CE9DE7 /* ObjectRepository.m in Sources */,
 				5350FB0728889E7400F8CA68 /* Node.m in Sources */,
 				5309C3F22885A74A00BC0AAE /* ObjectIdentifier.m in Sources */,
-				53964F0F288C533B007B53EC /* MPVTypes.m in Sources */,
+				53964F0F288C533B007B53EC /* MPVConstants.m in Sources */,
 				5350F8C32886194200F8CA68 /* MediaFile.m in Sources */,
 				5309C4072885B14C00BC0AAE /* NSURL+CoreZen.m in Sources */,
 				538E05042885DCED00CE9DE7 /* DomainObject.m in Sources */,
 				5309C4152885C86500BC0AAE /* DatabaseQueue.m in Sources */,
+				53964F14288CC101007B53EC /* MediaPlayer.m in Sources */,
 				5309C4102885B43B00BC0AAE /* ObjectCache.m in Sources */,
 				5309C40B2885B15400BC0AAE /* NSNumber+CoreZen.m in Sources */,
 				538E050C2885E53700CE9DE7 /* DomainCommon.m in Sources */,

@@ -7,6 +7,17 @@
 
 #import <Foundation/Foundation.h>
 
+@class ZENMediaPlayerView;
+@protocol ZENMediaPlayerController;
+
 @interface ZENMediaPlayer : NSObject
+
+- (instancetype)initWithFileURL:(NSURL*)url;
+
+@property (nonatomic, strong, readonly) NSURL *fileURL;
+@property (nonatomic, strong, readonly) NSObject<ZENMediaPlayerController> *playerController;
+@property (nonatomic, strong) ZENMediaPlayerView *playerView;
+
+- (void)startPlayback;
 
 @end

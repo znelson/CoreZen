@@ -52,8 +52,6 @@
 		538E052E2885FB5400CE9DE7 /* TestIdentifiable.m in Sources */ = {isa = PBXBuildFile; fileRef = 538E052D2885FB5400CE9DE7 /* TestIdentifiable.m */; };
 		53964F0A288C4C48007B53EC /* MPVController.h in Headers */ = {isa = PBXBuildFile; fileRef = 53964F08288C4C48007B53EC /* MPVController.h */; };
 		53964F0B288C4C48007B53EC /* MPVController.m in Sources */ = {isa = PBXBuildFile; fileRef = 53964F09288C4C48007B53EC /* MPVController.m */; };
-		53964F0E288C533B007B53EC /* MPVConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 53964F0C288C533B007B53EC /* MPVConstants.h */; };
-		53964F0F288C533B007B53EC /* MPVConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 53964F0D288C533B007B53EC /* MPVConstants.m */; };
 		53964F13288CC101007B53EC /* MediaPlayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 53964F11288CC101007B53EC /* MediaPlayer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		53964F14288CC101007B53EC /* MediaPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 53964F12288CC101007B53EC /* MediaPlayer.m */; };
 		5396525C288CC730007B53EC /* libtheoraenc.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5396517C288CC72F007B53EC /* libtheoraenc.1.dylib */; };
@@ -240,6 +238,16 @@
 		53965311288CC843007B53EC /* libzimg.2.dylib in Copy Files */ = {isa = PBXBuildFile; fileRef = 53965182288CC72F007B53EC /* libzimg.2.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		53965312288CC844007B53EC /* libzmq.5.dylib in Copy Files */ = {isa = PBXBuildFile; fileRef = 539651CB288CC730007B53EC /* libzmq.5.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		53965313288CC845007B53EC /* libzstd.1.dylib in Copy Files */ = {isa = PBXBuildFile; fileRef = 539651CA288CC730007B53EC /* libzstd.1.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		5396531C288CD19C007B53EC /* MediaPlayerView.h in Headers */ = {isa = PBXBuildFile; fileRef = 5396531A288CD19C007B53EC /* MediaPlayerView.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		5396531D288CD19C007B53EC /* MediaPlayerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 5396531B288CD19C007B53EC /* MediaPlayerView.m */; };
+		53965320288CE2A7007B53EC /* MediaPlayerController.h in Headers */ = {isa = PBXBuildFile; fileRef = 5396531E288CE2A7007B53EC /* MediaPlayerController.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		5396532D288F453E007B53EC /* MPVViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 5396532B288F453E007B53EC /* MPVViewController.h */; };
+		5396532E288F453E007B53EC /* MPVViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5396532C288F453E007B53EC /* MPVViewController.m */; };
+		53965331288F498B007B53EC /* MediaPlayerViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 5396532F288F498B007B53EC /* MediaPlayerViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		53965335288F4C37007B53EC /* MPVViewLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 53965333288F4C37007B53EC /* MPVViewLayer.h */; };
+		53965336288F4C37007B53EC /* MPVViewLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 53965334288F4C37007B53EC /* MPVViewLayer.m */; };
+		53965339288F4DF9007B53EC /* MPVFunctions.h in Headers */ = {isa = PBXBuildFile; fileRef = 53965337288F4DF9007B53EC /* MPVFunctions.h */; };
+		5396533A288F4DF9007B53EC /* MPVFunctions.m in Sources */ = {isa = PBXBuildFile; fileRef = 53965338288F4DF9007B53EC /* MPVFunctions.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -405,8 +413,6 @@
 		538E052D2885FB5400CE9DE7 /* TestIdentifiable.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestIdentifiable.m; sourceTree = "<group>"; };
 		53964F08288C4C48007B53EC /* MPVController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MPVController.h; sourceTree = "<group>"; };
 		53964F09288C4C48007B53EC /* MPVController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MPVController.m; sourceTree = "<group>"; };
-		53964F0C288C533B007B53EC /* MPVConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MPVConstants.h; sourceTree = "<group>"; };
-		53964F0D288C533B007B53EC /* MPVConstants.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MPVConstants.m; sourceTree = "<group>"; };
 		53964F11288CC101007B53EC /* MediaPlayer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MediaPlayer.h; sourceTree = "<group>"; };
 		53964F12288CC101007B53EC /* MediaPlayer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MediaPlayer.m; sourceTree = "<group>"; };
 		539650EF288CC72F007B53EC /* version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = version.h; sourceTree = "<group>"; };
@@ -633,6 +639,16 @@
 		539651D5288CC730007B53EC /* libavcodec.58.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libavcodec.58.dylib; sourceTree = "<group>"; };
 		539651D6288CC730007B53EC /* libogg.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libogg.0.dylib; sourceTree = "<group>"; };
 		539651D7288CC730007B53EC /* libopus.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libopus.0.dylib; sourceTree = "<group>"; };
+		5396531A288CD19C007B53EC /* MediaPlayerView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MediaPlayerView.h; sourceTree = "<group>"; };
+		5396531B288CD19C007B53EC /* MediaPlayerView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MediaPlayerView.m; sourceTree = "<group>"; };
+		5396531E288CE2A7007B53EC /* MediaPlayerController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MediaPlayerController.h; sourceTree = "<group>"; };
+		5396532B288F453E007B53EC /* MPVViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MPVViewController.h; sourceTree = "<group>"; };
+		5396532C288F453E007B53EC /* MPVViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MPVViewController.m; sourceTree = "<group>"; };
+		5396532F288F498B007B53EC /* MediaPlayerViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MediaPlayerViewController.h; sourceTree = "<group>"; };
+		53965333288F4C37007B53EC /* MPVViewLayer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MPVViewLayer.h; sourceTree = "<group>"; };
+		53965334288F4C37007B53EC /* MPVViewLayer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MPVViewLayer.m; sourceTree = "<group>"; };
+		53965337288F4DF9007B53EC /* MPVFunctions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MPVFunctions.h; sourceTree = "<group>"; };
+		53965338288F4DF9007B53EC /* MPVFunctions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MPVFunctions.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -873,14 +889,15 @@
 		5350F8BF2886192E00F8CA68 /* Media */ = {
 			isa = PBXGroup;
 			children = (
-				53964F08288C4C48007B53EC /* MPVController.h */,
-				53964F09288C4C48007B53EC /* MPVController.m */,
-				53964F0C288C533B007B53EC /* MPVConstants.h */,
-				53964F0D288C533B007B53EC /* MPVConstants.m */,
+				53965322288F1601007B53EC /* MPV */,
 				5350F8C02886194200F8CA68 /* MediaFile.h */,
 				5350F8C12886194200F8CA68 /* MediaFile.m */,
+				5396531E288CE2A7007B53EC /* MediaPlayerController.h */,
 				53964F11288CC101007B53EC /* MediaPlayer.h */,
 				53964F12288CC101007B53EC /* MediaPlayer.m */,
+				5396532F288F498B007B53EC /* MediaPlayerViewController.h */,
+				5396531A288CD19C007B53EC /* MediaPlayerView.h */,
+				5396531B288CD19C007B53EC /* MediaPlayerView.m */,
 			);
 			path = Media;
 			sourceTree = "<group>";
@@ -1227,6 +1244,21 @@
 			path = lib;
 			sourceTree = "<group>";
 		};
+		53965322288F1601007B53EC /* MPV */ = {
+			isa = PBXGroup;
+			children = (
+				53965337288F4DF9007B53EC /* MPVFunctions.h */,
+				53965338288F4DF9007B53EC /* MPVFunctions.m */,
+				53964F08288C4C48007B53EC /* MPVController.h */,
+				53964F09288C4C48007B53EC /* MPVController.m */,
+				5396532B288F453E007B53EC /* MPVViewController.h */,
+				5396532C288F453E007B53EC /* MPVViewController.m */,
+				53965333288F4C37007B53EC /* MPVViewLayer.h */,
+				53965334288F4C37007B53EC /* MPVViewLayer.m */,
+			);
+			path = MPV;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -1242,6 +1274,7 @@
 				5309C3F12885A74A00BC0AAE /* ObjectIdentifier.h in Headers */,
 				5309C3EC2885A43100BC0AAE /* PreferenceViewController.h in Headers */,
 				5309C4252885CDA500BC0AAE /* DatabaseSchema.h in Headers */,
+				53965339288F4DF9007B53EC /* MPVFunctions.h in Headers */,
 				5309C4292885D19400BC0AAE /* DatabaseTable.h in Headers */,
 				5350F8C22886194200F8CA68 /* MediaFile.h in Headers */,
 				5309C3E82885A39C00BC0AAE /* PreferencesWindowController.h in Headers */,
@@ -1252,11 +1285,15 @@
 				5309C40F2885B43B00BC0AAE /* ObjectCache.h in Headers */,
 				538E05132885ED2200CE9DE7 /* ObjectRepository.h in Headers */,
 				5350FB0628889E7400F8CA68 /* Node.h in Headers */,
+				5396532D288F453E007B53EC /* MPVViewController.h in Headers */,
 				5309C4142885C86500BC0AAE /* DatabaseQueue.h in Headers */,
+				53965331288F498B007B53EC /* MediaPlayerViewController.h in Headers */,
 				53964F13288CC101007B53EC /* MediaPlayer.h in Headers */,
+				53965320288CE2A7007B53EC /* MediaPlayerController.h in Headers */,
+				5396531C288CD19C007B53EC /* MediaPlayerView.h in Headers */,
 				5309C3BA2885A1DC00BC0AAE /* CoreZen.h in Headers */,
-				53964F0E288C533B007B53EC /* MPVConstants.h in Headers */,
 				53964F0A288C4C48007B53EC /* MPVController.h in Headers */,
+				53965335288F4C37007B53EC /* MPVViewLayer.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1361,17 +1398,20 @@
 				5309C3E92885A39C00BC0AAE /* PreferencesWindowController.m in Sources */,
 				53964F0B288C4C48007B53EC /* MPVController.m in Sources */,
 				5309C4222885CB1400BC0AAE /* DataTransferObject.m in Sources */,
+				5396531D288CD19C007B53EC /* MediaPlayerView.m in Sources */,
+				5396533A288F4DF9007B53EC /* MPVFunctions.m in Sources */,
 				5309C4262885CDA500BC0AAE /* DatabaseSchema.m in Sources */,
 				5309C3AE2885A1DC00BC0AAE /* CoreZen.docc in Sources */,
 				538E05142885ED2200CE9DE7 /* ObjectRepository.m in Sources */,
 				5350FB0728889E7400F8CA68 /* Node.m in Sources */,
 				5309C3F22885A74A00BC0AAE /* ObjectIdentifier.m in Sources */,
-				53964F0F288C533B007B53EC /* MPVConstants.m in Sources */,
+				5396532E288F453E007B53EC /* MPVViewController.m in Sources */,
 				5350F8C32886194200F8CA68 /* MediaFile.m in Sources */,
 				5309C4072885B14C00BC0AAE /* NSURL+CoreZen.m in Sources */,
 				538E05042885DCED00CE9DE7 /* DomainObject.m in Sources */,
 				5309C4152885C86500BC0AAE /* DatabaseQueue.m in Sources */,
 				53964F14288CC101007B53EC /* MediaPlayer.m in Sources */,
+				53965336288F4C37007B53EC /* MPVViewLayer.m in Sources */,
 				5309C4102885B43B00BC0AAE /* ObjectCache.m in Sources */,
 				5309C40B2885B15400BC0AAE /* NSNumber+CoreZen.m in Sources */,
 				538E050C2885E53700CE9DE7 /* DomainCommon.m in Sources */,
@@ -1532,6 +1572,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Carthage/Build/Mac",
 				);
+				GCC_PREPROCESSOR_DEFINITIONS = GL_SILENCE_DEPRECATION;
 				GENERATE_INFOPLIST_FILE = YES;
 				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/Dependencies/include";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -1568,6 +1609,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Carthage/Build/Mac",
 				);
+				GCC_PREPROCESSOR_DEFINITIONS = GL_SILENCE_DEPRECATION;
 				GENERATE_INFOPLIST_FILE = YES;
 				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/Dependencies/include";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";

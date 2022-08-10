@@ -7,7 +7,7 @@
 
 #import "MediaPlayer.h"
 #import "MediaPlayerView.h"
-#import "MPVController.h"
+#import "MPVPlayerController.h"
 
 @interface ZENMediaPlayer ()
 
@@ -21,7 +21,7 @@
 	self = [super init];
 	if (self) {
 		_fileURL = url;
-		_playerController = [[ZENMPVController alloc] initWithPlayer:self];
+		_playerController = [[ZENMPVPlayerController alloc] initWithPlayer:self];
 	}
 	return self;
 }

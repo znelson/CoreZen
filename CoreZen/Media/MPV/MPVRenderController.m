@@ -56,7 +56,7 @@ static void zen_mpv_render_context_update(void *ctx);
 		_forceRenderFrame = NO;
 		
 		dispatch_queue_attr_t qos = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INTERACTIVE, 0);
-		_renderQueue = dispatch_queue_create("com.zdnelson.CoreZen.MPVRenderController", qos);
+		_renderQueue = dispatch_queue_create("com.zdnelson.CoreZen.mpv-render", qos);
 		
 		NSSize playerViewSize = playerView.frame.size;
 		_mpvFBO = (mpv_opengl_fbo) { .fbo = 1, .w = playerViewSize.width, .h = playerViewSize.height };

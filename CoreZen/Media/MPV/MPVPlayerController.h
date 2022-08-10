@@ -1,5 +1,5 @@
 //
-//  MPVController.h
+//  MPVPlayerController.h
 //  CoreZen
 //
 //  Created by Zach Nelson on 7/23/22.
@@ -10,7 +10,7 @@
 
 @class ZENMediaPlayer;
 
-@interface ZENMPVController : NSObject <ZENMediaPlayerController>
+@interface ZENMPVPlayerController : NSObject <ZENMediaPlayerController>
 
 - (instancetype)initWithPlayer:(ZENMediaPlayer *)player;
 

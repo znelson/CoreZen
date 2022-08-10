@@ -1,11 +1,11 @@
 //
-//  MPVController.m
+//  MPVPlayerController.m
 //  CoreZen
 //
 //  Created by Zach Nelson on 7/23/22.
 //
 
-#import "MPVController.h"
+#import "MPVPlayerController.h"
 #import "MPVFunctions.h"
 #import "MPVConstants.h"
 #import "MediaPlayer.h"
@@ -19,7 +19,7 @@
 
 static void zen_mpv_wakeup(void *ctx);
 
-@interface ZENMPVController ()
+@interface ZENMPVPlayerController ()
 {
 	mpv_handle *_mpvHandle;
 	
@@ -33,7 +33,7 @@ static void zen_mpv_wakeup(void *ctx);
 
 @end
 
-@implementation ZENMPVController
+@implementation ZENMPVPlayerController
 
 - (instancetype)initWithPlayer:(ZENMediaPlayer *)player {
 	self = [super init];
@@ -41,7 +41,7 @@ static void zen_mpv_wakeup(void *ctx);
 		_player = player;
 		
 		dispatch_queue_attr_t qos = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INITIATED, 0);
-		_eventQueue = dispatch_queue_create("com.zdnelson.CoreZen.MPVController", qos);
+		_eventQueue = dispatch_queue_create("com.zdnelson.CoreZen.mpv-player", qos);
 		
 		_mpvHandle = mpv_create();
 		
@@ -210,7 +210,7 @@ static void zen_mpv_wakeup(void *ctx);
 @end
 
 static void zen_mpv_wakeup(void *ctx) {
-	__unsafe_unretained ZENMPVController *controller = (__bridge ZENMPVController *)ctx;
+	__unsafe_unretained ZENMPVPlayerController *controller = (__bridge ZENMPVPlayerController *)ctx;
 	dispatch_async(controller->_eventQueue, ^{
 		[controller mpvHandleEvents];
 	});

@@ -1,11 +1,11 @@
 //
-//  MPVViewController.m
+//  MPVRenderController.m
 //  CoreZen
 //
 //  Created by Zach Nelson on 7/25/22.
 //
 
-#import "MPVViewController.h"
+#import "MPVRenderController.h"
 #import "MPVFunctions.h"
 #import "MediaPlayer.h"
 #import "MediaPlayerView.h"
@@ -23,7 +23,7 @@
 static void *zen_mpv_get_proc_address(void *ctx, const char *name);
 static void zen_mpv_render_context_update(void *ctx);
 
-@interface ZENMPVViewController ()
+@interface ZENMPVRenderController ()
 {
 	mpv_render_context *_mpvRenderContext;
 	
@@ -46,7 +46,7 @@ static void zen_mpv_render_context_update(void *ctx);
 
 @end
 
-@implementation ZENMPVViewController
+@implementation ZENMPVRenderController
 
 - (instancetype)initWithPlayerView:(ZENMediaPlayerView *)playerView {
 	self = [super init];
@@ -56,7 +56,7 @@ static void zen_mpv_render_context_update(void *ctx);
 		_forceRenderFrame = NO;
 		
 		dispatch_queue_attr_t qos = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INTERACTIVE, 0);
-		_renderQueue = dispatch_queue_create("com.zdnelson.CoreZen.MPVViewController", qos);
+		_renderQueue = dispatch_queue_create("com.zdnelson.CoreZen.MPVRenderController", qos);
 		
 		NSSize playerViewSize = playerView.frame.size;
 		_mpvFBO = (mpv_opengl_fbo) { .fbo = 1, .w = playerViewSize.width, .h = playerViewSize.height };
@@ -185,7 +185,7 @@ void *zen_mpv_get_proc_address(void *ctx, const char *name) {
 }
 
 static void zen_mpv_render_context_update(void *ctx) {
-	__unsafe_unretained ZENMPVViewController *controller = (__bridge ZENMPVViewController *)ctx;
+	__unsafe_unretained ZENMPVRenderController *controller = (__bridge ZENMPVRenderController *)ctx;
 	dispatch_async(controller->_renderQueue, ^{
 		[controller renderFrameOnRenderQueue];
 	});

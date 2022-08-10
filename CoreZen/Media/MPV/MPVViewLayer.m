@@ -6,7 +6,7 @@
 //
 
 #import "MPVViewLayer.h"
-#import "MPVViewController.h"
+#import "MPVRenderController.h"
 #import "MPVFunctions.h"
 #import "MediaPlayerView.h"
 
@@ -56,11 +56,11 @@
 }
 
 - (BOOL)canDrawInCGLContext:(CGLContextObj)ctx pixelFormat:(CGLPixelFormatObj)pf forLayerTime:(CFTimeInterval)t displayTime:(const CVTimeStamp *)ts {
-	return self.playerView.playerViewController.readyToRenderFrame;
+	return self.playerView.renderController.readyToRenderFrame;
 }
 
 - (void)drawInCGLContext:(CGLContextObj)ctx pixelFormat:(CGLPixelFormatObj)pf forLayerTime:(CFTimeInterval)t displayTime:(const CVTimeStamp *)ts {
-	[self.playerView.playerViewController renderNextFrame];
+	[self.playerView.renderController renderNextFrame];
 }
 
 - (void)display {

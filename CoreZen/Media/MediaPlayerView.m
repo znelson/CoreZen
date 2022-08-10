@@ -7,7 +7,7 @@
 
 #import "MediaPlayerView.h"
 #import "MediaPlayer.h"
-#import "MPVViewController.h"
+#import "MPVRenderController.h"
 #import "MPVViewLayer.h"
 
 @interface ZENMediaPlayer ()
@@ -26,7 +26,7 @@
 	ZENMPVViewLayer *viewLayer = [ZENMPVViewLayer new];
 	viewLayer.playerView = self;
 	
-	_playerViewController = [[ZENMPVViewController new] initWithPlayerView:self];
+	_renderController = [[ZENMPVRenderController new] initWithPlayerView:self];
 	
 	NSOpenGLPixelFormatAttribute pixelFormatAttrs[] = {
 		NSOpenGLPFAAllowOfflineRenderers,
@@ -63,7 +63,7 @@
 - (void)viewDidMoveToWindow {
 	[super viewDidMoveToWindow];
 	if (self.player) {
-		[self.playerViewController createRenderContextForPlayer:self.player];
+		[self.renderController createRenderContextForPlayer:self.player];
 	}
 }
 
@@ -78,7 +78,7 @@
 - (void)attachPlayer:(ZENMediaPlayer *)player {
 	[player attachPlayerView:self];
 	if (self.player) {
-		[self.playerViewController createRenderContextForPlayer:self.player];
+		[self.renderController createRenderContextForPlayer:self.player];
 	}
 }
 

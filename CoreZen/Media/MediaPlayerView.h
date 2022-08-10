@@ -8,11 +8,11 @@
 #import <Cocoa/Cocoa.h>
 
 @class ZENMediaPlayer;
-@protocol ZENMediaPlayerViewController;
+@protocol ZENMediaPlayerRenderController;
 
 @interface ZENMediaPlayerView : NSOpenGLView
 
-@property (nonatomic, strong, readonly) NSObject<ZENMediaPlayerViewController> *playerViewController;
+@property (nonatomic, strong, readonly) NSObject<ZENMediaPlayerRenderController> *renderController;
 @property (nonatomic, weak) ZENMediaPlayer *player;
 
 - (void)attachPlayer:(ZENMediaPlayer *)player;

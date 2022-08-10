@@ -1,5 +1,5 @@
 //
-//  MediaPlayerViewController.h
+//  MediaPlayerRenderController.h
 //  CoreZen
 //
 //  Created by Zach Nelson on 7/25/22.
@@ -9,7 +9,7 @@
 
 @class ZENMediaPlayer;
 
-@protocol ZENMediaPlayerViewController <NSObject>
+@protocol ZENMediaPlayerRenderController <NSObject>
 
 - (void)createRenderContextForPlayer:(ZENMediaPlayer *)player;
 - (void)destroyRenderContext;

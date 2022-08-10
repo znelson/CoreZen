@@ -9,5 +9,6 @@
 
 NSString *zen_mpv_string(const char *str);
 
-extern void *zen_mpv_get_proc_address_context;
-void *zen_mpv_get_proc_address(void *ctx, const char *name);
+typedef struct mpv_handle mpv_handle;
+
+void zen_mpv_set_bool_property(mpv_handle* mpv, const char* const property, BOOL value);

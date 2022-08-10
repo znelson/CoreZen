@@ -7,6 +7,7 @@
 
 #import "MPVController.h"
 #import "MPVFunctions.h"
+#import "MPVConstants.h"
 #import "MediaPlayer.h"
 
 #pragma clang diagnostic push
@@ -88,21 +89,11 @@ static void zen_mpv_wakeup(void *ctx);
 }
 
 - (void)startPlayback {
-	BOOL pause = NO;
-	mpv_node node = {
-		.u.flag = (int)pause,
-		.format = MPV_FORMAT_FLAG
-	};
-	mpv_set_property(_mpvHandle, "pause", MPV_FORMAT_NODE, &node);
+	zen_mpv_set_bool_property(_mpvHandle, kMPVProperty_Pause, NO);
 }
 
 - (void)pausePlayback {
-	BOOL pause = YES;
-	mpv_node node = {
-		.u.flag = (int)pause,
-		.format = MPV_FORMAT_FLAG
-	};
-	mpv_set_property(_mpvHandle, "pause", MPV_FORMAT_NODE, &node);
+	zen_mpv_set_bool_property(_mpvHandle, kMPVProperty_Pause, YES);
 }
 
 - (void)mpvHandleEvents {

@@ -41,6 +41,8 @@
 		5350F8C32886194200F8CA68 /* MediaFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 5350F8C12886194200F8CA68 /* MediaFile.m */; };
 		5350FB0628889E7400F8CA68 /* Node.h in Headers */ = {isa = PBXBuildFile; fileRef = 5350FB0428889E7400F8CA68 /* Node.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5350FB0728889E7400F8CA68 /* Node.m in Sources */ = {isa = PBXBuildFile; fileRef = 5350FB0528889E7400F8CA68 /* Node.m */; };
+		5356FE5828A4290000ECCA92 /* MPVConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 5356FE5628A4290000ECCA92 /* MPVConstants.h */; };
+		5356FE5928A4290000ECCA92 /* MPVConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 5356FE5728A4290000ECCA92 /* MPVConstants.m */; };
 		538499112885FF21004ED6A1 /* FMDB.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 538499102885FF21004ED6A1 /* FMDB.framework */; };
 		538E05032885DCED00CE9DE7 /* DomainObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 538E05012885DCED00CE9DE7 /* DomainObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		538E05042885DCED00CE9DE7 /* DomainObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 538E05022885DCED00CE9DE7 /* DomainObject.m */; };
@@ -401,6 +403,8 @@
 		5350F8C12886194200F8CA68 /* MediaFile.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MediaFile.m; sourceTree = "<group>"; };
 		5350FB0428889E7400F8CA68 /* Node.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Node.h; sourceTree = "<group>"; };
 		5350FB0528889E7400F8CA68 /* Node.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Node.m; sourceTree = "<group>"; };
+		5356FE5628A4290000ECCA92 /* MPVConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MPVConstants.h; sourceTree = "<group>"; };
+		5356FE5728A4290000ECCA92 /* MPVConstants.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MPVConstants.m; sourceTree = "<group>"; };
 		538499102885FF21004ED6A1 /* FMDB.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FMDB.framework; path = Carthage/Build/Mac/FMDB.framework; sourceTree = "<group>"; };
 		538E05012885DCED00CE9DE7 /* DomainObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DomainObject.h; sourceTree = "<group>"; };
 		538E05022885DCED00CE9DE7 /* DomainObject.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DomainObject.m; sourceTree = "<group>"; };
@@ -1247,6 +1251,8 @@
 		53965322288F1601007B53EC /* MPV */ = {
 			isa = PBXGroup;
 			children = (
+				5356FE5628A4290000ECCA92 /* MPVConstants.h */,
+				5356FE5728A4290000ECCA92 /* MPVConstants.m */,
 				53965337288F4DF9007B53EC /* MPVFunctions.h */,
 				53965338288F4DF9007B53EC /* MPVFunctions.m */,
 				53964F08288C4C48007B53EC /* MPVController.h */,
@@ -1288,6 +1294,7 @@
 				5396532D288F453E007B53EC /* MPVViewController.h in Headers */,
 				5309C4142885C86500BC0AAE /* DatabaseQueue.h in Headers */,
 				53965331288F498B007B53EC /* MediaPlayerViewController.h in Headers */,
+				5356FE5828A4290000ECCA92 /* MPVConstants.h in Headers */,
 				53964F13288CC101007B53EC /* MediaPlayer.h in Headers */,
 				53965320288CE2A7007B53EC /* MediaPlayerController.h in Headers */,
 				5396531C288CD19C007B53EC /* MediaPlayerView.h in Headers */,
@@ -1414,6 +1421,7 @@
 				53965336288F4C37007B53EC /* MPVViewLayer.m in Sources */,
 				5309C4102885B43B00BC0AAE /* ObjectCache.m in Sources */,
 				5309C40B2885B15400BC0AAE /* NSNumber+CoreZen.m in Sources */,
+				5356FE5928A4290000ECCA92 /* MPVConstants.m in Sources */,
 				538E050C2885E53700CE9DE7 /* DomainCommon.m in Sources */,
 				5309C4022885B11400BC0AAE /* NSFileManager+CoreZen.m in Sources */,
 			);

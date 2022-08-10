@@ -5,15 +5,9 @@
 //  Created by Zach Nelson on 7/23/22.
 //
 
-#import "MediaPlayer.h"
-#import "MediaPlayerView.h"
+#import "MediaPlayer+Private.h"
+#import "MediaPlayerView+Private.h"
 #import "MPVPlayerController.h"
-
-@interface ZENMediaPlayer ()
-
-- (void)attachPlayerView:(ZENMediaPlayerView *)view;
-
-@end
 
 @implementation ZENMediaPlayer
 

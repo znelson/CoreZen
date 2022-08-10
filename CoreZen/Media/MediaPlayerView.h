@@ -13,7 +13,7 @@
 @interface ZENMediaPlayerView : NSOpenGLView
 
 @property (nonatomic, strong, readonly) NSObject<ZENMediaPlayerRenderController> *renderController;
-@property (nonatomic, weak) ZENMediaPlayer *player;
+@property (nonatomic, weak, readonly) ZENMediaPlayer *player;
 
 - (void)attachPlayer:(ZENMediaPlayer *)player;
 

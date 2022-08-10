@@ -18,6 +18,8 @@
 @property (nonatomic, strong, readonly) NSObject<ZENMediaPlayerController> *playerController;
 @property (nonatomic, strong) ZENMediaPlayerView *playerView;
 
+- (void)loadMediaFile;
 - (void)startPlayback;
+- (void)pausePlayback;
 
 @end

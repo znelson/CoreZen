@@ -78,13 +78,31 @@ static void zen_mpv_wakeup(void *ctx);
 	return _mpvHandle;
 }
 
-- (void)startPlayback {
+- (void)loadMediaFile {
 	const char* command[] = {
 		"playlist-play-index",
 		"0",
 		nil
 	};
 	mpv_command(_mpvHandle, command);
+}
+
+- (void)startPlayback {
+	BOOL pause = NO;
+	mpv_node node = {
+		.u.flag = (int)pause,
+		.format = MPV_FORMAT_FLAG
+	};
+	mpv_set_property(_mpvHandle, "pause", MPV_FORMAT_NODE, &node);
+}
+
+- (void)pausePlayback {
+	BOOL pause = YES;
+	mpv_node node = {
+		.u.flag = (int)pause,
+		.format = MPV_FORMAT_FLAG
+	};
+	mpv_set_property(_mpvHandle, "pause", MPV_FORMAT_NODE, &node);
 }
 
 - (void)mpvHandleEvents {

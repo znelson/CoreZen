@@ -138,34 +138,6 @@ static void zen_mpv_wakeup(void *ctx);
 			NSLog(@"MPV_EVENT_FILE_LOADED");
 			break;
 		}
-		case MPV_EVENT_TRACKS_CHANGED: {
-			NSLog(@"MPV_EVENT_TRACKS_CHANGED");
-			break;
-		}
-		case MPV_EVENT_TRACK_SWITCHED: {
-			NSLog(@"MPV_EVENT_TRACK_SWITCHED");
-			break;
-		}
-		case MPV_EVENT_IDLE: {
-			NSLog(@"MPV_EVENT_IDLE");
-			break;
-		}
-		case MPV_EVENT_PAUSE: {
-			NSLog(@"MPV_EVENT_PAUSE");
-			break;
-		}
-		case MPV_EVENT_UNPAUSE: {
-			NSLog(@"MPV_EVENT_UNPAUSE");
-			break;
-		}
-		case MPV_EVENT_TICK: {
-			NSLog(@"MPV_EVENT_TICK");
-			break;
-		}
-		case MPV_EVENT_SCRIPT_INPUT_DISPATCH: {
-			NSLog(@"MPV_EVENT_SCRIPT_INPUT_DISPATCH");
-			break;
-		}
 		case MPV_EVENT_CLIENT_MESSAGE: {
 			NSLog(@"MPV_EVENT_CLIENT_MESSAGE");
 			break;
@@ -178,10 +150,6 @@ static void zen_mpv_wakeup(void *ctx);
 			NSLog(@"MPV_EVENT_AUDIO_RECONFIG");
 			break;
 		}
-		case MPV_EVENT_METADATA_UPDATE: {
-			NSLog(@"MPV_EVENT_METADATA_UPDATE");
-			break;
-		}
 		case MPV_EVENT_SEEK: {
 			NSLog(@"MPV_EVENT_SEEK");
 			break;
@@ -192,10 +160,6 @@ static void zen_mpv_wakeup(void *ctx);
 		}
 		case MPV_EVENT_PROPERTY_CHANGE: {
 			NSLog(@"MPV_EVENT_PROPERTY_CHANGE");
-			break;
-		}
-		case MPV_EVENT_CHAPTER_CHANGE: {
-			NSLog(@"MPV_EVENT_CHAPTER_CHANGE");
 			break;
 		}
 		case MPV_EVENT_QUEUE_OVERFLOW: {

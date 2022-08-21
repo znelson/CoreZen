@@ -47,14 +47,14 @@ static void zen_mpv_wakeup(void *ctx);
 		
 		_clientName = zen_mpv_string(mpv_client_name(_mpvHandle));
 		
-		mpv_set_option_string(_mpvHandle, "hwdec", "videotoolbox");
-		mpv_set_option_string(_mpvHandle, "vo", "libmpv");
+		mpv_set_option_string(_mpvHandle, kMPVOption_hwdec, kMPVParam_videotoolbox);
+		mpv_set_option_string(_mpvHandle, kMPVOption_vo, kMPVParam_libmpv);
 		
 		mpv_request_log_messages(_mpvHandle, "warn");
 		
 		mpv_initialize(_mpvHandle);
 		
-		_version = zen_mpv_string(mpv_get_property_string(_mpvHandle, "mpv-version"));
+		_version = zen_mpv_string(mpv_get_property_string(_mpvHandle, kMPVProperty_mpv_version));
 		
 		void *selfAsVoid = (__bridge void *)self;
 		mpv_set_wakeup_callback(_mpvHandle, zen_mpv_wakeup, selfAsVoid);

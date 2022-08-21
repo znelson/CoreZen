@@ -18,6 +18,9 @@
 @property (nonatomic, strong, readonly) NSObject<ZENMediaPlayerController> *playerController;
 @property (nonatomic, strong, readonly) ZENMediaPlayerView *playerView;
 
+// Observe these properties for updates to the UI. They will only change on the main thread.
+@property (nonatomic, readonly) BOOL paused;
+
 - (void)startPlayback;
 - (void)pausePlayback;
 

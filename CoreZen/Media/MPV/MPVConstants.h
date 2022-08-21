@@ -45,6 +45,10 @@ extern const char* const kMPVProperty_playback_time;
 extern const char* const kMPVProperty_playlist_pos;
 extern const char* const kMPVProperty_time_pos;
 
+// Property keys
+extern const char* const kMPVPropertyKey_name;
+extern const char* const kMPVPropertyKey_data;
+
 // Config options
 extern const char* const kMPVOption_hwdec;
 extern const char* const kMPVOption_vo;

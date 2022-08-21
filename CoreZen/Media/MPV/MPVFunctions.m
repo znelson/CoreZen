@@ -25,3 +25,7 @@ void zen_mpv_set_bool_property(mpv_handle* mpv, const char* const property, BOOL
 	};
 	mpv_set_property(mpv, property, MPV_FORMAT_NODE, &node);
 }
+
+BOOL zen_mpv_compare_strings(const char* const one, const char* const two) {
+	return strcmp(one, two) == 0;
+}

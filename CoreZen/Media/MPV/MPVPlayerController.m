@@ -8,7 +8,9 @@
 #import "MPVPlayerController.h"
 #import "MPVFunctions.h"
 #import "MPVConstants.h"
-#import "MediaPlayer.h"
+#import "MediaPlayer+Private.h"
+
+#import <stdatomic.h>
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdocumentation"
@@ -17,10 +19,12 @@
 
 #pragma clang diagnostic pop
 
+static uint64_t zen_mpv_next_observer_identifier(void);
 static void zen_mpv_wakeup(void *ctx);
 
 @interface ZENMPVPlayerController ()
 {
+	uint64_t _observerID;
 	mpv_handle *_mpvHandle;
 	
 @public
@@ -29,6 +33,7 @@ static void zen_mpv_wakeup(void *ctx);
 
 @property (nonatomic, strong, readonly) NSThread *mpvEventThread;
 
+- (void)observeProperties;
 - (void)mpvHandleEvents;
 
 @end
@@ -39,6 +44,8 @@ static void zen_mpv_wakeup(void *ctx);
 	self = [super init];
 	if (self) {
 		_player = player;
+		
+		_observerID = zen_mpv_next_observer_identifier();
 		
 		dispatch_queue_attr_t qos = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INITIATED, 0);
 		_eventQueue = dispatch_queue_create("com.zdnelson.CoreZen.mpv-player", qos);
@@ -66,13 +73,24 @@ static void zen_mpv_wakeup(void *ctx);
 			nil
 		};
 		mpv_command(_mpvHandle, command);
+		
+		[self observeProperties];
 	}
 	return self;
 }
 
 - (void)dealloc {
+	mpv_unobserve_property(_mpvHandle, _observerID);
+
+	mpv_set_wakeup_callback(_mpvHandle, zen_mpv_wakeup, nil);
+
 	dispatch_sync(_eventQueue, ^{});
+	
 	mpv_destroy(_mpvHandle);
+}
+
+- (void)observeProperties {
+	mpv_observe_property(_mpvHandle, _observerID, kMPVProperty_pause, MPV_FORMAT_NODE);
 }
 	
 - (void *)playerHandle {
@@ -110,7 +128,7 @@ static void zen_mpv_wakeup(void *ctx);
 			break;
 		}
 		case MPV_EVENT_LOG_MESSAGE: {
-			struct mpv_event_log_message *msg = event->data;
+			mpv_event_log_message *msg = event->data;
 			NSLog(@"MPV_EVENT_LOG_MESSAGE: [%s] <%s> %s", msg->prefix, msg->level, msg->text);
 			break;
 		}
@@ -159,7 +177,48 @@ static void zen_mpv_wakeup(void *ctx);
 			break;
 		}
 		case MPV_EVENT_PROPERTY_CHANGE: {
-			NSLog(@"MPV_EVENT_PROPERTY_CHANGE");
+			mpv_event_property *property = event->data;
+
+			NSLog(@"MPV_EVENT_PROPERTY_CHANGE: %s", property->name);
+
+			mpv_node node = {};
+			if (mpv_event_to_node(&node, event) == MPV_ERROR_SUCCESS) {
+
+				// Example node map for "pause" property change:
+				// {
+				// 	"event": "property-change",
+				// 	"id": 1,						// _observerID
+				// 	"name": "pause",
+				// 	"data": 0						// Flag value for "pause" property
+				// }
+
+				const char* propertyName = nil;
+				mpv_node *propertyValueNode = nil;
+
+				if (node.format == MPV_FORMAT_NODE_MAP) {
+					mpv_node_list *nodeList = node.u.list;
+					for (int nodeIndex = 0; nodeIndex < nodeList->num; ++nodeIndex) {
+						char *mapKey = *(nodeList->keys + nodeIndex);
+						mpv_node *mapNode = nodeList->values + nodeIndex;
+
+						if (zen_mpv_compare_strings(kMPVPropertyKey_name, mapKey)) {
+							propertyName = mapNode->u.string;
+						} else if (zen_mpv_compare_strings(kMPVPropertyKey_data, mapKey)) {
+							propertyValueNode = mapNode;
+						}
+					}
+				}
+
+				if (propertyName && propertyValueNode) {
+					if (zen_mpv_compare_strings(kMPVProperty_pause, propertyName)) {
+						BOOL paused = (BOOL)propertyValueNode->u.flag;
+						self.player.paused = paused;
+					}
+				}
+
+				mpv_free_node_contents(&node);
+			}			
+
 			break;
 		}
 		case MPV_EVENT_QUEUE_OVERFLOW: {
@@ -174,6 +233,11 @@ static void zen_mpv_wakeup(void *ctx);
 }
 
 @end
+
+static uint64_t zen_mpv_next_observer_identifier(void) {
+	static atomic_uint_fast64_t nextIdentifier = 1;
+	return atomic_fetch_add(&nextIdentifier, 1);
+}
 
 static void zen_mpv_wakeup(void *ctx) {
 	__unsafe_unretained ZENMPVPlayerController *controller = (__bridge ZENMPVPlayerController *)ctx;

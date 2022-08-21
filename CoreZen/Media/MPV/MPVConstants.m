@@ -45,6 +45,10 @@ const char* const kMPVProperty_playback_time =			"playback-time";
 const char* const kMPVProperty_playlist_pos =			"playlist-pos";
 const char* const kMPVProperty_time_pos =				"time-pos";
 
+// Property keys
+const char* const kMPVPropertyKey_name =				"name";
+const char* const kMPVPropertyKey_data =				"data";
+
 // Config options
 const char* const kMPVOption_hwdec =					"hwdec";
 const char* const kMPVOption_vo =						"vo";

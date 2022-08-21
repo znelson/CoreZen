@@ -25,12 +25,6 @@
 	self.playerView.player = self;
 }
 
-- (void)loadMediaFile {
-	if (self.playerView) {
-		[self.playerController loadMediaFile];
-	}
-}
-
 - (void)startPlayback {
 	if (self.playerView) {
 		[self.playerController startPlayback];

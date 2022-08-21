@@ -89,11 +89,13 @@ static void zen_mpv_wakeup(void *ctx);
 }
 
 - (void)startPlayback {
-	zen_mpv_set_bool_property(_mpvHandle, kMPVProperty_Pause, NO);
+	[self loadMediaFile];
+	zen_mpv_set_bool_property(_mpvHandle, kMPVProperty_pause, NO);
 }
 
 - (void)pausePlayback {
-	zen_mpv_set_bool_property(_mpvHandle, kMPVProperty_Pause, YES);
+	[self loadMediaFile];
+	zen_mpv_set_bool_property(_mpvHandle, kMPVProperty_pause, YES);
 }
 
 - (void)mpvHandleEvents {

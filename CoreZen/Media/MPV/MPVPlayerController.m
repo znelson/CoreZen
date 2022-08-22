@@ -181,8 +181,6 @@ static void zen_mpv_wakeup(void *ctx);
 			case MPV_EVENT_PROPERTY_CHANGE: {
 				mpv_event_property *property = event->data;
 
-				NSLog(@"MPV_EVENT_PROPERTY_CHANGE: %s", property->name);
-
 				mpv_node node = {};
 				if (mpv_event_to_node(&node, event) == MPV_ERROR_SUCCESS) {
 
@@ -196,6 +194,7 @@ static void zen_mpv_wakeup(void *ctx);
 
 					const char* propertyName = nil;
 					mpv_node *propertyValueNode = nil;
+					uint64_t propertyID = 0;
 
 					if (node.format == MPV_FORMAT_NODE_MAP) {
 						mpv_node_list *nodeList = node.u.list;
@@ -207,11 +206,15 @@ static void zen_mpv_wakeup(void *ctx);
 								propertyName = mapNode->u.string;
 							} else if (zen_mpv_compare_strings(kMPVPropertyKey_data, mapKey)) {
 								propertyValueNode = mapNode;
+							} else if (zen_mpv_compare_strings(kMPVPropertyKey_id, mapKey)) {
+								propertyID = mapNode->u.int64;
 							}
 						}
 					}
+					
+					NSLog(@"MPV_EVENT_PROPERTY_CHANGE (%llu): %s", propertyID, property->name);
 
-					if (propertyName && propertyValueNode) {
+					if (propertyName && propertyValueNode && propertyID == _observerID) {
 						if (zen_mpv_compare_strings(kMPVProperty_pause, propertyName)) {
 							BOOL paused = (BOOL)propertyValueNode->u.flag;
 							self.player.paused = paused;

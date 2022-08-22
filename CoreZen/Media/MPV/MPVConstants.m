@@ -48,6 +48,7 @@ const char* const kMPVProperty_time_pos =				"time-pos";
 // Property keys
 const char* const kMPVPropertyKey_name =				"name";
 const char* const kMPVPropertyKey_data =				"data";
+const char* const kMPVPropertyKey_id =					"id";
 
 // Config options
 const char* const kMPVOption_hwdec =					"hwdec";

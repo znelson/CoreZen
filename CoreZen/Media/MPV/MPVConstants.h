@@ -48,6 +48,7 @@ extern const char* const kMPVProperty_time_pos;
 // Property keys
 extern const char* const kMPVPropertyKey_name;
 extern const char* const kMPVPropertyKey_data;
+extern const char* const kMPVPropertyKey_id;
 
 // Config options
 extern const char* const kMPVOption_hwdec;

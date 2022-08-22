@@ -117,117 +117,127 @@ static void zen_mpv_wakeup(void *ctx);
 }
 
 - (void)mpvHandleEvents {
-	mpv_event *event = mpv_wait_event(_mpvHandle, 0);
-	switch (event->event_id) {
-		case MPV_EVENT_NONE: {
-			NSLog(@"MPV_EVENT_NONE");
+	while (true) {
+		mpv_event *event = mpv_wait_event(_mpvHandle, 0);
+		if (event->event_id == MPV_EVENT_NONE) {
+			// MPV_EVENT_NONE means the event queue is empty, meaning we
+			// can break out of the outer loop and let this thread return
 			break;
 		}
-		case MPV_EVENT_SHUTDOWN: {
-			NSLog(@"MPV_EVENT_SHUTDOWN");
-			break;
-		}
-		case MPV_EVENT_LOG_MESSAGE: {
-			mpv_event_log_message *msg = event->data;
-			NSLog(@"MPV_EVENT_LOG_MESSAGE: [%s] <%s> %s", msg->prefix, msg->level, msg->text);
-			break;
-		}
-		case MPV_EVENT_GET_PROPERTY_REPLY: {
-			NSLog(@"MPV_EVENT_GET_PROPERTY_REPLY");
-			break;
-		}
-		case MPV_EVENT_SET_PROPERTY_REPLY: {
-			NSLog(@"MPV_EVENT_SET_PROPERTY_REPLY");
-			break;
-		}
-		case MPV_EVENT_COMMAND_REPLY: {
-			NSLog(@"MPV_EVENT_COMMAND_REPLY");
-			break;
-		}
-		case MPV_EVENT_START_FILE: {
-			NSLog(@"MPV_EVENT_START_FILE");
-			break;
-		}
-		case MPV_EVENT_END_FILE: {
-			NSLog(@"MPV_EVENT_END_FILE");
-			break;
-		}
-		case MPV_EVENT_FILE_LOADED: {
-			NSLog(@"MPV_EVENT_FILE_LOADED");
-			break;
-		}
-		case MPV_EVENT_CLIENT_MESSAGE: {
-			NSLog(@"MPV_EVENT_CLIENT_MESSAGE");
-			break;
-		}
-		case MPV_EVENT_VIDEO_RECONFIG: {
-			NSLog(@"MPV_EVENT_VIDEO_RECONFIG");
-			break;
-		}
-		case MPV_EVENT_AUDIO_RECONFIG: {
-			NSLog(@"MPV_EVENT_AUDIO_RECONFIG");
-			break;
-		}
-		case MPV_EVENT_SEEK: {
-			NSLog(@"MPV_EVENT_SEEK");
-			break;
-		}
-		case MPV_EVENT_PLAYBACK_RESTART: {
-			NSLog(@"MPV_EVENT_PLAYBACK_RESTART");
-			break;
-		}
-		case MPV_EVENT_PROPERTY_CHANGE: {
-			mpv_event_property *property = event->data;
+		switch (event->event_id) {
+			case MPV_EVENT_SHUTDOWN: {
+				NSLog(@"MPV_EVENT_SHUTDOWN");
+				break;
+			}
+			case MPV_EVENT_LOG_MESSAGE: {
+				mpv_event_log_message *msg = event->data;
+				NSLog(@"MPV_EVENT_LOG_MESSAGE: [%s] <%s> %s", msg->prefix, msg->level, msg->text);
+				break;
+			}
+			case MPV_EVENT_GET_PROPERTY_REPLY: {
+				NSLog(@"MPV_EVENT_GET_PROPERTY_REPLY");
+				break;
+			}
+			case MPV_EVENT_SET_PROPERTY_REPLY: {
+				NSLog(@"MPV_EVENT_SET_PROPERTY_REPLY");
+				break;
+			}
+			case MPV_EVENT_COMMAND_REPLY: {
+				NSLog(@"MPV_EVENT_COMMAND_REPLY");
+				break;
+			}
+			case MPV_EVENT_START_FILE: {
+				NSLog(@"MPV_EVENT_START_FILE");
+				break;
+			}
+			case MPV_EVENT_END_FILE: {
+				NSLog(@"MPV_EVENT_END_FILE");
+				break;
+			}
+			case MPV_EVENT_FILE_LOADED: {
+				NSLog(@"MPV_EVENT_FILE_LOADED");
+				break;
+			}
+			case MPV_EVENT_CLIENT_MESSAGE: {
+				NSLog(@"MPV_EVENT_CLIENT_MESSAGE");
+				break;
+			}
+			case MPV_EVENT_VIDEO_RECONFIG: {
+				NSLog(@"MPV_EVENT_VIDEO_RECONFIG");
+				break;
+			}
+			case MPV_EVENT_AUDIO_RECONFIG: {
+				NSLog(@"MPV_EVENT_AUDIO_RECONFIG");
+				break;
+			}
+			case MPV_EVENT_SEEK: {
+				NSLog(@"MPV_EVENT_SEEK");
+				break;
+			}
+			case MPV_EVENT_PLAYBACK_RESTART: {
+				NSLog(@"MPV_EVENT_PLAYBACK_RESTART");
+				break;
+			}
+			case MPV_EVENT_PROPERTY_CHANGE: {
+				mpv_event_property *property = event->data;
 
-			NSLog(@"MPV_EVENT_PROPERTY_CHANGE: %s", property->name);
+				NSLog(@"MPV_EVENT_PROPERTY_CHANGE: %s", property->name);
 
-			mpv_node node = {};
-			if (mpv_event_to_node(&node, event) == MPV_ERROR_SUCCESS) {
+				mpv_node node = {};
+				if (mpv_event_to_node(&node, event) == MPV_ERROR_SUCCESS) {
 
-				// Example node map for "pause" property change:
-				// {
-				// 	"event": "property-change",
-				// 	"id": 1,						// _observerID
-				// 	"name": "pause",
-				// 	"data": 0						// Flag value for "pause" property
-				// }
+					// Example node map for "pause" property change:
+					// {
+					// 	"event": "property-change",
+					// 	"id": 1,						// _observerID
+					// 	"name": "pause",
+					// 	"data": 0						// Flag value for "pause" property
+					// }
 
-				const char* propertyName = nil;
-				mpv_node *propertyValueNode = nil;
+					const char* propertyName = nil;
+					mpv_node *propertyValueNode = nil;
 
-				if (node.format == MPV_FORMAT_NODE_MAP) {
-					mpv_node_list *nodeList = node.u.list;
-					for (int nodeIndex = 0; nodeIndex < nodeList->num; ++nodeIndex) {
-						char *mapKey = *(nodeList->keys + nodeIndex);
-						mpv_node *mapNode = nodeList->values + nodeIndex;
+					if (node.format == MPV_FORMAT_NODE_MAP) {
+						mpv_node_list *nodeList = node.u.list;
+						for (int nodeIndex = 0; nodeIndex < nodeList->num; ++nodeIndex) {
+							char *mapKey = *(nodeList->keys + nodeIndex);
+							mpv_node *mapNode = nodeList->values + nodeIndex;
 
-						if (zen_mpv_compare_strings(kMPVPropertyKey_name, mapKey)) {
-							propertyName = mapNode->u.string;
-						} else if (zen_mpv_compare_strings(kMPVPropertyKey_data, mapKey)) {
-							propertyValueNode = mapNode;
+							if (zen_mpv_compare_strings(kMPVPropertyKey_name, mapKey)) {
+								propertyName = mapNode->u.string;
+							} else if (zen_mpv_compare_strings(kMPVPropertyKey_data, mapKey)) {
+								propertyValueNode = mapNode;
+							}
 						}
 					}
-				}
 
-				if (propertyName && propertyValueNode) {
-					if (zen_mpv_compare_strings(kMPVProperty_pause, propertyName)) {
-						BOOL paused = (BOOL)propertyValueNode->u.flag;
-						self.player.paused = paused;
+					if (propertyName && propertyValueNode) {
+						if (zen_mpv_compare_strings(kMPVProperty_pause, propertyName)) {
+							BOOL paused = (BOOL)propertyValueNode->u.flag;
+							self.player.paused = paused;
+							NSLog(@"Paused: %d", paused);
+						} else if (zen_mpv_compare_strings(kMPVProperty_estimated_frame_number, propertyName)) {
+							int64_t frameNum = propertyValueNode->u.int64;
+							NSLog(@"Estimated frame number: %lld", frameNum);
+						}
 					}
-				}
 
-				mpv_free_node_contents(&node);
-			}			
+					mpv_free_node_contents(&node);
+				}			
 
-			break;
-		}
-		case MPV_EVENT_QUEUE_OVERFLOW: {
-			NSLog(@"MPV_EVENT_QUEUE_OVERFLOW");
-			break;
-		}
-		case MPV_EVENT_HOOK: {
-			NSLog(@"MPV_EVENT_HOOK");
-			break;
+				break;
+			}
+			case MPV_EVENT_QUEUE_OVERFLOW: {
+				NSLog(@"MPV_EVENT_QUEUE_OVERFLOW");
+				break;
+			}
+			case MPV_EVENT_HOOK: {
+				NSLog(@"MPV_EVENT_HOOK");
+				break;
+			}
+			default: {
+				break;
+			}
 		}
 	}
 }

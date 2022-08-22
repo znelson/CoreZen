@@ -12,7 +12,6 @@
 // (mpv_handle *)playerHandle;
 - (void *)playerHandle;
 
-- (void)loadMediaFile;
 - (void)startPlayback;
 - (void)pausePlayback;
 

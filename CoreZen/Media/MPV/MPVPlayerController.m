@@ -66,15 +66,24 @@ static void zen_mpv_wakeup(void *ctx);
 		void *selfAsVoid = (__bridge void *)self;
 		mpv_set_wakeup_callback(_mpvHandle, zen_mpv_wakeup, selfAsVoid);
 		
-		const char* command[] = {
+		const char* loadCommand[] = {
 			"loadfile",
 			player.fileURL.path.fileSystemRepresentation,
 			"append",
 			nil
 		};
-		mpv_command(_mpvHandle, command);
+		mpv_command(_mpvHandle, loadCommand);
+
+		const char* playCommand[] = {
+			"playlist-play-index",
+			"0",
+			nil
+		};
+		mpv_command(_mpvHandle, playCommand);
 		
 		[self observeProperties];
+
+		[self pausePlayback];
 	}
 	return self;
 }
@@ -98,22 +107,11 @@ static void zen_mpv_wakeup(void *ctx);
 	return _mpvHandle;
 }
 
-- (void)loadMediaFile {
-	const char* command[] = {
-		"playlist-play-index",
-		"0",
-		nil
-	};
-	mpv_command(_mpvHandle, command);
-}
-
 - (void)startPlayback {
-	[self loadMediaFile];
 	zen_mpv_set_bool_property(_mpvHandle, kMPVProperty_pause, NO);
 }
 
 - (void)pausePlayback {
-	[self loadMediaFile];
 	zen_mpv_set_bool_property(_mpvHandle, kMPVProperty_pause, YES);
 }
 

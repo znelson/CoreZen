@@ -90,6 +90,7 @@ static void zen_mpv_wakeup(void *ctx);
 }
 
 - (void)observeProperties {
+	mpv_observe_property(_mpvHandle, _observerID, kMPVProperty_percent_pos, MPV_FORMAT_NODE);
 	mpv_observe_property(_mpvHandle, _observerID, kMPVProperty_pause, MPV_FORMAT_NODE);
 }
 	
@@ -219,9 +220,9 @@ static void zen_mpv_wakeup(void *ctx);
 							BOOL paused = (BOOL)propertyValueNode->u.flag;
 							self.player.paused = paused;
 							NSLog(@"Paused: %d", paused);
-						} else if (zen_mpv_compare_strings(kMPVProperty_estimated_frame_number, propertyName)) {
-							int64_t frameNum = propertyValueNode->u.int64;
-							NSLog(@"Estimated frame number: %lld", frameNum);
+						} else if (zen_mpv_compare_strings(kMPVProperty_percent_pos, propertyName)) {
+							double percentPos = propertyValueNode->u.double_;
+							NSLog(@"Position: %f", percentPos);
 						}
 					}
 

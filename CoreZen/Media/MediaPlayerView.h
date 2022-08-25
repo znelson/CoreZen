@@ -16,6 +16,7 @@
 @property (nonatomic, weak, readonly) ZENMediaPlayer *player;
 
 - (void)attachPlayer:(ZENMediaPlayer *)player;
+- (void)detachPlayer;
 
 - (void)lockViewContext;
 - (void)unlockViewContext;

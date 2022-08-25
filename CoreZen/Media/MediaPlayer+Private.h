@@ -14,5 +14,6 @@
 @property (nonatomic) BOOL paused;
 
 - (void)attachPlayerView:(ZENMediaPlayerView *)view;
+- (void)detachPlayerView;
 
 @end

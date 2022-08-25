@@ -22,7 +22,13 @@
 
 - (void)attachPlayerView:(ZENMediaPlayerView *)view {
 	self.playerView = view;
-	self.playerView.player = self;
+}
+
+- (void)detachPlayerView {
+	if (self.playerView) {
+		[self pausePlayback];
+		self.playerView = nil;
+	}
 }
 
 - (void)startPlayback {

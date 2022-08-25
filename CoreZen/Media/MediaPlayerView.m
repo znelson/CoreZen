@@ -72,9 +72,18 @@
 }
 
 - (void)attachPlayer:(ZENMediaPlayer *)player {
-	[player attachPlayerView:self];
-	if (self.player) {
+	if (player) {
+		self.player = player;
+		[player attachPlayerView:self];
 		[self.renderController createRenderContextForPlayer:self.player];
+	}
+}
+
+- (void)detachPlayer {
+	if (self.player) {
+		[self.player detachPlayerView];
+		[self.renderController destroyRenderContext];
+		self.player = nil;
 	}
 }
 

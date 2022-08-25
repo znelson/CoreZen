@@ -11,6 +11,7 @@
 #import "MediaPlayerView.h"
 #import "MediaPlayerController.h"
 
+@import Darwin.POSIX.pthread;
 @import OpenGL.GL;
 
 #pragma clang diagnostic push
@@ -33,6 +34,10 @@ static void zen_mpv_render_context_update(void *ctx);
 	
 	BOOL _didRenderFrame;
 	BOOL _forceRenderFrame;
+	BOOL _terminated;
+	
+	pthread_mutex_t _renderMutex;
+	pthread_cond_t _renderCondition;
 	
 @public
 	dispatch_queue_t _renderQueue;
@@ -54,6 +59,18 @@ static void zen_mpv_render_context_update(void *ctx);
 		_playerView = playerView;
 		_didRenderFrame = NO;
 		_forceRenderFrame = NO;
+		_terminated = NO;
+		
+		pthread_condattr_t renderConditionAttrs;
+		pthread_condattr_init(&renderConditionAttrs);
+		pthread_cond_init(&_renderCondition, &renderConditionAttrs);
+		pthread_condattr_destroy(&renderConditionAttrs);
+		
+		pthread_mutexattr_t renderMutexAttrs;
+		pthread_mutexattr_init(&renderMutexAttrs);
+		// pthread_mutexattr_setpolicy_np(&renderMutexAttrs, _PTHREAD_MUTEX_POLICY_FIRSTFIT);
+		pthread_mutex_init(&_renderMutex, &renderMutexAttrs);
+		pthread_mutexattr_destroy(&renderMutexAttrs);
 		
 		dispatch_queue_attr_t qos = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INTERACTIVE, 0);
 		_renderQueue = dispatch_queue_create("com.zdnelson.CoreZen.mpv-render", qos);
@@ -77,6 +94,9 @@ static void zen_mpv_render_context_update(void *ctx);
 	if (_mpvRenderContext) {
 		[self destroyRenderContext];
 	}
+	
+	pthread_mutex_destroy(&_renderMutex);
+	pthread_cond_destroy(&_renderCondition);
 }
 
 - (mpv_handle *)mpvHandleFromPlayerView {
@@ -112,7 +132,17 @@ static void zen_mpv_render_context_update(void *ctx);
 - (void)destroyRenderContext {
 	mpv_render_context_set_update_callback(_mpvRenderContext, NULL, NULL);
 	
+	pthread_mutex_lock(&_renderMutex);
+	
+	_terminated = YES;
+	
+	pthread_cond_signal(&_renderCondition);
+	pthread_mutex_unlock(&_renderMutex);
+	
 	dispatch_sync(_renderQueue, ^{});
+	
+	pthread_mutex_destroy(&_renderMutex);
+	pthread_cond_destroy(&_renderCondition);
 	
 	mpv_render_context_free(_mpvRenderContext);
 	_mpvRenderContext = nil;
@@ -126,7 +156,11 @@ static void zen_mpv_render_context_update(void *ctx);
 
 - (BOOL)readyToRenderFrame {
 	if (_mpvRenderContext) {
-		if (_forceRenderFrame) {
+		pthread_mutex_lock(&_renderMutex);
+		BOOL forceRenderFrame = _forceRenderFrame;
+		pthread_mutex_unlock(&_renderMutex);
+		
+		if (forceRenderFrame) {
 			return YES;
 		}
 		uint64_t flags = mpv_render_context_update(_mpvRenderContext);
@@ -136,7 +170,6 @@ static void zen_mpv_render_context_update(void *ctx);
 }
 
 - (void)renderNextFrame {
-	_didRenderFrame = YES;
 	
 	[self.playerView lockViewContext];
 	
@@ -156,18 +189,36 @@ static void zen_mpv_render_context_update(void *ctx);
 	glFlush();
 	
 	[self.playerView unlockViewContext];
+	
+	pthread_mutex_lock(&_renderMutex);
+	_didRenderFrame = YES;
+	pthread_mutex_unlock(&_renderMutex);
 }
 
 - (void)renderFrameOnRenderQueue {
 	
 	// ZENMPVViewLayer -drawInCGLContext: calls back to -renderNextFrame to update _didRenderFrame
+	
+	pthread_mutex_lock(&_renderMutex);
+	
 	_didRenderFrame = NO;
 	
-	dispatch_sync(dispatch_get_main_queue(), ^{
+	dispatch_async(dispatch_get_main_queue(), ^{
 		[self.playerView.layer display];
+		
+		pthread_mutex_lock(&self->_renderMutex);
+		pthread_cond_signal(&self->_renderCondition);
+		pthread_mutex_unlock(&self->_renderMutex);
 	});
 	
-	if (!_didRenderFrame) {
+	pthread_cond_wait(&_renderCondition, &_renderMutex);
+	
+	BOOL terminated = _terminated;
+	BOOL didRenderFrame = _didRenderFrame;
+	
+	pthread_mutex_unlock(&_renderMutex);
+	
+	if (!terminated && !didRenderFrame) {
 		[self.playerView lockViewContext];
 		mpv_render_context_render(_mpvRenderContext, _mpvSkipRenderParams);
 		[self.playerView unlockViewContext];

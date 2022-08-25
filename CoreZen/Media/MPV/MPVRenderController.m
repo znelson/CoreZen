@@ -68,7 +68,7 @@ static void zen_mpv_render_context_update(void *ctx);
 		
 		pthread_mutexattr_t renderMutexAttrs;
 		pthread_mutexattr_init(&renderMutexAttrs);
-		// pthread_mutexattr_setpolicy_np(&renderMutexAttrs, _PTHREAD_MUTEX_POLICY_FIRSTFIT);
+		pthread_mutexattr_setpolicy_np(&renderMutexAttrs, _PTHREAD_MUTEX_POLICY_FIRSTFIT);
 		pthread_mutex_init(&_renderMutex, &renderMutexAttrs);
 		pthread_mutexattr_destroy(&renderMutexAttrs);
 		

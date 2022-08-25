@@ -78,26 +78,6 @@ def run_cmd(cmd, validate_stderr=None):
 	return [line.strip() for line in proc_out.decode('ascii').splitlines()]
 
 ##
-def parse_dylib_libname(path):
-	path = path.strip()
-	name = os.path.splitext(os.path.basename(path))[0]
-	separators = {'-', '.'}
-	# Candidate names, split on each separator
-	dylib_names = [name.split(s) for s in separators]
-	# Remove candidates that didn't have the separator
-	dylib_names = [dn for dn in dylib_names if len(dn) > 1]
-	# Remove candidates that didn't have a digit after the separator
-	dylib_names = [dn for dn in dylib_names if dn[1][0].isdigit()]
-	# Pull the name out of each split list
-	dylib_names = [dn[0] for dn in dylib_names]
-	if len(dylib_names) == 0:
-		dylib_name = name
-	else:
-		# Go with the shortest name candidate
-		dylib_name = min(dylib_names, key=len)
-	return dylib_name
-
-##
 def parse_major_version(version):
 	if '.' in version:
 		return version.split('.')[0]
@@ -314,10 +294,8 @@ while len(dylibs_to_process):
 		# print(f'Skipping previously handled dependency: {src_dylib_path}')
 		continue
 
-	dylib_libname = parse_dylib_libname(src_dylib_path)
-
 	# If this is a lib we've seen before, confirm that it's the same path as before
-	previous_path = libname_to_dylib_path.get(dylib_libname, None)
+	previous_path = libname_to_dylib_path.get(dest_dylib_name, None)
 	if previous_path and previous_path != src_dylib_path:
 		print(f'ERROR: Mismatched library paths for {dylib_name}')
 		print(f'  New: {src_dylib_path}')
@@ -325,7 +303,7 @@ while len(dylibs_to_process):
 		exit(1)
 
 	processed_dylibs.add(src_dylib_path)
-	libname_to_dylib_path[dylib_libname] = src_dylib_path
+	libname_to_dylib_path[dest_dylib_name] = src_dylib_path
 
 	# Copy this dylib to local
 	dest_dylib_path = os.path.join(lib_destination_path, dest_dylib_name)
@@ -361,10 +339,26 @@ while len(dylibs_to_process):
 
 
 for header_library in header_libraries:
+	dylib_path = None
+	for libname, libpath in libname_to_dylib_path.items():
+		if libname.startswith(header_library):
+			if dylib_path:
+				print(f'ERROR: More than one path for header library "{header_library}":')
+				print(f'  Old: {dylib_path}')
+				print(f'  New: {libpath}')
+				exit(1)
+			else:
+				dylib_path = libpath
+
+	if not dylib_path:
+		print(f'ERROR: No path found for header library "{header_library}"')
+		exit(1)
+
+	# search for 'libxyz' and 'xyz'
 	include_names = [header_library]
 	if header_library.startswith('lib'):
 		include_names.append(header_library[3:])
-	dylib_path = libname_to_dylib_path[header_library]
+
 	lib_path = os.path.dirname(os.path.dirname(dylib_path))
 	src_include_path = None
 	dest_include_path = None

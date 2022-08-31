@@ -244,15 +244,21 @@ print(f'Includes path: {include_destination_path}')
 if args.download:
 	if args.intel:
 		download_url = download_url.replace('_arm.', '_intel.')
-	print(f'Downloading from {download_url}...')
 	download_filename = os.path.basename(download_url)
 	download_path = os.path.abspath(os.path.join(scripts_path, download_filename))
+
+	print('Downloading...')
+	print(f'    URL: {download_url}')
+	print(f'   Path: {download_path}')
+
 	proc = subprocess.Popen(['wget', '-nv', '-O', download_path, download_url])
 	proc.communicate()
 
 	extract_root_path = os.path.abspath(os.path.join(scripts_path, '..'))
 
-	print(f'Extracting from {download_path}...')
+	print('Extracting...')
+	print(f'  Root: {extract_root_path}')
+
 	proc = subprocess.Popen(['tar', '-xvzf', download_path, '-C', extract_root_path])
 	proc.communicate()
 	exit()

@@ -276,6 +276,7 @@ if args.compress:
 
 	zip_filename = f'Dependencies_{date}_{platform}.tar.gz'
 	zip_filepath = os.path.join(scripts_path, zip_filename)
+	zip_root_path = os.path.abspath(os.path.join(scripts_path, '..'))
 
 	if os.path.exists(zip_filepath):
 		print('ERROR: Output file already exists at:')
@@ -286,7 +287,7 @@ if args.compress:
 	print(f'Input:  {destination_path}')
 	print(f'Output: {zip_filepath}')
 
-	proc = subprocess.Popen(['tar', '-czvf', zip_filepath, destination_path])
+	proc = subprocess.Popen(['tar', '-czvf', zip_filepath, '-C', zip_root_path, destination_path])
 	proc.communicate()
 
 	resolved_deps_filepath_src = os.path.join(destination_path, 'dependencies.resolved')

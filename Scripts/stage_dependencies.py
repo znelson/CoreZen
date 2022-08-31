@@ -6,7 +6,6 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-y', '--skip-prompt', action='store_true', help='Skip prompt before deleting old dependencies folder')
 parser.add_argument('-d', '--download', action='store_true', help='Download dependencies from AWS instead of searching locally')
 parser.add_argument('-c', '--compress', action='store_true', help='Compress dependencies to upload to AWS')
-parser.add_argument('--intel', action='store_true', help='Download dependencies for Intel instead of Apple Silicon (only applies if --download or --compress is set)')
 args = parser.parse_args()
 
 if args.download and args.compress:
@@ -243,8 +242,6 @@ print(f'Libraries path: {lib_destination_path}')
 print(f'Includes path: {include_destination_path}')
 
 if args.download:
-	if args.intel:
-		download_url = download_url.replace('_arm.', '_intel.')
 	download_filename = os.path.basename(download_url)
 	download_path = os.path.abspath(os.path.join(scripts_path, download_filename))
 
@@ -270,10 +267,9 @@ if args.compress:
 		print('  Run without --compress option to populate these directories first')
 		exit(1)
 
-	platform = 'intel' if args.intel else 'arm'
 	date = datetime.datetime.now().strftime('%Y-%m-%d')
 
-	zip_filename = f'Dependencies_{date}_{platform}.tar.gz'
+	zip_filename = f'Dependencies_{date}.tar.gz'
 	zip_filepath = os.path.join(scripts_path, zip_filename)
 
 	if os.path.exists(zip_filepath):

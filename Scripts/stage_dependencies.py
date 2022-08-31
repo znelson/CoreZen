@@ -236,8 +236,8 @@ include_destination_path = os.path.join(destination_path, 'include')
 print(f'Libraries path: {lib_destination_path}')
 print(f'Includes path: {include_destination_path}')
 
-if (args.download):
-	if (args.intel):
+if args.download:
+	if args.intel:
 		download_url = download_url.replace('_arm.', '_intel.')
 	print(f'Downloading from {download_url}...')
 	download_path = os.path.abspath(os.path.join(scripts_path, '..', 'Dependencies.tar.gz'))

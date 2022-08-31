@@ -286,8 +286,9 @@ if args.compress:
 	print('Compressing...')
 	print(f'Input:  {destination_path}')
 	print(f'Output: {zip_filepath}')
+	print(f'Root:   {zip_root_path}')
 
-	proc = subprocess.Popen(['tar', '-czvf', zip_filepath, '-C', zip_root_path, destination_path])
+	proc = subprocess.Popen(['tar', '-czvf', zip_filepath, '-C', zip_root_path, os.path.basename(destination_path)])
 	proc.communicate()
 
 	resolved_deps_filepath_src = os.path.join(destination_path, 'dependencies.resolved')

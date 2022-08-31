@@ -223,7 +223,8 @@ dependency_versions = dependencies_json['dependencies']
 header_libraries = dependencies_json['headers']
 download_url = dependencies_json['download_url']
 
-destination_path = os.path.abspath(os.path.join(scripts_path, '..', 'Dependencies'))
+root_path = os.path.dirname(scripts_path)
+destination_path = os.path.join(root_path, 'Dependencies')
 
 print(f'Scripts path: {scripts_path}')
 print(f'Destination path: {destination_path}')
@@ -254,12 +255,10 @@ if args.download:
 	proc = subprocess.Popen(['wget', '-nv', '-O', download_path, download_url])
 	proc.communicate()
 
-	extract_root_path = os.path.abspath(os.path.join(scripts_path, '..'))
-
 	print('Extracting...')
-	print(f'Root: {extract_root_path}')
+	print(f'Root: {root_path}')
 
-	proc = subprocess.Popen(['tar', '-xvzf', download_path, '-C', extract_root_path])
+	proc = subprocess.Popen(['tar', '-xvzf', download_path, '-C', root_path])
 	proc.communicate()
 	exit()
 
@@ -276,7 +275,6 @@ if args.compress:
 
 	zip_filename = f'Dependencies_{date}_{platform}.tar.gz'
 	zip_filepath = os.path.join(scripts_path, zip_filename)
-	zip_root_path = os.path.abspath(os.path.join(scripts_path, '..'))
 
 	if os.path.exists(zip_filepath):
 		print('ERROR: Output file already exists at:')
@@ -286,9 +284,9 @@ if args.compress:
 	print('Compressing...')
 	print(f'Input:  {destination_path}')
 	print(f'Output: {zip_filepath}')
-	print(f'Root:   {zip_root_path}')
+	print(f'Root:   {root_path}')
 
-	proc = subprocess.Popen(['tar', '-czvf', zip_filepath, '-C', zip_root_path, os.path.basename(destination_path)])
+	proc = subprocess.Popen(['tar', '-czvf', zip_filepath, '-C', root_path, os.path.basename(destination_path)])
 	proc.communicate()
 
 	resolved_deps_filepath_src = os.path.join(destination_path, 'dependencies.resolved')

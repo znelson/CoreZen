@@ -77,7 +77,8 @@ void ZENLogAVFindBestStreamError(NSString *filePath, int returnCode, enum AVMedi
 		// Returns >=0 if OK, AVERROR_xxx on error
 		result = avformat_find_stream_info(_formatContext, NULL);
 		if (result >= 0) {
-			const int videoStreamIndex = av_find_best_stream(_formatContext, AVMEDIA_TYPE_VIDEO, -1, -1, &_videoCodec, 0);
+			const AVCodec *constVideoCodec = _videoCodec;
+			const int videoStreamIndex = av_find_best_stream(_formatContext, AVMEDIA_TYPE_VIDEO, -1, -1, &constVideoCodec, 0);
 			if (videoStreamIndex > -1) {
 				// av_find_best_stream() documentation:
 				// If av_find_best_stream returns successfully and decoder_ret (&_videoCodec) is not NULL,
@@ -95,7 +96,8 @@ void ZENLogAVFindBestStreamError(NSString *filePath, int returnCode, enum AVMedi
 				ZENLogAVFindBestStreamError(filePath, videoStreamIndex, AVMEDIA_TYPE_VIDEO);
 			}
 			
-			const int audioStreamIndex = av_find_best_stream(_formatContext, AVMEDIA_TYPE_AUDIO, -1, -1, &_audioCodec, 0);
+			const AVCodec *constAudioCodec = _audioCodec;
+			const int audioStreamIndex = av_find_best_stream(_formatContext, AVMEDIA_TYPE_AUDIO, -1, -1, &constAudioCodec, 0);
 			if (audioStreamIndex > -1) {
 				_audioCodecParameters = _formatContext->streams[audioStreamIndex]->codecpar;
 				

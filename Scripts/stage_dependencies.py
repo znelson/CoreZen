@@ -248,8 +248,8 @@ if args.download:
 	download_path = os.path.abspath(os.path.join(scripts_path, download_filename))
 
 	print('Downloading...')
-	print(f'    URL: {download_url}')
-	print(f'   Path: {download_path}')
+	print(f'URL:  {download_url}')
+	print(f'Path: {download_path}')
 
 	proc = subprocess.Popen(['wget', '-nv', '-O', download_path, download_url])
 	proc.communicate()
@@ -257,7 +257,7 @@ if args.download:
 	extract_root_path = os.path.abspath(os.path.join(scripts_path, '..'))
 
 	print('Extracting...')
-	print(f'  Root: {extract_root_path}')
+	print(f'Root: {extract_root_path}')
 
 	proc = subprocess.Popen(['tar', '-xvzf', download_path, '-C', extract_root_path])
 	proc.communicate()

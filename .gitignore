@@ -64,3 +64,4 @@ iOSInjectionProject/
 
 # output of Scripts/stage_dependencies.py
 Dependencies/
+Scripts/*.tar.gz

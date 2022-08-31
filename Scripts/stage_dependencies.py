@@ -244,15 +244,21 @@ print(f'Includes path: {include_destination_path}')
 if args.download:
 	if args.intel:
 		download_url = download_url.replace('_arm.', '_intel.')
-	print(f'Downloading from {download_url}...')
 	download_filename = os.path.basename(download_url)
 	download_path = os.path.abspath(os.path.join(scripts_path, download_filename))
+
+	print('Downloading...')
+	print(f'URL:  {download_url}')
+	print(f'Path: {download_path}')
+
 	proc = subprocess.Popen(['wget', '-nv', '-O', download_path, download_url])
 	proc.communicate()
 
 	extract_root_path = os.path.abspath(os.path.join(scripts_path, '..'))
 
-	print(f'Extracting from {download_path}...')
+	print('Extracting...')
+	print(f'Root: {extract_root_path}')
+
 	proc = subprocess.Popen(['tar', '-xvzf', download_path, '-C', extract_root_path])
 	proc.communicate()
 	exit()
@@ -270,6 +276,7 @@ if args.compress:
 
 	zip_filename = f'Dependencies_{date}_{platform}.tar.gz'
 	zip_filepath = os.path.join(scripts_path, zip_filename)
+	zip_root_path = os.path.abspath(os.path.join(scripts_path, '..'))
 
 	if os.path.exists(zip_filepath):
 		print('ERROR: Output file already exists at:')
@@ -279,8 +286,9 @@ if args.compress:
 	print('Compressing...')
 	print(f'Input:  {destination_path}')
 	print(f'Output: {zip_filepath}')
+	print(f'Root:   {zip_root_path}')
 
-	proc = subprocess.Popen(['tar', '-czvf', zip_filepath, destination_path])
+	proc = subprocess.Popen(['tar', '-czvf', zip_filepath, '-C', zip_root_path, os.path.basename(destination_path)])
 	proc.communicate()
 
 	resolved_deps_filepath_src = os.path.join(destination_path, 'dependencies.resolved')

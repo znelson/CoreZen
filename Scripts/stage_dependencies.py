@@ -1,12 +1,17 @@
 #!/usr/bin/env python3
 
-import os, sys, json, subprocess, pathlib, shutil, argparse
+import os, sys, json, subprocess, pathlib, shutil, argparse, datetime
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-y', '--skip-prompt', action='store_true', help='Skip prompt before deleting old dependencies folder')
 parser.add_argument('-d', '--download', action='store_true', help='Download dependencies from AWS instead of searching locally')
-parser.add_argument('--intel', action='store_true', help='Download dependencies for Intel instead of Apple Silicon (only applies if --download is set)')
+parser.add_argument('-c', '--compress', action='store_true', help='Compress dependencies to upload to AWS')
+parser.add_argument('--intel', action='store_true', help='Download dependencies for Intel instead of Apple Silicon (only applies if --download or --compress is set)')
 args = parser.parse_args()
+
+if args.download and args.compress:
+	print('The --download and --compress options should not be used together');
+	exit(1)
 
 ##
 k_framework_extension = '.framework'
@@ -223,7 +228,7 @@ destination_path = os.path.abspath(os.path.join(scripts_path, '..', 'Dependencie
 print(f'Scripts path: {scripts_path}')
 print(f'Destination path: {destination_path}')
 
-if os.path.exists(destination_path):
+if os.path.exists(destination_path) and not args.compress:
 	print('Deleting existing Dependencies directory:')
 	print(f'  {destination_path}')
 	if not args.skip_prompt:
@@ -236,17 +241,55 @@ include_destination_path = os.path.join(destination_path, 'include')
 print(f'Libraries path: {lib_destination_path}')
 print(f'Includes path: {include_destination_path}')
 
-if (args.download):
-	if (args.intel):
+if args.download:
+	if args.intel:
 		download_url = download_url.replace('_arm.', '_intel.')
 	print(f'Downloading from {download_url}...')
-	download_path = os.path.abspath(os.path.join(scripts_path, '..', 'Dependencies.tar.gz'))
+	download_filename = os.path.basename(download_url)
+	download_path = os.path.abspath(os.path.join(scripts_path, download_filename))
 	proc = subprocess.Popen(['wget', '-nv', '-O', download_path, download_url])
 	proc.communicate()
 
+	extract_root_path = os.path.abspath(os.path.join(scripts_path, '..'))
+
 	print(f'Extracting from {download_path}...')
-	proc = subprocess.Popen(['tar', '-xvzf', download_path])
+	proc = subprocess.Popen(['tar', '-xvzf', download_path, '-C', extract_root_path])
 	proc.communicate()
+	exit()
+
+if args.compress:
+	if not (os.path.isdir(lib_destination_path) and os.path.isdir(include_destination_path)):
+		print('ERROR: Dependencies directories do not exist at:')
+		print(f'       {lib_destination_path}')
+		print(f'       {include_destination_path}')
+		print('  Run without --compress option to populate these directories first')
+		exit(1)
+
+	platform = 'intel' if args.intel else 'arm'
+	date = datetime.datetime.now().strftime('%Y-%m-%d')
+
+	zip_filename = f'Dependencies_{date}_{platform}.tar.gz'
+	zip_filepath = os.path.join(scripts_path, zip_filename)
+
+	if os.path.exists(zip_filepath):
+		print('ERROR: Output file already exists at:')
+		print(f'       {zip_filepath}')
+		exit(1)
+
+	print('Compressing...')
+	print(f'Input:  {destination_path}')
+	print(f'Output: {zip_filepath}')
+
+	proc = subprocess.Popen(['tar', '-czvf', zip_filepath, destination_path])
+	proc.communicate()
+
+	resolved_deps_filepath_src = os.path.join(destination_path, 'dependencies.resolved')
+	resolved_deps_filepath_dst = os.path.join(scripts_path, 'dependencies.resolved')
+	shutil.copyfile(resolved_deps_filepath_src, resolved_deps_filepath_dst)
+
+	print('Copied resolved dependencies to:')
+	print(f'    {resolved_deps_filepath_dst}')
+
 	exit()
 
 os.makedirs(lib_destination_path)

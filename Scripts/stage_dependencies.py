@@ -1,16 +1,27 @@
 #!/usr/bin/env python3
 
-import os, sys, json, subprocess, pathlib, shutil, argparse, datetime
+import argparse
+import datetime
+import json
+import os
+import platform
+import shutil
+import subprocess
+import sys
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-y', '--skip-prompt', action='store_true', help='Skip prompt before deleting old dependencies folder')
 parser.add_argument('-d', '--download', action='store_true', help='Download dependencies from AWS instead of searching locally')
 parser.add_argument('-c', '--compress', action='store_true', help='Compress dependencies to upload to AWS')
-parser.add_argument('--intel', action='store_true', help='Download dependencies for Intel instead of Apple Silicon (only applies if --download or --compress is set)')
+parser.add_argument('-l', '--lipo', action='store_true', help='Combine Apple Silicon and Intel .dylib binaries into universal binaries')
 args = parser.parse_args()
 
-if args.download and args.compress:
-	print('The --download and --compress options should not be used together');
+exclusive_args = ['download', 'compress', 'lipo']
+
+if sum([getattr(args, arg) for arg in exclusive_args]) > 1:
+	print('The following commands should not be used together:')
+	for arg in exclusive_args:
+		print(f'  --{arg}')
 	exit(1)
 
 ##
@@ -229,7 +240,7 @@ destination_path = os.path.join(root_path, 'Dependencies')
 print(f'Scripts path: {scripts_path}')
 print(f'Destination path: {destination_path}')
 
-if os.path.exists(destination_path) and not args.compress:
+if os.path.exists(destination_path) and not (args.compress or args.lipo):
 	print('Deleting existing Dependencies directory:')
 	print(f'  {destination_path}')
 	if not args.skip_prompt:
@@ -239,12 +250,20 @@ if os.path.exists(destination_path) and not args.compress:
 lib_destination_path = os.path.join(destination_path, 'lib')
 include_destination_path = os.path.join(destination_path, 'include')
 
+platform_name, other_platform_name = 'arm', 'intel'
+if platform.processor() != 'arm':
+	platform_name, other_platform_name = other_platform_name, platform_name
+
+platform_lib_destination_path = os.path.join(destination_path, platform_name)
+other_platform_lib_destination_path = os.path.join(destination_path, other_platform_name)
+
 print(f'Libraries path: {lib_destination_path}')
 print(f'Includes path: {include_destination_path}')
+print('Platform libraries paths:')
+print(f'    {platform_lib_destination_path}')
+print(f'    {other_platform_lib_destination_path}')
 
 if args.download:
-	if args.intel:
-		download_url = download_url.replace('_arm.', '_intel.')
 	download_filename = os.path.basename(download_url)
 	download_path = os.path.abspath(os.path.join(scripts_path, download_filename))
 
@@ -270,10 +289,9 @@ if args.compress:
 		print('  Run without --compress option to populate these directories first')
 		exit(1)
 
-	platform = 'intel' if args.intel else 'arm'
 	date = datetime.datetime.now().strftime('%Y-%m-%d')
 
-	zip_filename = f'Dependencies_{date}_{platform}.tar.gz'
+	zip_filename = f'Dependencies_{date}.tar.gz'
 	zip_filepath = os.path.join(scripts_path, zip_filename)
 
 	if os.path.exists(zip_filepath):
@@ -295,6 +313,54 @@ if args.compress:
 
 	print('Copied resolved dependencies to:')
 	print(f'    {resolved_deps_filepath_dst}')
+
+	exit()
+
+if args.lipo:
+	if not (os.path.isdir(platform_lib_destination_path) and os.path.isdir(other_platform_lib_destination_path)):
+		print('ERROR: Dependencies need to be staged at:')
+		print(f'       {platform_lib_destination_path}')
+		print(f'       {other_platform_lib_destination_path}')
+		exit(1)
+
+	if not os.path.isdir(lib_destination_path):
+		os.makedirs(lib_destination_path)
+
+	filenames = [fn for fn in os.listdir(platform_lib_destination_path) if fn.endswith('.dylib')]
+
+	for filename in filenames:
+		# .dylib for this platform
+		path_a = os.path.join(platform_lib_destination_path, filename)
+		# .dylib for the other platform
+		path_b = os.path.join(other_platform_lib_destination_path, filename)
+		# .dylib universal destination
+		path_c = os.path.join(lib_destination_path, filename)
+
+		if not os.path.exists(path_b):
+			print('ERROR: Other platform dependency not found:')
+			print(f'       {path_b}')
+			exit(1)
+
+		if os.path.exists(path_c):
+			print('ERROR: Universal lib destination already exists:')
+			print(f'       {path_c}')
+			exit(1)
+
+		lipo_cmd = [
+			'lipo',
+			os.path.join(platform_lib_destination_path, filename),
+			os.path.join(other_platform_lib_destination_path, filename),
+			'-output',
+			os.path.join(lib_destination_path, filename),
+			'-create'
+		]
+
+		print('Combining to create universal binary:')
+		print(f'   {path_a}')
+		print(f'   {path_b}')
+		print(f'   {path_c}')
+		proc = subprocess.Popen(lipo_cmd)
+		proc.communicate()
 
 	exit()
 

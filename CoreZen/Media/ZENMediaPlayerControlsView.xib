@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="21225" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+    <dependencies>
+        <deployment identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="21225"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="ZENMediaPlayerControlsView">
+            <connections>
+                <outlet property="nextButton1" destination="eQP-XC-aWC" id="Y5G-Ew-yJs"/>
+                <outlet property="nextButton2" destination="TGo-Zt-uqX" id="6TP-nh-UbR"/>
+                <outlet property="nextButton3" destination="Af5-eW-HbI" id="MSG-pW-R8L"/>
+                <outlet property="nextButton4" destination="833-1e-32F" id="ucz-Nd-elp"/>
+                <outlet property="playPauseButton" destination="JBF-pN-A4v" id="hEV-pZ-Ofc"/>
+                <outlet property="prevButton1" destination="Iyl-8N-bJr" id="p5A-CH-cRh"/>
+                <outlet property="prevButton2" destination="DBT-1j-Rag" id="Fy1-Pj-lxG"/>
+                <outlet property="prevButton3" destination="r3e-Ak-IQJ" id="DIv-YB-Lhd"/>
+                <outlet property="prevButton4" destination="hDm-X6-H9i" id="UU2-L9-Nm5"/>
+                <outlet property="rootView" destination="c22-O7-iKe" id="Wvh-ce-3Vk"/>
+            </connections>
+        </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
+        <customView translatesAutoresizingMaskIntoConstraints="NO" id="c22-O7-iKe">
+            <rect key="frame" x="0.0" y="0.0" width="400" height="40"/>
+            <subviews>
+                <stackView distribution="equalSpacing" orientation="horizontal" alignment="centerY" horizontalStackHuggingPriority="250" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="SPb-8x-Orp">
+                    <rect key="frame" x="0.0" y="0.0" width="400" height="40"/>
+                    <subviews>
+                        <button ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="hDm-X6-H9i" userLabel="Prev 4 Button">
+                            <rect key="frame" x="6" y="14.5" width="24" height="13"/>
+                            <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="backward.end.alt.fill" catalog="system" imagePosition="only" alignment="center" imageScaling="proportionallyUpOrDown" inset="2" id="OCN-qw-iBV">
+                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                <font key="font" metaFont="system"/>
+                            </buttonCell>
+                            <connections>
+                                <action selector="buttonClicked:" target="-2" id="Zt7-A9-8tv"/>
+                            </connections>
+                        </button>
+                        <button ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="r3e-Ak-IQJ" userLabel="Prev 3 Button">
+                            <rect key="frame" x="58" y="14.5" width="15" height="13"/>
+                            <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="backward.end.fill" catalog="system" imagePosition="only" alignment="center" imageScaling="proportionallyUpOrDown" inset="2" id="X17-P9-ocS">
+                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                <font key="font" metaFont="system"/>
+                            </buttonCell>
+                            <connections>
+                                <action selector="buttonClicked:" target="-2" id="AEt-kL-ftJ"/>
+                            </connections>
+                        </button>
+                        <button ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="DBT-1j-Rag" userLabel="Prev 2 Button">
+                            <rect key="frame" x="102" y="14.5" width="19" height="12"/>
+                            <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="backward.fill" catalog="system" imagePosition="only" alignment="center" imageScaling="proportionallyUpOrDown" inset="2" id="SfG-yu-Xlh">
+                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                <font key="font" metaFont="system"/>
+                            </buttonCell>
+                            <connections>
+                                <action selector="buttonClicked:" target="-2" id="zYR-d7-ov9"/>
+                            </connections>
+                        </button>
+                        <button ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Iyl-8N-bJr" userLabel="Prev 1 Button">
+                            <rect key="frame" x="149" y="14.5" width="17" height="13"/>
+                            <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="backward.frame.fill" catalog="system" imagePosition="only" alignment="center" imageScaling="proportionallyUpOrDown" inset="2" id="MYK-yq-8eC">
+                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                <font key="font" metaFont="system"/>
+                            </buttonCell>
+                            <connections>
+                                <action selector="buttonClicked:" target="-2" id="Fva-Px-c8a"/>
+                            </connections>
+                        </button>
+                        <button ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="JBF-pN-A4v" userLabel="Play Pause Button">
+                            <rect key="frame" x="194" y="12" width="12.5" height="17"/>
+                            <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="play.fill" catalog="system" imagePosition="only" alignment="center" imageScaling="proportionallyUpOrDown" inset="2" id="3ns-p9-ARz">
+                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                <font key="font" metaFont="system"/>
+                            </buttonCell>
+                            <connections>
+                                <action selector="buttonClicked:" target="-2" id="2yl-Al-iJa"/>
+                            </connections>
+                        </button>
+                        <button ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="eQP-XC-aWC" userLabel="Next 1 Button">
+                            <rect key="frame" x="234" y="14.5" width="17" height="13"/>
+                            <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="forward.frame.fill" catalog="system" imagePosition="only" alignment="center" imageScaling="proportionallyUpOrDown" inset="2" id="GoK-rZ-81e">
+                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                <font key="font" metaFont="system"/>
+                            </buttonCell>
+                            <connections>
+                                <action selector="buttonClicked:" target="-2" id="bI0-88-vlZ"/>
+                            </connections>
+                        </button>
+                        <button ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="TGo-Zt-uqX" userLabel="Next 2 Button">
+                            <rect key="frame" x="280" y="14.5" width="19" height="12"/>
+                            <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="forward.fill" catalog="system" imagePosition="only" alignment="center" imageScaling="proportionallyUpOrDown" inset="2" id="Odi-FP-YX0">
+                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                <font key="font" metaFont="system"/>
+                            </buttonCell>
+                            <connections>
+                                <action selector="buttonClicked:" target="-2" id="yDP-Tm-OUT"/>
+                            </connections>
+                        </button>
+                        <button ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Af5-eW-HbI" userLabel="Next 3 Button">
+                            <rect key="frame" x="327" y="14.5" width="15" height="13"/>
+                            <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="forward.end.fill" catalog="system" imagePosition="only" alignment="center" imageScaling="proportionallyUpOrDown" inset="2" id="GNJ-eR-dGK">
+                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                <font key="font" metaFont="system"/>
+                            </buttonCell>
+                            <connections>
+                                <action selector="buttonClicked:" target="-2" id="4lJ-t1-POE"/>
+                            </connections>
+                        </button>
+                        <button ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="833-1e-32F" userLabel="Next 4 Button">
+                            <rect key="frame" x="370" y="14.5" width="24" height="13"/>
+                            <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="forward.end.alt.fill" catalog="system" imagePosition="only" alignment="center" imageScaling="proportionallyUpOrDown" inset="2" id="l9A-Sa-dt1">
+                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                <font key="font" metaFont="system"/>
+                            </buttonCell>
+                            <connections>
+                                <action selector="buttonClicked:" target="-2" id="udd-hb-mha"/>
+                            </connections>
+                        </button>
+                    </subviews>
+                    <edgeInsets key="edgeInsets" left="6" right="6" top="6" bottom="6"/>
+                    <visibilityPriorities>
+                        <integer value="1000"/>
+                        <integer value="1000"/>
+                        <integer value="1000"/>
+                        <integer value="1000"/>
+                        <integer value="1000"/>
+                        <integer value="1000"/>
+                        <integer value="1000"/>
+                        <integer value="1000"/>
+                        <integer value="1000"/>
+                    </visibilityPriorities>
+                    <customSpacing>
+                        <real value="3.4028234663852886e+38"/>
+                        <real value="3.4028234663852886e+38"/>
+                        <real value="3.4028234663852886e+38"/>
+                        <real value="3.4028234663852886e+38"/>
+                        <real value="3.4028234663852886e+38"/>
+                        <real value="3.4028234663852886e+38"/>
+                        <real value="3.4028234663852886e+38"/>
+                        <real value="3.4028234663852886e+38"/>
+                        <real value="3.4028234663852886e+38"/>
+                    </customSpacing>
+                </stackView>
+            </subviews>
+            <constraints>
+                <constraint firstAttribute="trailing" secondItem="SPb-8x-Orp" secondAttribute="trailing" id="I6h-cF-uNH"/>
+                <constraint firstAttribute="bottom" secondItem="SPb-8x-Orp" secondAttribute="bottom" id="P9J-8U-DR8"/>
+                <constraint firstItem="SPb-8x-Orp" firstAttribute="top" secondItem="c22-O7-iKe" secondAttribute="top" id="ftU-gP-sfr"/>
+                <constraint firstItem="SPb-8x-Orp" firstAttribute="leading" secondItem="c22-O7-iKe" secondAttribute="leading" id="rt7-Cz-tOF"/>
+            </constraints>
+            <point key="canvasLocation" x="87" y="-36"/>
+        </customView>
+    </objects>
+    <resources>
+        <image name="backward.end.alt.fill" catalog="system" width="24" height="13"/>
+        <image name="backward.end.fill" catalog="system" width="15" height="13"/>
+        <image name="backward.fill" catalog="system" width="19" height="12"/>
+        <image name="backward.frame.fill" catalog="system" width="17" height="13"/>
+        <image name="forward.end.alt.fill" catalog="system" width="24" height="13"/>
+        <image name="forward.end.fill" catalog="system" width="15" height="13"/>
+        <image name="forward.fill" catalog="system" width="19" height="12"/>
+        <image name="forward.frame.fill" catalog="system" width="17" height="13"/>
+        <image name="play.fill" catalog="system" width="12" height="13"/>
+    </resources>
+</document>

@@ -47,6 +47,7 @@ FOUNDATION_EXPORT const unsigned char CoreZenVersionString[];
 #import <CoreZen/MediaPlayerController.h>
 #import <CoreZen/MediaPlayerView.h>
 #import <CoreZen/MediaPlayerRenderController.h>
+#import <CoreZen/MediaPlayerControlsView.h>
 
 #pragma mark - Node
 #import <CoreZen/Node.h>
@@ -54,4 +55,3 @@ FOUNDATION_EXPORT const unsigned char CoreZenVersionString[];
 #pragma mark - Preferences
 #import <CoreZen/PreferencesWindowController.h>
 #import <CoreZen/PreferenceViewController.h>
-

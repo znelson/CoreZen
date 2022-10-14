@@ -51,9 +51,12 @@
 	return self;
 }
 
-- (void)awakeFromNib {
-	[super awakeFromNib];
-	[self initCommon];
+- (instancetype)initWithCoder:(NSCoder *)coder {
+	self = [super initWithCoder:coder];
+	if (self) {
+		[self initCommon];
+	}
+	return self;
 }
 
 - (void)viewDidMoveToWindow {

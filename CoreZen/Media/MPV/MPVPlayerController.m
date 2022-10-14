@@ -216,8 +216,10 @@ static void zen_mpv_wakeup(void *ctx);
 					if (propertyName && propertyValueNode && propertyID == _observerID) {
 						if (zen_mpv_compare_strings(kMPVProperty_pause, propertyName)) {
 							BOOL paused = (BOOL)propertyValueNode->u.flag;
-							self.player.paused = paused;
 							NSLog(@"Paused: %d", paused);
+							dispatch_async(dispatch_get_main_queue(), ^{
+								self.player.paused = paused;
+							});
 						} else if (zen_mpv_compare_strings(kMPVProperty_percent_pos, propertyName)) {
 							double percentPos = propertyValueNode->u.double_;
 							NSLog(@"Position: %f", percentPos);

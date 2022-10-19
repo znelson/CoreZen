@@ -148,7 +148,7 @@ static void zen_mpv_render_context_update(void *ctx);
 	_mpvRenderContext = nil;
 }
 
-- (void)createRenderContextForPlayer:(ZENMediaPlayer *)player {
+- (void)createRenderContext {
 	if (!_mpvRenderContext) {
 		[self initRenderContext];
 	}

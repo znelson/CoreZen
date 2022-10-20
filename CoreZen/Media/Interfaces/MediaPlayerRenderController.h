@@ -11,7 +11,7 @@
 
 @protocol ZENMediaPlayerRenderController <NSObject>
 
-- (void)createRenderContextForPlayer:(ZENMediaPlayer *)player;
+- (void)createRenderContext;
 - (void)destroyRenderContext;
 
 - (BOOL)readyToRenderFrame;

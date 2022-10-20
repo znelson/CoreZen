@@ -17,7 +17,7 @@
 @property (nonatomic, weak, readonly) ZENMediaPlayerView *playerView;
 
 // ZENMediaPlayerRenderController protocol
-- (void)createRenderContextForPlayer:(ZENMediaPlayer *)player;
+- (void)createRenderContext;
 - (void)destroyRenderContext;
 
 - (BOOL)readyToRenderFrame;

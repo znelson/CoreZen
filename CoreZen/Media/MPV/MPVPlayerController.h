@@ -14,6 +14,8 @@
 
 - (instancetype)initWithPlayer:(ZENMediaPlayer *)player;
 
+- (void)terminate;
+
 @property (nonatomic, weak, readonly) ZENMediaPlayer *player;
 
 @property (nonatomic, strong, readonly) NSString *clientName;

@@ -8,17 +8,15 @@
 #import <Cocoa/Cocoa.h>
 
 @class ZENMediaPlayer;
-@protocol ZENMediaPlayerRenderController;
 
 @interface ZENMediaPlayerView : NSOpenGLView
 
-@property (nonatomic, strong, readonly) NSObject<ZENMediaPlayerRenderController> *renderController;
 @property (nonatomic, weak, readonly) ZENMediaPlayer *player;
 
+// Attach a player to this player view, create view render context
 - (void)attachPlayer:(ZENMediaPlayer *)player;
-- (void)detachPlayer;
 
-- (void)lockViewContext;
-- (void)unlockViewContext;
+// Detach the player from this player view, destroy view render context, but leave player paused
+- (void)detachPlayer;
 
 @end

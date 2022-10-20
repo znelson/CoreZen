@@ -10,6 +10,8 @@
 #import "MPVConstants.h"
 #import "MediaPlayer+Private.h"
 
+@import Darwin.POSIX.pthread;
+
 #import <stdatomic.h>
 
 #pragma clang diagnostic push
@@ -27,6 +29,11 @@ static void zen_mpv_wakeup(void *ctx);
 	uint64_t _observerID;
 	mpv_handle *_mpvHandle;
 	
+	BOOL _terminated;
+	
+	pthread_mutex_t _playerMutex;
+	pthread_cond_t _playerCondition;
+	
 @public
 	dispatch_queue_t _eventQueue;
 }
@@ -34,6 +41,7 @@ static void zen_mpv_wakeup(void *ctx);
 @property (nonatomic, strong, readonly) NSThread *mpvEventThread;
 
 - (void)observeProperties;
+- (void)destroyHandle;
 - (void)mpvHandleEvents;
 
 @end
@@ -46,6 +54,9 @@ static void zen_mpv_wakeup(void *ctx);
 		_player = player;
 		
 		_observerID = zen_mpv_next_observer_identifier();
+		_terminated = NO;
+		
+		zen_mpv_init_pthread_mutex_cond(&_playerMutex, &_playerCondition);
 		
 		dispatch_queue_attr_t qos = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INITIATED, 0);
 		_eventQueue = dispatch_queue_create("com.zdnelson.CoreZen.mpv-player", qos);
@@ -88,19 +99,40 @@ static void zen_mpv_wakeup(void *ctx);
 	return self;
 }
 
-- (void)dealloc {
+- (void)terminate {
 	mpv_unobserve_property(_mpvHandle, _observerID);
-
-	mpv_set_wakeup_callback(_mpvHandle, zen_mpv_wakeup, nil);
-
-	dispatch_sync(_eventQueue, ^{});
 	
-	mpv_destroy(_mpvHandle);
+	// Send a mpv quit command, which will trigger MPV_EVENT_SHUTDOWN
+	const char* quitCommand[] = { "quit", nil };
+	mpv_command(_mpvHandle, quitCommand);
+
+	// Wait for MPV_EVENT_SHUTDOWN to call -destroyHandle which sets _terminated to YES
+	pthread_mutex_lock(&_playerMutex);
+	while (!_terminated) {
+		pthread_cond_wait(&_playerCondition, &_playerMutex);
+	}
+	pthread_mutex_unlock(&_playerMutex);
+	
+	zen_mpv_destroy_pthread_mutex_cond(&_playerMutex, &_playerCondition);
 }
 
 - (void)observeProperties {
 	mpv_observe_property(_mpvHandle, _observerID, kMPVProperty_percent_pos, MPV_FORMAT_NODE);
 	mpv_observe_property(_mpvHandle, _observerID, kMPVProperty_pause, MPV_FORMAT_NODE);
+}
+
+- (void)destroyHandle {
+	mpv_unobserve_property(_mpvHandle, _observerID);
+	
+	mpv_set_wakeup_callback(_mpvHandle, nil, nil);
+	
+	mpv_destroy(_mpvHandle);
+	_mpvHandle = nil;
+	
+	pthread_mutex_lock(&_playerMutex);
+	_terminated = YES;
+	pthread_cond_signal(&_playerCondition);
+	pthread_mutex_unlock(&_playerMutex);
 }
 	
 - (void *)playerHandle {
@@ -118,16 +150,18 @@ static void zen_mpv_wakeup(void *ctx);
 - (void)mpvHandleEvents {
 	while (true) {
 		mpv_event *event = mpv_wait_event(_mpvHandle, 0);
-		if (event->event_id == MPV_EVENT_NONE) {
+		mpv_event_id eid = event->event_id;
+		
+		if (eid == MPV_EVENT_NONE) {
 			// MPV_EVENT_NONE means the event queue is empty, meaning we
 			// can break out of the outer loop and let this thread return
 			break;
+		} else if (eid == MPV_EVENT_SHUTDOWN) {
+			NSLog(@"MPV_EVENT_SHUTDOWN");
+			[self destroyHandle];
+			break;
 		}
-		switch (event->event_id) {
-			case MPV_EVENT_SHUTDOWN: {
-				NSLog(@"MPV_EVENT_SHUTDOWN");
-				break;
-			}
+		switch (eid) {
 			case MPV_EVENT_LOG_MESSAGE: {
 				mpv_event_log_message *msg = event->data;
 				NSLog(@"MPV_EVENT_LOG_MESSAGE: [%s] <%s> %s", msg->prefix, msg->level, msg->text);

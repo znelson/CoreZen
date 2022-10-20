@@ -62,7 +62,7 @@
 - (void)viewDidMoveToWindow {
 	[super viewDidMoveToWindow];
 	if (self.player) {
-		[self.renderController createRenderContextForPlayer:self.player];
+		[self.renderController createRenderContext];
 	}
 }
 
@@ -78,13 +78,19 @@
 	if (player) {
 		self.player = player;
 		[player attachPlayerView:self];
-		[self.renderController createRenderContextForPlayer:self.player];
+		[self.renderController createRenderContext];
 	}
 }
 
 - (void)detachPlayer {
 	if (self.player) {
 		[self.player detachPlayerView];
+		[self terminatePlayerView];
+	}
+}
+
+- (void)terminatePlayerView {
+	if (self.player) {
 		[self.renderController destroyRenderContext];
 		self.player = nil;
 	}

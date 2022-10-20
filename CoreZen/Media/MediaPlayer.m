@@ -20,6 +20,14 @@
 	return self;
 }
 
+- (void)terminatePlayer {
+	if (self.playerView) {
+		[self.playerView terminatePlayerView];
+	}
+	[self detachPlayerView];
+	[self.playerController terminate];
+}
+
 - (void)attachPlayerView:(ZENMediaPlayerView *)view {
 	self.playerView = view;
 }

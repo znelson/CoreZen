@@ -44,9 +44,7 @@ FOUNDATION_EXPORT const unsigned char CoreZenVersionString[];
 #pragma mark - Media
 #import <CoreZen/MediaFile.h>
 #import <CoreZen/MediaPlayer.h>
-#import <CoreZen/MediaPlayerController.h>
 #import <CoreZen/MediaPlayerView.h>
-#import <CoreZen/MediaPlayerRenderController.h>
 #import <CoreZen/MediaPlayerControlsView.h>
 
 #pragma mark - Node

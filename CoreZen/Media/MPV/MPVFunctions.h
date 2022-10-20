@@ -14,3 +14,7 @@ typedef struct mpv_handle mpv_handle;
 void zen_mpv_set_bool_property(mpv_handle* mpv, const char* const property, BOOL value);
 
 BOOL zen_mpv_compare_strings(const char* const one, const char* const two);
+
+void zen_mpv_init_pthread_mutex_cond(pthread_mutex_t* mutex, pthread_cond_t* cond);
+void zen_mpv_destroy_pthread_mutex_cond(pthread_mutex_t* mutex, pthread_cond_t* cond);
+

@@ -7,6 +7,8 @@
 
 #import "MPVFunctions.h"
 
+@import Darwin.POSIX.pthread;
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdocumentation"
 
@@ -28,4 +30,22 @@ void zen_mpv_set_bool_property(mpv_handle* mpv, const char* const property, BOOL
 
 BOOL zen_mpv_compare_strings(const char* const one, const char* const two) {
 	return strcmp(one, two) == 0;
+}
+
+void zen_mpv_init_pthread_mutex_cond(pthread_mutex_t* mutex, pthread_cond_t* cond) {
+	pthread_mutexattr_t mutexAttrs;
+	pthread_mutexattr_init(&mutexAttrs);
+	pthread_mutexattr_setpolicy_np(&mutexAttrs, _PTHREAD_MUTEX_POLICY_FIRSTFIT);
+	pthread_mutex_init(mutex, &mutexAttrs);
+	pthread_mutexattr_destroy(&mutexAttrs);
+	
+	pthread_condattr_t condAttrs;
+	pthread_condattr_init(&condAttrs);
+	pthread_cond_init(cond, &condAttrs);
+	pthread_condattr_destroy(&condAttrs);
+}
+
+void zen_mpv_destroy_pthread_mutex_cond(pthread_mutex_t* mutex, pthread_cond_t* cond) {
+	pthread_mutex_destroy(mutex);
+	pthread_cond_destroy(cond);
 }

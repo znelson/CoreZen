@@ -63,10 +63,10 @@
 		53964F14288CC101007B53EC /* MediaPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 53964F12288CC101007B53EC /* MediaPlayer.m */; };
 		5396531C288CD19C007B53EC /* MediaPlayerView.h in Headers */ = {isa = PBXBuildFile; fileRef = 5396531A288CD19C007B53EC /* MediaPlayerView.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5396531D288CD19C007B53EC /* MediaPlayerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 5396531B288CD19C007B53EC /* MediaPlayerView.m */; };
-		53965320288CE2A7007B53EC /* MediaPlayerController.h in Headers */ = {isa = PBXBuildFile; fileRef = 5396531E288CE2A7007B53EC /* MediaPlayerController.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		53965320288CE2A7007B53EC /* MediaPlayerController.h in Headers */ = {isa = PBXBuildFile; fileRef = 5396531E288CE2A7007B53EC /* MediaPlayerController.h */; };
 		5396532D288F453E007B53EC /* MPVRenderController.h in Headers */ = {isa = PBXBuildFile; fileRef = 5396532B288F453E007B53EC /* MPVRenderController.h */; };
 		5396532E288F453E007B53EC /* MPVRenderController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5396532C288F453E007B53EC /* MPVRenderController.m */; };
-		53965331288F498B007B53EC /* MediaPlayerRenderController.h in Headers */ = {isa = PBXBuildFile; fileRef = 5396532F288F498B007B53EC /* MediaPlayerRenderController.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		53965331288F498B007B53EC /* MediaPlayerRenderController.h in Headers */ = {isa = PBXBuildFile; fileRef = 5396532F288F498B007B53EC /* MediaPlayerRenderController.h */; };
 		53965335288F4C37007B53EC /* MPVViewLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 53965333288F4C37007B53EC /* MPVViewLayer.h */; };
 		53965336288F4C37007B53EC /* MPVViewLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 53965334288F4C37007B53EC /* MPVViewLayer.m */; };
 		53965339288F4DF9007B53EC /* MPVFunctions.h in Headers */ = {isa = PBXBuildFile; fileRef = 53965337288F4DF9007B53EC /* MPVFunctions.h */; };
@@ -740,16 +740,13 @@
 		5350F8BF2886192E00F8CA68 /* Media */ = {
 			isa = PBXGroup;
 			children = (
+				53D85BA22900BE7300A7B134 /* Interfaces */,
 				53965322288F1601007B53EC /* MPV */,
 				5350F8C02886194200F8CA68 /* MediaFile.h */,
 				5350F8C12886194200F8CA68 /* MediaFile.m */,
-				5396531E288CE2A7007B53EC /* MediaPlayerController.h */,
 				53964F11288CC101007B53EC /* MediaPlayer.h */,
-				5356FE7228A459BA00ECCA92 /* MediaPlayer+Private.h */,
 				53964F12288CC101007B53EC /* MediaPlayer.m */,
-				5396532F288F498B007B53EC /* MediaPlayerRenderController.h */,
 				5396531A288CD19C007B53EC /* MediaPlayerView.h */,
-				5356FE6E28A4595800ECCA92 /* MediaPlayerView+Private.h */,
 				5396531B288CD19C007B53EC /* MediaPlayerView.m */,
 				5386706B28BFE16300FB15EB /* MediaPlayerControlsView.h */,
 				5386706928BFE16300FB15EB /* MediaPlayerControlsView.m */,
@@ -1127,6 +1124,17 @@
 			path = lib;
 			sourceTree = "<group>";
 		};
+		53D85BA22900BE7300A7B134 /* Interfaces */ = {
+			isa = PBXGroup;
+			children = (
+				5396531E288CE2A7007B53EC /* MediaPlayerController.h */,
+				5396532F288F498B007B53EC /* MediaPlayerRenderController.h */,
+				5356FE7228A459BA00ECCA92 /* MediaPlayer+Private.h */,
+				5356FE6E28A4595800ECCA92 /* MediaPlayerView+Private.h */,
+			);
+			path = Interfaces;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -1153,11 +1161,11 @@
 				538E05132885ED2200CE9DE7 /* ObjectRepository.h in Headers */,
 				5350FB0628889E7400F8CA68 /* Node.h in Headers */,
 				5309C4142885C86500BC0AAE /* DatabaseQueue.h in Headers */,
-				53965331288F498B007B53EC /* MediaPlayerRenderController.h in Headers */,
 				53964F13288CC101007B53EC /* MediaPlayer.h in Headers */,
 				5356FE7428A459BA00ECCA92 /* MediaPlayer+Private.h in Headers */,
 				5356FE7028A4595800ECCA92 /* MediaPlayerView+Private.h in Headers */,
 				5386706E28BFE16300FB15EB /* MediaPlayerControlsView.h in Headers */,
+				53965331288F498B007B53EC /* MediaPlayerRenderController.h in Headers */,
 				53965320288CE2A7007B53EC /* MediaPlayerController.h in Headers */,
 				5396531C288CD19C007B53EC /* MediaPlayerView.h in Headers */,
 				5309C3BA2885A1DC00BC0AAE /* CoreZen.h in Headers */,

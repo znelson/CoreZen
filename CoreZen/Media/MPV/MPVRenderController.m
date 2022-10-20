@@ -7,8 +7,8 @@
 
 #import "MPVRenderController.h"
 #import "MPVFunctions.h"
-#import "MediaPlayer.h"
-#import "MediaPlayerView.h"
+#import "MediaPlayer+Private.h"
+#import "MediaPlayerView+Private.h"
 #import "MediaPlayerController.h"
 
 @import Darwin.POSIX.pthread;
@@ -61,16 +61,7 @@ static void zen_mpv_render_context_update(void *ctx);
 		_forceRenderFrame = NO;
 		_terminated = NO;
 		
-		pthread_condattr_t renderConditionAttrs;
-		pthread_condattr_init(&renderConditionAttrs);
-		pthread_cond_init(&_renderCondition, &renderConditionAttrs);
-		pthread_condattr_destroy(&renderConditionAttrs);
-		
-		pthread_mutexattr_t renderMutexAttrs;
-		pthread_mutexattr_init(&renderMutexAttrs);
-		pthread_mutexattr_setpolicy_np(&renderMutexAttrs, _PTHREAD_MUTEX_POLICY_FIRSTFIT);
-		pthread_mutex_init(&_renderMutex, &renderMutexAttrs);
-		pthread_mutexattr_destroy(&renderMutexAttrs);
+		zen_mpv_init_pthread_mutex_cond(&_renderMutex, &_renderCondition);
 		
 		dispatch_queue_attr_t qos = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INTERACTIVE, 0);
 		_renderQueue = dispatch_queue_create("com.zdnelson.CoreZen.mpv-render", qos);
@@ -94,9 +85,6 @@ static void zen_mpv_render_context_update(void *ctx);
 	if (_mpvRenderContext) {
 		[self destroyRenderContext];
 	}
-	
-	pthread_mutex_destroy(&_renderMutex);
-	pthread_cond_destroy(&_renderCondition);
 }
 
 - (mpv_handle *)mpvHandleFromPlayerView {
@@ -141,8 +129,7 @@ static void zen_mpv_render_context_update(void *ctx);
 	
 	dispatch_sync(_renderQueue, ^{});
 	
-	pthread_mutex_destroy(&_renderMutex);
-	pthread_cond_destroy(&_renderCondition);
+	zen_mpv_destroy_pthread_mutex_cond(&_renderMutex, &_renderCondition);
 	
 	mpv_render_context_free(_mpvRenderContext);
 	_mpvRenderContext = nil;

@@ -85,6 +85,12 @@
 - (void)detachPlayer {
 	if (self.player) {
 		[self.player detachPlayerView];
+		[self terminatePlayerView];
+	}
+}
+
+- (void)terminatePlayerView {
+	if (self.player) {
 		[self.renderController destroyRenderContext];
 		self.player = nil;
 	}

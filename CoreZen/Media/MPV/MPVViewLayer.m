@@ -8,7 +8,7 @@
 #import "MPVViewLayer.h"
 #import "MPVRenderController.h"
 #import "MPVFunctions.h"
-#import "MediaPlayerView.h"
+#import "MediaPlayerView+Private.h"
 
 @import QuartzCore.CATransaction;
 

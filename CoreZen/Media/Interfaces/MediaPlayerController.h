@@ -9,6 +9,8 @@
 
 @protocol ZENMediaPlayerController <NSObject>
 
+- (void)terminate;
+
 // (mpv_handle *)playerHandle;
 - (void *)playerHandle;
 

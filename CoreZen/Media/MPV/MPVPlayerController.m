@@ -106,14 +106,14 @@ static void zen_mpv_wakeup(void *ctx);
 			"append",
 			nil
 		};
-		mpv_command(_mpvHandle, loadCommand);
+		[self mpvCommand:loadCommand];
 
 		const char* playCommand[] = {
 			kMPVCommand_playlist_play_index,
 			"0",
 			nil
 		};
-		mpv_command(_mpvHandle, playCommand);
+		[self mpvCommand:playCommand];
 
 		[self pausePlayback];
 	}

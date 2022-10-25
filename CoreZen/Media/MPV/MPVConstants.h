@@ -60,6 +60,7 @@ extern const char* const kMPVParam_videotoolbox;
 
 // Commands
 extern const char* const kMPVCommand_loadfile;
+extern const char* const kMPVCommand_quit;
 extern const char* const kMPVCommand_playlist_play_index;
 extern const char* const kMPVCommand_playlist_frame_step;
 extern const char* const kMPVCommand_playlist_frame_back_step;

@@ -60,6 +60,7 @@ const char* const kMPVParam_videotoolbox =				"videotoolbox";
 
 // Commands
 const char* const kMPVCommand_loadfile =					"loadfile";
+const char* const kMPVCommand_quit =						"quit";
 const char* const kMPVCommand_playlist_play_index =			"playlist-play-index";
 const char* const kMPVCommand_playlist_frame_step =			"frame-step";
 const char* const kMPVCommand_playlist_frame_back_step =	"frame-back-step";

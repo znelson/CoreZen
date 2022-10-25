@@ -124,8 +124,7 @@ static void zen_mpv_wakeup(void *ctx);
 	mpv_unobserve_property(_mpvHandle, _observerID);
 	
 	// Send a mpv quit command, which will trigger MPV_EVENT_SHUTDOWN
-	const char* quitCommand[] = { "quit", nil };
-	mpv_command(_mpvHandle, quitCommand);
+	[self mpvSimpleCommand:kMPVCommand_quit];
 
 	// Wait for MPV_EVENT_SHUTDOWN to call -destroyHandle which sets _terminated to YES
 	pthread_mutex_lock(&_playerMutex);

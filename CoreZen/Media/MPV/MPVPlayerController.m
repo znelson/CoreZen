@@ -40,13 +40,24 @@ static void zen_mpv_wakeup(void *ctx);
 
 @property (nonatomic, strong, readonly) NSThread *mpvEventThread;
 
-- (void)observeProperties;
 - (void)destroyHandle;
 - (void)mpvHandleEvents;
+
+- (void)mpvCommand:(const char** const)command;
+- (void)mpvSimpleCommand:(const char* const)command;
 
 @end
 
 @implementation ZENMPVPlayerController
+
+- (void)mpvCommand:(const char** const)command {
+	mpv_command(_mpvHandle, command);
+}
+
+- (void)mpvSimpleCommand:(const char* const)command {
+	const char* cmd[] = { command, nil };
+	[self mpvCommand:cmd];
+}
 
 - (instancetype)initWithPlayer:(ZENMediaPlayer *)player {
 	self = [super init];
@@ -56,43 +67,53 @@ static void zen_mpv_wakeup(void *ctx);
 		_observerID = zen_mpv_next_observer_identifier();
 		_terminated = NO;
 		
+		// Initialize mutex and condition variable
 		zen_mpv_init_pthread_mutex_cond(&_playerMutex, &_playerCondition);
 		
+		// Initialize MPV player event serial queue
 		dispatch_queue_attr_t qos = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INITIATED, 0);
 		_eventQueue = dispatch_queue_create("com.zdnelson.CoreZen.mpv-player", qos);
 		
+		// Create MPV handle (initialization happens after configuration)
 		_mpvHandle = mpv_create();
 		
 		_clientName = zen_mpv_string(mpv_client_name(_mpvHandle));
 		
+		// Set MPV configuration
 		mpv_set_option_string(_mpvHandle, kMPVOption_hwdec, kMPVParam_videotoolbox);
 		mpv_set_option_string(_mpvHandle, kMPVOption_vo, kMPVParam_libmpv);
 		
 		mpv_request_log_messages(_mpvHandle, "warn");
 		
+		// Initialize MPV handle
 		mpv_initialize(_mpvHandle);
 		
 		_version = zen_mpv_string(mpv_get_property_string(_mpvHandle, kMPVProperty_mpv_version));
 		
+		// Set event callback function
 		void *selfAsVoid = (__bridge void *)self;
 		mpv_set_wakeup_callback(_mpvHandle, zen_mpv_wakeup, selfAsVoid);
 		
+		// Observe properties
+		mpv_observe_property(_mpvHandle, _observerID, kMPVProperty_percent_pos, MPV_FORMAT_NODE);
+		mpv_observe_property(_mpvHandle, _observerID, kMPVProperty_pause, MPV_FORMAT_NODE);
+		
+		// Load the initial file
+		// TODO: Remove this, load files dynamically via API
 		const char* loadCommand[] = {
-			"loadfile",
+			kMPVCommand_loadfile,
 			player.fileURL.path.fileSystemRepresentation,
 			"append",
 			nil
 		};
-		mpv_command(_mpvHandle, loadCommand);
+		[self mpvCommand:loadCommand];
 
 		const char* playCommand[] = {
-			"playlist-play-index",
+			kMPVCommand_playlist_play_index,
 			"0",
 			nil
 		};
-		mpv_command(_mpvHandle, playCommand);
-		
-		[self observeProperties];
+		[self mpvCommand:playCommand];
 
 		[self pausePlayback];
 	}
@@ -103,8 +124,7 @@ static void zen_mpv_wakeup(void *ctx);
 	mpv_unobserve_property(_mpvHandle, _observerID);
 	
 	// Send a mpv quit command, which will trigger MPV_EVENT_SHUTDOWN
-	const char* quitCommand[] = { "quit", nil };
-	mpv_command(_mpvHandle, quitCommand);
+	[self mpvSimpleCommand:kMPVCommand_quit];
 
 	// Wait for MPV_EVENT_SHUTDOWN to call -destroyHandle which sets _terminated to YES
 	pthread_mutex_lock(&_playerMutex);
@@ -113,22 +133,22 @@ static void zen_mpv_wakeup(void *ctx);
 	}
 	pthread_mutex_unlock(&_playerMutex);
 	
+	// Clean up mutex and condition variable
 	zen_mpv_destroy_pthread_mutex_cond(&_playerMutex, &_playerCondition);
 }
 
-- (void)observeProperties {
-	mpv_observe_property(_mpvHandle, _observerID, kMPVProperty_percent_pos, MPV_FORMAT_NODE);
-	mpv_observe_property(_mpvHandle, _observerID, kMPVProperty_pause, MPV_FORMAT_NODE);
-}
-
 - (void)destroyHandle {
+	// Remove property observers
 	mpv_unobserve_property(_mpvHandle, _observerID);
 	
+	// Remove event callback function
 	mpv_set_wakeup_callback(_mpvHandle, nil, nil);
 	
+	// Destroy MPV handle
 	mpv_destroy(_mpvHandle);
 	_mpvHandle = nil;
 	
+	// Set _terminated flag and signal waiting thread
 	pthread_mutex_lock(&_playerMutex);
 	_terminated = YES;
 	pthread_cond_signal(&_playerCondition);
@@ -145,6 +165,14 @@ static void zen_mpv_wakeup(void *ctx);
 
 - (void)pausePlayback {
 	zen_mpv_set_bool_property(_mpvHandle, kMPVProperty_pause, YES);
+}
+
+- (void)frameStepBack {
+	[self mpvSimpleCommand:kMPVCommand_playlist_frame_back_step];
+}
+
+- (void)frameStepForward {
+	[self mpvSimpleCommand:kMPVCommand_playlist_frame_step];
 }
 
 - (void)mpvHandleEvents {

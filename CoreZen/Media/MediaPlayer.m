@@ -40,15 +40,19 @@
 }
 
 - (void)startPlayback {
-	if (self.playerView) {
-		[self.playerController startPlayback];
-	}
+	[self.playerController startPlayback];
 }
 
 - (void)pausePlayback {
-	if (self.playerView) {
-		[self.playerController pausePlayback];
-	}
+	[self.playerController pausePlayback];
+}
+
+- (void)frameStepBack {
+	[self.playerController frameStepBack];
+}
+
+- (void)frameStepForward {
+	[self.playerController frameStepForward];
 }
 
 @end

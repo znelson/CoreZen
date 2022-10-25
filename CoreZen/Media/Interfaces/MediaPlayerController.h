@@ -17,4 +17,7 @@
 - (void)startPlayback;
 - (void)pausePlayback;
 
+- (void)frameStepBack;
+- (void)frameStepForward;
+
 @end

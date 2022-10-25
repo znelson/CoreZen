@@ -43,9 +43,21 @@ static void zen_mpv_wakeup(void *ctx);
 - (void)destroyHandle;
 - (void)mpvHandleEvents;
 
+- (void)mpvCommand:(const char** const)command;
+- (void)mpvSimpleCommand:(const char* const)command;
+
 @end
 
 @implementation ZENMPVPlayerController
+
+- (void)mpvCommand:(const char** const)command {
+	mpv_command(_mpvHandle, command);
+}
+
+- (void)mpvSimpleCommand:(const char* const)command {
+	const char* cmd[] = { command, nil };
+	[self mpvCommand:cmd];
+}
 
 - (instancetype)initWithPlayer:(ZENMediaPlayer *)player {
 	self = [super init];
@@ -154,6 +166,14 @@ static void zen_mpv_wakeup(void *ctx);
 
 - (void)pausePlayback {
 	zen_mpv_set_bool_property(_mpvHandle, kMPVProperty_pause, YES);
+}
+
+- (void)frameStepBack {
+	[self mpvSimpleCommand:kMPVCommand_playlist_frame_back_step];
+}
+
+- (void)frameStepForward {
+	[self mpvSimpleCommand:kMPVCommand_playlist_frame_step];
 }
 
 - (void)mpvHandleEvents {

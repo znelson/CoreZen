@@ -99,6 +99,7 @@ static void* ObserverContext = &ObserverContext;
 - (IBAction)buttonClicked:(id)sender {
 	if (self.player) {
 		if (sender == self.prevButton1) {
+			[self.player frameStepBack];
 		} else if (sender == self.prevButton2) {
 		} else if (sender == self.prevButton3) {
 		} else if (sender == self.prevButton4) {
@@ -109,6 +110,7 @@ static void* ObserverContext = &ObserverContext;
 				[self.player pausePlayback];
 			}
 		} else if (sender == self.nextButton1) {
+			[self.player frameStepForward];
 		} else if (sender == self.nextButton2) {
 		} else if (sender == self.nextButton3) {
 		} else if (sender == self.nextButton4) {

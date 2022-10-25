@@ -40,7 +40,6 @@ static void zen_mpv_wakeup(void *ctx);
 
 @property (nonatomic, strong, readonly) NSThread *mpvEventThread;
 
-- (void)observeProperties;
 - (void)destroyHandle;
 - (void)mpvHandleEvents;
 
@@ -77,6 +76,10 @@ static void zen_mpv_wakeup(void *ctx);
 		void *selfAsVoid = (__bridge void *)self;
 		mpv_set_wakeup_callback(_mpvHandle, zen_mpv_wakeup, selfAsVoid);
 		
+		// Observe properties
+		mpv_observe_property(_mpvHandle, _observerID, kMPVProperty_percent_pos, MPV_FORMAT_NODE);
+		mpv_observe_property(_mpvHandle, _observerID, kMPVProperty_pause, MPV_FORMAT_NODE);
+		
 		const char* loadCommand[] = {
 			kMPVCommand_loadfile,
 			player.fileURL.path.fileSystemRepresentation,
@@ -91,8 +94,6 @@ static void zen_mpv_wakeup(void *ctx);
 			nil
 		};
 		mpv_command(_mpvHandle, playCommand);
-		
-		[self observeProperties];
 
 		[self pausePlayback];
 	}
@@ -114,11 +115,6 @@ static void zen_mpv_wakeup(void *ctx);
 	pthread_mutex_unlock(&_playerMutex);
 	
 	zen_mpv_destroy_pthread_mutex_cond(&_playerMutex, &_playerCondition);
-}
-
-- (void)observeProperties {
-	mpv_observe_property(_mpvHandle, _observerID, kMPVProperty_percent_pos, MPV_FORMAT_NODE);
-	mpv_observe_property(_mpvHandle, _observerID, kMPVProperty_pause, MPV_FORMAT_NODE);
 }
 
 - (void)destroyHandle {

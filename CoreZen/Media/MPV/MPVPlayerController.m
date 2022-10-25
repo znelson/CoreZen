@@ -78,7 +78,7 @@ static void zen_mpv_wakeup(void *ctx);
 		mpv_set_wakeup_callback(_mpvHandle, zen_mpv_wakeup, selfAsVoid);
 		
 		const char* loadCommand[] = {
-			"loadfile",
+			kMPVCommand_loadfile,
 			player.fileURL.path.fileSystemRepresentation,
 			"append",
 			nil
@@ -86,7 +86,7 @@ static void zen_mpv_wakeup(void *ctx);
 		mpv_command(_mpvHandle, loadCommand);
 
 		const char* playCommand[] = {
-			"playlist-play-index",
+			kMPVCommand_playlist_play_index,
 			"0",
 			nil
 		};

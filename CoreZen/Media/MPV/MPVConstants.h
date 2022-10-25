@@ -57,3 +57,7 @@ extern const char* const kMPVOption_vo;
 // Config params
 extern const char* const kMPVParam_libmpv;
 extern const char* const kMPVParam_videotoolbox;
+
+// Commands
+extern const char* const kMPVCommand_loadfile;
+extern const char* const kMPVCommand_playlist_play_index;

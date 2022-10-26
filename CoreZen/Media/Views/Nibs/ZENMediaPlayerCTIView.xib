@@ -8,6 +8,7 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="ZENMediaPlayerCTIView">
             <connections>
+                <outlet property="progressBar" destination="QQ2-mR-tl1" id="qb1-78-i94"/>
                 <outlet property="rootView" destination="c22-O7-iKe" id="ElT-Au-SCX"/>
             </connections>
         </customObject>
@@ -15,6 +16,17 @@
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <customView translatesAutoresizingMaskIntoConstraints="NO" id="c22-O7-iKe" userLabel="CTI View">
             <rect key="frame" x="0.0" y="0.0" width="480" height="272"/>
+            <subviews>
+                <progressIndicator maxValue="100" doubleValue="50" style="bar" translatesAutoresizingMaskIntoConstraints="NO" id="QQ2-mR-tl1">
+                    <rect key="frame" x="0.0" y="-1" width="480" height="274"/>
+                </progressIndicator>
+            </subviews>
+            <constraints>
+                <constraint firstAttribute="bottom" secondItem="QQ2-mR-tl1" secondAttribute="bottom" id="5Yk-Hi-KmL"/>
+                <constraint firstItem="QQ2-mR-tl1" firstAttribute="leading" secondItem="c22-O7-iKe" secondAttribute="leading" id="IRS-Ke-PK3"/>
+                <constraint firstItem="QQ2-mR-tl1" firstAttribute="top" secondItem="c22-O7-iKe" secondAttribute="top" id="L3u-lY-bh0"/>
+                <constraint firstAttribute="trailing" secondItem="QQ2-mR-tl1" secondAttribute="trailing" id="Nb6-Mh-b3W"/>
+            </constraints>
             <point key="canvasLocation" x="79" y="154"/>
         </customView>
     </objects>

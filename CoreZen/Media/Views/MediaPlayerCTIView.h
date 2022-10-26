@@ -1,15 +1,16 @@
 //
-//  MediaPlayerControlsView.h
+//  MediaPlayerCTIView.h
 //  CoreZen
 //
-//  Created by Zach Nelson on 8/10/22.
+//  Created by Zach Nelson on 10/26/22.
 //
 
 #import <Cocoa/Cocoa.h>
+#import <CoreZen/ArchivedView.h>
 
 @class ZENMediaPlayer;
 
-@interface ZENMediaPlayerControlsView : NSView
+@interface ZENMediaPlayerCTIView : ZENArchivedView
 
 @property (nonatomic, weak, readonly) ZENMediaPlayer *player;
 

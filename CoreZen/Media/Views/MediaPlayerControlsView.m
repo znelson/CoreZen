@@ -12,8 +12,6 @@ static void* ObserverContext = &ObserverContext;
 
 @interface ZENMediaPlayerControlsView ()
 
-@property (nonatomic, weak) IBOutlet NSView *rootView;
-
 @property (nonatomic, weak) IBOutlet NSButton *prevButton1;
 @property (nonatomic, weak) IBOutlet NSButton *prevButton2;
 @property (nonatomic, weak) IBOutlet NSButton *prevButton3;
@@ -28,72 +26,14 @@ static void* ObserverContext = &ObserverContext;
 
 @property (nonatomic, weak) ZENMediaPlayer *player;
 
-- (void)initCommon;
-
 - (IBAction)buttonClicked:(id)sender;
 
 @end
 
 @implementation ZENMediaPlayerControlsView
 
-- (void)initCommon {
-	NSBundle *bundle = [NSBundle bundleForClass:ZENMediaPlayerControlsView.class];
-	NSNib *nib = [[NSNib alloc] initWithNibNamed:@"ZENMediaPlayerControlsView" bundle:bundle];
-	if ([nib instantiateWithOwner:self topLevelObjects:nil]) {
-		NSView *nibView = self.rootView;
-		
-		[self addSubview:nibView];
-		
-		NSLayoutConstraint *left = [NSLayoutConstraint constraintWithItem:nibView
-																attribute:NSLayoutAttributeLeft
-																relatedBy:NSLayoutRelationEqual
-																   toItem:self
-																attribute:NSLayoutAttributeLeft
-															   multiplier:1
-																 constant:0];
-
-		NSLayoutConstraint *top = [NSLayoutConstraint constraintWithItem:nibView
-															   attribute:NSLayoutAttributeTop
-															   relatedBy:NSLayoutRelationEqual
-																  toItem:self
-															   attribute:NSLayoutAttributeTop
-															  multiplier:1
-																constant:0];
-
-		NSLayoutConstraint *height = [NSLayoutConstraint constraintWithItem:nibView
-																  attribute:NSLayoutAttributeHeight
-																  relatedBy:NSLayoutRelationEqual
-																	 toItem:self
-																  attribute:NSLayoutAttributeHeight
-																 multiplier:1
-																   constant:0];
-
-		NSLayoutConstraint *width = [NSLayoutConstraint constraintWithItem:nibView
-																 attribute:NSLayoutAttributeWidth
-																 relatedBy:NSLayoutRelationEqual
-																	toItem:self
-																 attribute:NSLayoutAttributeWidth
-																multiplier:1
-																  constant:0];
-
-		[self addConstraints:@[left, top, height, width]];
-	}
-}
-
-- (instancetype)initWithFrame:(NSRect)frameRect {
-	self = [super initWithFrame:frameRect];
-	if (self) {
-		[self initCommon];
-	}
-	return self;
-}
-
-- (instancetype)initWithCoder:(NSCoder *)coder {
-	self = [super initWithCoder:coder];
-	if (self) {
-		[self initCommon];
-	}
-	return self;
+- (NSString *)archivedViewName {
+	return @"ZENMediaPlayerControlsView";
 }
 
 - (IBAction)buttonClicked:(id)sender {

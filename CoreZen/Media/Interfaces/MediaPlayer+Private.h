@@ -11,9 +11,13 @@
 
 @interface ZENMediaPlayer ()
 
+@property (nonatomic) ZENIdentifier identifier;
+
 @property (nonatomic, strong) ZENMediaPlayerView *playerView;
-@property (nonatomic) BOOL paused;
 @property (nonatomic, strong, readonly) NSObject<ZENMediaPlayerController> *playerController;
+
+@property (nonatomic) BOOL paused;
+@property (nonatomic) double positionPercent;
 
 // Reciprocal of ZENMediaPlayerView attachPlayer:
 - (void)attachPlayerView:(ZENMediaPlayerView *)view;

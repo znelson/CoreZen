@@ -254,8 +254,8 @@ static void zen_mpv_wakeup(void *ctx);
 					// }
 
 					const char* propertyName = nil;
-					mpv_node *propertyValueNode = nil;
-					uint64_t propertyID = 0;
+					mpv_node *valueNode = nil;
+					uint64_t observerID = 0;
 
 					if (node.format == MPV_FORMAT_NODE_MAP) {
 						mpv_node_list *nodeList = node.u.list;
@@ -266,25 +266,28 @@ static void zen_mpv_wakeup(void *ctx);
 							if (zen_mpv_compare_strings(kMPVPropertyKey_name, mapKey)) {
 								propertyName = mapNode->u.string;
 							} else if (zen_mpv_compare_strings(kMPVPropertyKey_data, mapKey)) {
-								propertyValueNode = mapNode;
+								valueNode = mapNode;
 							} else if (zen_mpv_compare_strings(kMPVPropertyKey_id, mapKey)) {
-								propertyID = mapNode->u.int64;
+								observerID = mapNode->u.int64;
 							}
 						}
 					}
 					
-					NSLog(@"MPV_EVENT_PROPERTY_CHANGE (%llu): %s", propertyID, property->name);
+					NSLog(@"MPV_EVENT_PROPERTY_CHANGE (%llu): %s", observerID, property->name);
 
-					if (propertyName && propertyValueNode && propertyID == _observerID) {
+					if (propertyName && valueNode && observerID == _observerID) {
 						if (zen_mpv_compare_strings(kMPVProperty_pause, propertyName)) {
-							BOOL paused = (BOOL)propertyValueNode->u.flag;
+							BOOL paused = (BOOL)valueNode->u.flag;
 							NSLog(@"Paused: %d", paused);
 							dispatch_async(dispatch_get_main_queue(), ^{
 								self.player.paused = paused;
 							});
 						} else if (zen_mpv_compare_strings(kMPVProperty_percent_pos, propertyName)) {
-							double percentPos = propertyValueNode->u.double_;
+							double percentPos = valueNode->u.double_;
 							NSLog(@"Position: %f", percentPos);
+							dispatch_async(dispatch_get_main_queue(), ^{
+								self.player.positionPercent = percentPos;
+							});
 						}
 					}
 

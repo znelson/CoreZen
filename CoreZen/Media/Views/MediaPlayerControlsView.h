@@ -6,10 +6,11 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import <CoreZen/ArchivedView.h>
 
 @class ZENMediaPlayer;
 
-@interface ZENMediaPlayerControlsView : NSView
+@interface ZENMediaPlayerControlsView : ZENArchivedView
 
 @property (nonatomic, weak, readonly) ZENMediaPlayer *player;
 

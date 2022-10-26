@@ -22,7 +22,7 @@
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
-        <customView translatesAutoresizingMaskIntoConstraints="NO" id="c22-O7-iKe">
+        <customView translatesAutoresizingMaskIntoConstraints="NO" id="c22-O7-iKe" userLabel="Controls View">
             <rect key="frame" x="0.0" y="0.0" width="400" height="40"/>
             <subviews>
                 <stackView distribution="equalSpacing" orientation="horizontal" alignment="centerY" horizontalStackHuggingPriority="250" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="SPb-8x-Orp">
@@ -69,7 +69,7 @@
                             </connections>
                         </button>
                         <button ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="JBF-pN-A4v" userLabel="Play Pause Button">
-                            <rect key="frame" x="194" y="12" width="12.5" height="17"/>
+                            <rect key="frame" x="194" y="14" width="12.5" height="13"/>
                             <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="play.fill" catalog="system" imagePosition="only" alignment="center" imageScaling="proportionallyUpOrDown" inset="2" id="3ns-p9-ARz">
                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                 <font key="font" metaFont="system"/>

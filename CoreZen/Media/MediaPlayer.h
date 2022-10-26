@@ -6,10 +6,11 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <CoreZen/Identifiable.h>
 
 @class ZENMediaPlayerView;
 
-@interface ZENMediaPlayer : NSObject
+@interface ZENMediaPlayer : NSObject <ZENIdentifiable>
 
 - (instancetype)initWithFileURL:(NSURL*)url;
 

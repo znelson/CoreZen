@@ -8,6 +8,18 @@
 #import "MediaPlayer+Private.h"
 #import "MediaPlayerView+Private.h"
 #import "MPVPlayerController.h"
+#import <stdatomic.h>
+
+ZENIdentifier ZENGetNextMediaPlayerIdentifier(void) {
+	static atomic_int_fast64_t nextIdentifier = 1;
+	return atomic_fetch_add(&nextIdentifier, 1);
+}
+
+@interface ZENMediaPlayer ()
+
+@property (nonatomic) ZENIdentifier identifier;
+
+@end
 
 @implementation ZENMediaPlayer
 
@@ -16,6 +28,7 @@
 	if (self) {
 		_fileURL = url;
 		_playerController = [[ZENMPVPlayerController alloc] initWithPlayer:self];
+		_identifier = ZENGetNextMediaPlayerIdentifier();
 	}
 	return self;
 }

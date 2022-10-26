@@ -25,12 +25,6 @@ ZENIdentifier ZENGetNextMediaPlayerIdentifier(void) {
 	return atomic_fetch_add(&nextIdentifier, 1);
 }
 
-@interface ZENMediaPlayer ()
-
-@property (nonatomic) ZENIdentifier identifier;
-
-@end
-
 @implementation ZENMediaPlayer
 
 - (instancetype)initWithFileURL:(NSURL*)url {

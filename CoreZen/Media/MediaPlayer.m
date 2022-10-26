@@ -57,6 +57,15 @@ ZENIdentifier ZENGetNextMediaPlayerIdentifier(void) {
 	[cache removeObject:self.identifier];
 }
 
++ (void)terminateAllPlayers {
+	ZENObjectCache *cache = ZENGetWeakMediaPlayerCache();
+	NSArray<id<ZENIdentifiable>> *objs = cache.allCachedObjects;
+	for (ZENMediaPlayer *player in objs) {
+		[player terminatePlayer];
+	}
+	[cache removeAllObjects];
+}
+
 - (void)attachPlayerView:(ZENMediaPlayerView *)view {
 	self.playerView = view;
 }

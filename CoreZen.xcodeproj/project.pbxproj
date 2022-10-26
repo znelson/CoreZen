@@ -33,6 +33,8 @@
 		5309C4252885CDA500BC0AAE /* DatabaseSchema.h in Headers */ = {isa = PBXBuildFile; fileRef = 5309C4232885CDA500BC0AAE /* DatabaseSchema.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5309C4262885CDA500BC0AAE /* DatabaseSchema.m in Sources */ = {isa = PBXBuildFile; fileRef = 5309C4242885CDA500BC0AAE /* DatabaseSchema.m */; };
 		5309C4292885D19400BC0AAE /* DatabaseTable.h in Headers */ = {isa = PBXBuildFile; fileRef = 5309C4272885D19400BC0AAE /* DatabaseTable.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		5316736C2909CC66003FB35A /* ArchivedView.h in Headers */ = {isa = PBXBuildFile; fileRef = 5316736A2909CC66003FB35A /* ArchivedView.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		5316736D2909CC66003FB35A /* ArchivedView.m in Sources */ = {isa = PBXBuildFile; fileRef = 5316736B2909CC66003FB35A /* ArchivedView.m */; };
 		533005DE28F784B600E59E1D /* ZENMediaPlayerControlsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 533005DD28F784B600E59E1D /* ZENMediaPlayerControlsView.xib */; };
 		5350F8A42886020500F8CA68 /* DatabaseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5350F8A32886020500F8CA68 /* DatabaseTests.m */; };
 		5350F8B42886074F00F8CA68 /* ObjectCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5350F8B32886074F00F8CA68 /* ObjectCacheTests.m */; };
@@ -314,6 +316,8 @@
 		5309C4232885CDA500BC0AAE /* DatabaseSchema.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DatabaseSchema.h; sourceTree = "<group>"; };
 		5309C4242885CDA500BC0AAE /* DatabaseSchema.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DatabaseSchema.m; sourceTree = "<group>"; };
 		5309C4272885D19400BC0AAE /* DatabaseTable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DatabaseTable.h; sourceTree = "<group>"; };
+		5316736A2909CC66003FB35A /* ArchivedView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ArchivedView.h; sourceTree = "<group>"; };
+		5316736B2909CC66003FB35A /* ArchivedView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ArchivedView.m; sourceTree = "<group>"; };
 		533005DD28F784B600E59E1D /* ZENMediaPlayerControlsView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ZENMediaPlayerControlsView.xib; sourceTree = "<group>"; };
 		5350F8A32886020500F8CA68 /* DatabaseTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DatabaseTests.m; sourceTree = "<group>"; };
 		5350F8B32886074F00F8CA68 /* ObjectCacheTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ObjectCacheTests.m; sourceTree = "<group>"; };
@@ -728,6 +732,15 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		5316736E2909CE9B003FB35A /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				5316736A2909CC66003FB35A /* ArchivedView.h */,
+				5316736B2909CC66003FB35A /* ArchivedView.m */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
 		5350F8B52886079F00F8CA68 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
@@ -742,6 +755,7 @@
 			children = (
 				53D85BA22900BE7300A7B134 /* Interfaces */,
 				53965322288F1601007B53EC /* MPV */,
+				5316736E2909CE9B003FB35A /* Views */,
 				5350F8C02886194200F8CA68 /* MediaFile.h */,
 				5350F8C12886194200F8CA68 /* MediaFile.m */,
 				53964F11288CC101007B53EC /* MediaPlayer.h */,
@@ -1164,6 +1178,7 @@
 				53964F13288CC101007B53EC /* MediaPlayer.h in Headers */,
 				5356FE7428A459BA00ECCA92 /* MediaPlayer+Private.h in Headers */,
 				5356FE7028A4595800ECCA92 /* MediaPlayerView+Private.h in Headers */,
+				5316736C2909CC66003FB35A /* ArchivedView.h in Headers */,
 				5386706E28BFE16300FB15EB /* MediaPlayerControlsView.h in Headers */,
 				53965331288F498B007B53EC /* MediaPlayerRenderController.h in Headers */,
 				53965320288CE2A7007B53EC /* MediaPlayerController.h in Headers */,
@@ -1290,6 +1305,7 @@
 				5309C3F22885A74A00BC0AAE /* ObjectIdentifier.m in Sources */,
 				5396532E288F453E007B53EC /* MPVRenderController.m in Sources */,
 				5350F8C32886194200F8CA68 /* MediaFile.m in Sources */,
+				5316736D2909CC66003FB35A /* ArchivedView.m in Sources */,
 				5309C4072885B14C00BC0AAE /* NSURL+CoreZen.m in Sources */,
 				538E05042885DCED00CE9DE7 /* DomainObject.m in Sources */,
 				5309C4152885C86500BC0AAE /* DatabaseQueue.m in Sources */,

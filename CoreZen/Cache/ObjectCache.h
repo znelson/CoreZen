@@ -19,4 +19,7 @@
 - (void)cacheObject:(id<ZENIdentifiable>)object;
 - (void)removeObject:(ZENIdentifier)identifier;
 
+- (NSArray<id<ZENIdentifiable>> *)allCachedObjects;
+- (void)removeAllObjects;
+
 @end

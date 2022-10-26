@@ -6,10 +6,11 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <CoreZen/Identifiable.h>
 
 @class ZENMediaPlayerView;
 
-@interface ZENMediaPlayer : NSObject
+@interface ZENMediaPlayer : NSObject <ZENIdentifiable>
 
 - (instancetype)initWithFileURL:(NSURL*)url;
 
@@ -21,6 +22,9 @@
 
 // Terminate and detach the player view, terminate player controller
 - (void)terminatePlayer;
+
+// Call before application terminates to terminate all ZENMediaPlayer instances
++ (void)terminateAllPlayers;
 
 - (void)startPlayback;
 - (void)pausePlayback;

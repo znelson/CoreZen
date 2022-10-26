@@ -41,42 +41,19 @@ static void* ObserverContext = &ObserverContext;
 	NSNib *nib = [[NSNib alloc] initWithNibNamed:@"ZENMediaPlayerControlsView" bundle:bundle];
 	if ([nib instantiateWithOwner:self topLevelObjects:nil]) {
 		NSView *nibView = self.rootView;
-		
 		[self addSubview:nibView];
 		
-		NSLayoutConstraint *left = [NSLayoutConstraint constraintWithItem:nibView
-																attribute:NSLayoutAttributeLeft
-																relatedBy:NSLayoutRelationEqual
-																   toItem:self
-																attribute:NSLayoutAttributeLeft
-															   multiplier:1
-																 constant:0];
-
-		NSLayoutConstraint *top = [NSLayoutConstraint constraintWithItem:nibView
-															   attribute:NSLayoutAttributeTop
-															   relatedBy:NSLayoutRelationEqual
-																  toItem:self
-															   attribute:NSLayoutAttributeTop
-															  multiplier:1
-																constant:0];
-
-		NSLayoutConstraint *height = [NSLayoutConstraint constraintWithItem:nibView
-																  attribute:NSLayoutAttributeHeight
-																  relatedBy:NSLayoutRelationEqual
-																	 toItem:self
-																  attribute:NSLayoutAttributeHeight
-																 multiplier:1
-																   constant:0];
-
-		NSLayoutConstraint *width = [NSLayoutConstraint constraintWithItem:nibView
-																 attribute:NSLayoutAttributeWidth
-																 relatedBy:NSLayoutRelationEqual
-																	toItem:self
-																 attribute:NSLayoutAttributeWidth
-																multiplier:1
-																  constant:0];
-
-		[self addConstraints:@[left, top, height, width]];
+		NSMutableArray *constraints = [NSMutableArray new];
+		
+		NSLayoutAttribute attrs[4] = { NSLayoutAttributeLeft, NSLayoutAttributeTop, NSLayoutAttributeHeight, NSLayoutAttributeWidth };
+		
+		for (int i = 0; i < 4; ++i) {
+			NSLayoutAttribute attr = attrs[i];
+			NSLayoutConstraint *constraint = [NSLayoutConstraint constraintWithItem:nibView attribute:attr relatedBy:NSLayoutRelationEqual toItem:self attribute:attr multiplier:1 constant:0];
+			[constraints addObject:constraint];
+		}
+		
+		[self addConstraints:constraints];
 	}
 }
 

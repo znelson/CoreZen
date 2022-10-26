@@ -66,7 +66,7 @@
 		NSNumber *identifier = @(object.identifier);
 		id existing = [self.mapTable objectForKey:identifier];
 		// There must be either no entry, or the entry expired because nothing was holding a strong ref
-		if (!existing || existing == [NSNull null]) {
+		if (!existing || existing == NSNull.null) {
 			[self.mapTable setObject:object forKey:identifier];
 		}
 	});
@@ -75,6 +75,25 @@
 - (void)removeObject:(ZENIdentifier)identifier {
 	dispatch_barrier_async(self.isolationQueue, ^{
 		[self.mapTable removeObjectForKey:@(identifier)];
+	});
+}
+
+- (NSArray<id<ZENIdentifiable>> *)allCachedObjects {
+	__block NSMutableArray<id<ZENIdentifiable>> *objs = [NSMutableArray new];
+	dispatch_sync(self.isolationQueue, ^{
+		NSEnumerator<id<ZENIdentifiable>> *enumerator = self.mapTable.objectEnumerator;
+		for (id obj in enumerator) {
+			if (obj && obj != NSNull.null) {
+				[objs addObject:obj];
+			}
+		}
+	});
+	return objs;
+}
+
+- (void)removeAllObjects {
+	dispatch_barrier_async(self.isolationQueue, ^{
+		[self.mapTable removeAllObjects];
 	});
 }
 

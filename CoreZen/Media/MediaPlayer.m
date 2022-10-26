@@ -8,7 +8,17 @@
 #import "MediaPlayer+Private.h"
 #import "MediaPlayerView+Private.h"
 #import "MPVPlayerController.h"
+#import "ObjectCache.h"
 #import <stdatomic.h>
+
+ZENObjectCache* ZENGetWeakMediaPlayerCache(void) {
+	static ZENObjectCache *cache = nil;
+	static dispatch_once_t once;
+	dispatch_once(&once, ^{
+		cache = [ZENObjectCache weakObjectCache];
+	});
+	return cache;
+}
 
 ZENIdentifier ZENGetNextMediaPlayerIdentifier(void) {
 	static atomic_int_fast64_t nextIdentifier = 1;
@@ -29,6 +39,9 @@ ZENIdentifier ZENGetNextMediaPlayerIdentifier(void) {
 		_fileURL = url;
 		_playerController = [[ZENMPVPlayerController alloc] initWithPlayer:self];
 		_identifier = ZENGetNextMediaPlayerIdentifier();
+		
+		ZENObjectCache *cache = ZENGetWeakMediaPlayerCache();
+		[cache cacheObject:self];
 	}
 	return self;
 }
@@ -39,6 +52,9 @@ ZENIdentifier ZENGetNextMediaPlayerIdentifier(void) {
 	}
 	[self detachPlayerView];
 	[self.playerController terminate];
+	
+	ZENObjectCache *cache = ZENGetWeakMediaPlayerCache();
+	[cache removeObject:self.identifier];
 }
 
 - (void)attachPlayerView:(ZENMediaPlayerView *)view {

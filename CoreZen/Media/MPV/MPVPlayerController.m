@@ -168,11 +168,11 @@ static void zen_mpv_wakeup(void *ctx);
 }
 
 - (void)frameStepBack {
-	[self mpvSimpleCommand:kMPVCommand_playlist_frame_back_step];
+	[self mpvSimpleCommand:kMPVCommand_frame_back_step];
 }
 
 - (void)frameStepForward {
-	[self mpvSimpleCommand:kMPVCommand_playlist_frame_step];
+	[self mpvSimpleCommand:kMPVCommand_frame_step];
 }
 
 - (void)mpvHandleEvents {

@@ -64,3 +64,11 @@ const char* const kMPVCommand_quit =					"quit";
 const char* const kMPVCommand_playlist_play_index =		"playlist-play-index";
 const char* const kMPVCommand_frame_step =				"frame-step";
 const char* const kMPVCommand_frame_back_step =			"frame-back-step";
+const char* const kMPVCommand_seek =					"seek";
+
+// Command params
+const char* const kMPVCommandParam_relative =			"relative";
+const char* const kMPVCommandParam_absolute =			"absolute";
+const char* const kMPVCommandParam_absolute_percent =	"absolute-percent";
+const char* const kMPVCommandParam_keyframes =			"keyframes";
+const char* const kMPVCommandParam_exact =				"exact";

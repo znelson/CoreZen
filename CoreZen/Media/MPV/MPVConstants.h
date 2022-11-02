@@ -64,3 +64,11 @@ extern const char* const kMPVCommand_quit;
 extern const char* const kMPVCommand_playlist_play_index;
 extern const char* const kMPVCommand_frame_step;
 extern const char* const kMPVCommand_frame_back_step;
+extern const char* const kMPVCommand_seek;
+
+// Command params
+extern const char* const kMPVCommandParam_relative;
+extern const char* const kMPVCommandParam_absolute;
+extern const char* const kMPVCommandParam_absolute_percent;
+extern const char* const kMPVCommandParam_keyframes;
+extern const char* const kMPVCommandParam_exact;

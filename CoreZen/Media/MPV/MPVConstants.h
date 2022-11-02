@@ -54,9 +54,9 @@ extern const char* const kMPVPropertyKey_id;
 extern const char* const kMPVOption_hwdec;
 extern const char* const kMPVOption_vo;
 
-// Config params
-extern const char* const kMPVParam_libmpv;
-extern const char* const kMPVParam_videotoolbox;
+// Config option params
+extern const char* const kMPVOptionParam_libmpv;
+extern const char* const kMPVOptionParam_videotoolbox;
 
 // Commands
 extern const char* const kMPVCommand_loadfile;

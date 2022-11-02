@@ -175,6 +175,16 @@ static void zen_mpv_wakeup(void *ctx);
 	[self mpvSimpleCommand:kMPVCommand_frame_step];
 }
 
+- (void)seekBySeconds:(double)seconds {
+	const char* command[] = {
+		kMPVCommand_seek,
+		[[NSString stringWithFormat:@"%f", seconds] cStringUsingEncoding:NSASCIIStringEncoding],
+		kMPVCommandParam_relative,
+		nil
+	};
+	[self mpvCommand:command];
+}
+
 - (void)mpvHandleEvents {
 	while (true) {
 		mpv_event *event = mpv_wait_event(_mpvHandle, 0);

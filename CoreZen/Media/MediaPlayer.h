@@ -30,7 +30,7 @@
 - (void)startPlayback;
 - (void)pausePlayback;
 
-- (void)frameStepBack;
-- (void)frameStepForward;
+- (void)stepOneFrame:(BOOL)forward;
+- (void)seekBySeconds:(double)seconds;
 
 @end

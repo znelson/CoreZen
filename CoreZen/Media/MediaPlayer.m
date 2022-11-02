@@ -79,12 +79,16 @@ ZENIdentifier ZENGetNextMediaPlayerIdentifier(void) {
 	[self.playerController pausePlayback];
 }
 
-- (void)frameStepBack {
-	[self.playerController frameStepBack];
+- (void)stepOneFrame:(BOOL)forward {
+	if (forward) {
+		[self.playerController frameStepForward];
+	} else {
+		[self.playerController frameStepBack];
+	}
 }
 
-- (void)frameStepForward {
-	[self.playerController frameStepForward];
+- (void)seekBySeconds:(double)seconds {
+	[self.playerController seekBySeconds:seconds];
 }
 
 @end

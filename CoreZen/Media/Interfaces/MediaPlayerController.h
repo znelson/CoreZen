@@ -20,4 +20,6 @@
 - (void)frameStepBack;
 - (void)frameStepForward;
 
+- (void)seekBySeconds:(double)seconds;
+
 @end

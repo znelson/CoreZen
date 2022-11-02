@@ -10,6 +10,11 @@
 
 static void* ObserverContext = &ObserverContext;
 
+static const double kSeekBackSmallSeconds = -3.0;
+static const double kSeekBackLargeSeconds = -10.0;
+static const double kSeekForwardSmallSeconds = 6.0;
+static const double kSeekForwardLargeSeconds = 15.0;
+
 @interface ZENMediaPlayerControlsView ()
 
 @property (nonatomic, weak) IBOutlet NSButton *prevButton1;
@@ -38,22 +43,22 @@ static void* ObserverContext = &ObserverContext;
 
 - (IBAction)buttonClicked:(id)sender {
 	if (self.player) {
-		if (sender == self.prevButton1) {
-			[self.player frameStepBack];
-		} else if (sender == self.prevButton2) {
-		} else if (sender == self.prevButton3) {
-		} else if (sender == self.prevButton4) {
+		if (sender == self.prevButton1 || sender == self.nextButton1) {
+			BOOL forward = (sender == self.nextButton1);
+			[self.player stepOneFrame:forward];
+		} else if (sender == self.prevButton2 || sender == self.nextButton2) {
+			double seconds = (sender == self.nextButton2) ? kSeekForwardSmallSeconds : kSeekBackSmallSeconds;
+			[self.player seekBySeconds:seconds];
+		} else if (sender == self.prevButton3 || sender == self.nextButton3) {
+			double seconds = (sender == self.nextButton3) ? kSeekForwardLargeSeconds : kSeekBackLargeSeconds;
+			[self.player seekBySeconds:seconds];
+		} else if (sender == self.prevButton4 || sender == self.nextButton4) {
 		} else if (sender == self.playPauseButton) {
 			if (self.player.paused) {
 				[self.player startPlayback];
 			} else {
 				[self.player pausePlayback];
 			}
-		} else if (sender == self.nextButton1) {
-			[self.player frameStepForward];
-		} else if (sender == self.nextButton2) {
-		} else if (sender == self.nextButton3) {
-		} else if (sender == self.nextButton4) {
 		}
 	}
 }

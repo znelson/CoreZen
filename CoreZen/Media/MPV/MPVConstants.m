@@ -54,13 +54,21 @@ const char* const kMPVPropertyKey_id =					"id";
 const char* const kMPVOption_hwdec =					"hwdec";
 const char* const kMPVOption_vo =						"vo";
 
-// Config params
-const char* const kMPVParam_libmpv =					"libmpv";
-const char* const kMPVParam_videotoolbox =				"videotoolbox";
+// Config option params
+const char* const kMPVOptionParam_libmpv =				"libmpv";
+const char* const kMPVOptionParam_videotoolbox =		"videotoolbox";
 
 // Commands
-const char* const kMPVCommand_loadfile =					"loadfile";
-const char* const kMPVCommand_quit =						"quit";
-const char* const kMPVCommand_playlist_play_index =			"playlist-play-index";
-const char* const kMPVCommand_playlist_frame_step =			"frame-step";
-const char* const kMPVCommand_playlist_frame_back_step =	"frame-back-step";
+const char* const kMPVCommand_loadfile =				"loadfile";
+const char* const kMPVCommand_quit =					"quit";
+const char* const kMPVCommand_playlist_play_index =		"playlist-play-index";
+const char* const kMPVCommand_frame_step =				"frame-step";
+const char* const kMPVCommand_frame_back_step =			"frame-back-step";
+const char* const kMPVCommand_seek =					"seek";
+
+// Command params
+const char* const kMPVCommandParam_relative =			"relative";
+const char* const kMPVCommandParam_absolute =			"absolute";
+const char* const kMPVCommandParam_absolute_percent =	"absolute-percent";
+const char* const kMPVCommandParam_keyframes =			"keyframes";
+const char* const kMPVCommandParam_exact =				"exact";

@@ -54,13 +54,21 @@ extern const char* const kMPVPropertyKey_id;
 extern const char* const kMPVOption_hwdec;
 extern const char* const kMPVOption_vo;
 
-// Config params
-extern const char* const kMPVParam_libmpv;
-extern const char* const kMPVParam_videotoolbox;
+// Config option params
+extern const char* const kMPVOptionParam_libmpv;
+extern const char* const kMPVOptionParam_videotoolbox;
 
 // Commands
 extern const char* const kMPVCommand_loadfile;
 extern const char* const kMPVCommand_quit;
 extern const char* const kMPVCommand_playlist_play_index;
-extern const char* const kMPVCommand_playlist_frame_step;
-extern const char* const kMPVCommand_playlist_frame_back_step;
+extern const char* const kMPVCommand_frame_step;
+extern const char* const kMPVCommand_frame_back_step;
+extern const char* const kMPVCommand_seek;
+
+// Command params
+extern const char* const kMPVCommandParam_relative;
+extern const char* const kMPVCommandParam_absolute;
+extern const char* const kMPVCommandParam_absolute_percent;
+extern const char* const kMPVCommandParam_keyframes;
+extern const char* const kMPVCommandParam_exact;

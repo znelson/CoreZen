@@ -324,6 +324,7 @@
 		531673682909C1F7003FB35A /* ZENMediaPlayerCTIView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ZENMediaPlayerCTIView.xib; sourceTree = "<group>"; };
 		5316736A2909CC66003FB35A /* ArchivedView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ArchivedView.h; sourceTree = "<group>"; };
 		5316736B2909CC66003FB35A /* ArchivedView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ArchivedView.m; sourceTree = "<group>"; };
+		532CA226291B09E6008FA673 /* MediaFile+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MediaFile+Private.h"; sourceTree = "<group>"; };
 		533005DD28F784B600E59E1D /* ZENMediaPlayerControlsView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ZENMediaPlayerControlsView.xib; sourceTree = "<group>"; };
 		5350F8A32886020500F8CA68 /* DatabaseTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DatabaseTests.m; sourceTree = "<group>"; };
 		5350F8B32886074F00F8CA68 /* ObjectCacheTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ObjectCacheTests.m; sourceTree = "<group>"; };
@@ -1162,6 +1163,7 @@
 				5396532F288F498B007B53EC /* MediaPlayerRenderController.h */,
 				5356FE7228A459BA00ECCA92 /* MediaPlayer+Private.h */,
 				5356FE6E28A4595800ECCA92 /* MediaPlayerView+Private.h */,
+				532CA226291B09E6008FA673 /* MediaFile+Private.h */,
 			);
 			path = Interfaces;
 			sourceTree = "<group>";

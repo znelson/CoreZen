@@ -38,6 +38,8 @@
 		531673692909C1F7003FB35A /* ZENMediaPlayerCTIView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 531673682909C1F7003FB35A /* ZENMediaPlayerCTIView.xib */; };
 		5316736C2909CC66003FB35A /* ArchivedView.h in Headers */ = {isa = PBXBuildFile; fileRef = 5316736A2909CC66003FB35A /* ArchivedView.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5316736D2909CC66003FB35A /* ArchivedView.m in Sources */ = {isa = PBXBuildFile; fileRef = 5316736B2909CC66003FB35A /* ArchivedView.m */; };
+		532CA223291B090E008FA673 /* FrameRenderer.h in Headers */ = {isa = PBXBuildFile; fileRef = 532CA221291B090E008FA673 /* FrameRenderer.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		532CA224291B090E008FA673 /* FrameRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 532CA222291B090E008FA673 /* FrameRenderer.m */; };
 		533005DE28F784B600E59E1D /* ZENMediaPlayerControlsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 533005DD28F784B600E59E1D /* ZENMediaPlayerControlsView.xib */; };
 		5350F8A42886020500F8CA68 /* DatabaseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5350F8A32886020500F8CA68 /* DatabaseTests.m */; };
 		5350F8B42886074F00F8CA68 /* ObjectCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5350F8B32886074F00F8CA68 /* ObjectCacheTests.m */; };
@@ -324,6 +326,8 @@
 		531673682909C1F7003FB35A /* ZENMediaPlayerCTIView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ZENMediaPlayerCTIView.xib; sourceTree = "<group>"; };
 		5316736A2909CC66003FB35A /* ArchivedView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ArchivedView.h; sourceTree = "<group>"; };
 		5316736B2909CC66003FB35A /* ArchivedView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ArchivedView.m; sourceTree = "<group>"; };
+		532CA221291B090E008FA673 /* FrameRenderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameRenderer.h; sourceTree = "<group>"; };
+		532CA222291B090E008FA673 /* FrameRenderer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FrameRenderer.m; sourceTree = "<group>"; };
 		532CA226291B09E6008FA673 /* MediaFile+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MediaFile+Private.h"; sourceTree = "<group>"; };
 		533005DD28F784B600E59E1D /* ZENMediaPlayerControlsView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ZENMediaPlayerControlsView.xib; sourceTree = "<group>"; };
 		5350F8A32886020500F8CA68 /* DatabaseTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DatabaseTests.m; sourceTree = "<group>"; };
@@ -783,6 +787,8 @@
 				5350F8C12886194200F8CA68 /* MediaFile.m */,
 				53964F11288CC101007B53EC /* MediaPlayer.h */,
 				53964F12288CC101007B53EC /* MediaPlayer.m */,
+				532CA221291B090E008FA673 /* FrameRenderer.h */,
+				532CA222291B090E008FA673 /* FrameRenderer.m */,
 			);
 			path = Media;
 			sourceTree = "<group>";
@@ -1198,6 +1204,7 @@
 				5356FE7428A459BA00ECCA92 /* MediaPlayer+Private.h in Headers */,
 				5356FE7028A4595800ECCA92 /* MediaPlayerView+Private.h in Headers */,
 				531673662909C1DD003FB35A /* MediaPlayerCTIView.h in Headers */,
+				532CA223291B090E008FA673 /* FrameRenderer.h in Headers */,
 				5316736C2909CC66003FB35A /* ArchivedView.h in Headers */,
 				5386706E28BFE16300FB15EB /* MediaPlayerControlsView.h in Headers */,
 				53965331288F498B007B53EC /* MediaPlayerRenderController.h in Headers */,
@@ -1319,6 +1326,7 @@
 				5386706C28BFE16300FB15EB /* MediaPlayerControlsView.m in Sources */,
 				5396531D288CD19C007B53EC /* MediaPlayerView.m in Sources */,
 				5396533A288F4DF9007B53EC /* MPVFunctions.m in Sources */,
+				532CA224291B090E008FA673 /* FrameRenderer.m in Sources */,
 				5309C4262885CDA500BC0AAE /* DatabaseSchema.m in Sources */,
 				5309C3AE2885A1DC00BC0AAE /* CoreZen.docc in Sources */,
 				538E05142885ED2200CE9DE7 /* ObjectRepository.m in Sources */,

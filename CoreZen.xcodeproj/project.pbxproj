@@ -40,6 +40,9 @@
 		5316736D2909CC66003FB35A /* ArchivedView.m in Sources */ = {isa = PBXBuildFile; fileRef = 5316736B2909CC66003FB35A /* ArchivedView.m */; };
 		532CA223291B090E008FA673 /* FrameRenderer.h in Headers */ = {isa = PBXBuildFile; fileRef = 532CA221291B090E008FA673 /* FrameRenderer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		532CA224291B090E008FA673 /* FrameRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 532CA222291B090E008FA673 /* FrameRenderer.m */; };
+		532CA22A291B0CFB008FA673 /* LibAVInfoController.h in Headers */ = {isa = PBXBuildFile; fileRef = 532CA228291B0CFB008FA673 /* LibAVInfoController.h */; };
+		532CA22B291B0CFB008FA673 /* LibAVInfoController.m in Sources */ = {isa = PBXBuildFile; fileRef = 532CA229291B0CFB008FA673 /* LibAVInfoController.m */; };
+		532CA22C291B0E44008FA673 /* MediaInfoController.h in Headers */ = {isa = PBXBuildFile; fileRef = 532CA227291B0CA4008FA673 /* MediaInfoController.h */; };
 		533005DE28F784B600E59E1D /* ZENMediaPlayerControlsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 533005DD28F784B600E59E1D /* ZENMediaPlayerControlsView.xib */; };
 		5350F8A42886020500F8CA68 /* DatabaseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5350F8A32886020500F8CA68 /* DatabaseTests.m */; };
 		5350F8B42886074F00F8CA68 /* ObjectCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5350F8B32886074F00F8CA68 /* ObjectCacheTests.m */; };
@@ -329,6 +332,9 @@
 		532CA221291B090E008FA673 /* FrameRenderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameRenderer.h; sourceTree = "<group>"; };
 		532CA222291B090E008FA673 /* FrameRenderer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FrameRenderer.m; sourceTree = "<group>"; };
 		532CA226291B09E6008FA673 /* MediaFile+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MediaFile+Private.h"; sourceTree = "<group>"; };
+		532CA227291B0CA4008FA673 /* MediaInfoController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MediaInfoController.h; sourceTree = "<group>"; };
+		532CA228291B0CFB008FA673 /* LibAVInfoController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LibAVInfoController.h; sourceTree = "<group>"; };
+		532CA229291B0CFB008FA673 /* LibAVInfoController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LibAVInfoController.m; sourceTree = "<group>"; };
 		533005DD28F784B600E59E1D /* ZENMediaPlayerControlsView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ZENMediaPlayerControlsView.xib; sourceTree = "<group>"; };
 		5350F8A32886020500F8CA68 /* DatabaseTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DatabaseTests.m; sourceTree = "<group>"; };
 		5350F8B32886074F00F8CA68 /* ObjectCacheTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ObjectCacheTests.m; sourceTree = "<group>"; };
@@ -768,6 +774,15 @@
 			path = Nibs;
 			sourceTree = "<group>";
 		};
+		532CA225291B097A008FA673 /* LibAV */ = {
+			isa = PBXGroup;
+			children = (
+				532CA228291B0CFB008FA673 /* LibAVInfoController.h */,
+				532CA229291B0CFB008FA673 /* LibAVInfoController.m */,
+			);
+			path = LibAV;
+			sourceTree = "<group>";
+		};
 		5350F8B52886079F00F8CA68 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
@@ -781,6 +796,7 @@
 			isa = PBXGroup;
 			children = (
 				53D85BA22900BE7300A7B134 /* Interfaces */,
+				532CA225291B097A008FA673 /* LibAV */,
 				53965322288F1601007B53EC /* MPV */,
 				5316736E2909CE9B003FB35A /* Views */,
 				5350F8C02886194200F8CA68 /* MediaFile.h */,
@@ -1165,6 +1181,7 @@
 		53D85BA22900BE7300A7B134 /* Interfaces */ = {
 			isa = PBXGroup;
 			children = (
+				532CA227291B0CA4008FA673 /* MediaInfoController.h */,
 				5396531E288CE2A7007B53EC /* MediaPlayerController.h */,
 				5396532F288F498B007B53EC /* MediaPlayerRenderController.h */,
 				5356FE7228A459BA00ECCA92 /* MediaPlayer+Private.h */,
@@ -1207,9 +1224,11 @@
 				532CA223291B090E008FA673 /* FrameRenderer.h in Headers */,
 				5316736C2909CC66003FB35A /* ArchivedView.h in Headers */,
 				5386706E28BFE16300FB15EB /* MediaPlayerControlsView.h in Headers */,
+				532CA22C291B0E44008FA673 /* MediaInfoController.h in Headers */,
 				53965331288F498B007B53EC /* MediaPlayerRenderController.h in Headers */,
 				53965320288CE2A7007B53EC /* MediaPlayerController.h in Headers */,
 				5396531C288CD19C007B53EC /* MediaPlayerView.h in Headers */,
+				532CA22A291B0CFB008FA673 /* LibAVInfoController.h in Headers */,
 				5309C3BA2885A1DC00BC0AAE /* CoreZen.h in Headers */,
 				53965339288F4DF9007B53EC /* MPVFunctions.h in Headers */,
 				5356FE5828A4290000ECCA92 /* MPVConstants.h in Headers */,
@@ -1266,7 +1285,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastUpgradeCheck = 1340;
+				LastUpgradeCheck = 1410;
 				TargetAttributes = {
 					5309C3A82885A1DC00BC0AAE = {
 						CreatedOnToolsVersion = 13.4.1;
@@ -1325,6 +1344,7 @@
 				5309C4222885CB1400BC0AAE /* DataTransferObject.m in Sources */,
 				5386706C28BFE16300FB15EB /* MediaPlayerControlsView.m in Sources */,
 				5396531D288CD19C007B53EC /* MediaPlayerView.m in Sources */,
+				532CA22B291B0CFB008FA673 /* LibAVInfoController.m in Sources */,
 				5396533A288F4DF9007B53EC /* MPVFunctions.m in Sources */,
 				532CA224291B090E008FA673 /* FrameRenderer.m in Sources */,
 				5309C4262885CDA500BC0AAE /* DatabaseSchema.m in Sources */,
@@ -1406,6 +1426,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -1423,6 +1444,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.5;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
@@ -1466,6 +1488,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -1477,6 +1500,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.5;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
@@ -1493,6 +1517,7 @@
 				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = 5N7Y5W34VF;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -1513,6 +1538,7 @@
 					"@loader_path/Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/Dependencies/lib";
+				MACOSX_DEPLOYMENT_TARGET = 12.5;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.zdnelson.CoreZen;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
@@ -1530,6 +1556,7 @@
 				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = 5N7Y5W34VF;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -1550,6 +1577,7 @@
 					"@loader_path/Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/Dependencies/lib";
+				MACOSX_DEPLOYMENT_TARGET = 12.5;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.zdnelson.CoreZen;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
@@ -1565,6 +1593,7 @@
 				CODE_SIGN_IDENTITY = "Developer ID Application";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 5N7Y5W34VF;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1585,6 +1614,7 @@
 				CODE_SIGN_IDENTITY = "Developer ID Application";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 5N7Y5W34VF;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",

@@ -16,14 +16,8 @@
 // (const AVCodec *)videoCodecHandle;
 - (const void *)videoCodecHandle;
 
-// (const AVCodec *)audioCodecHandle;
-- (const void *)audioCodecHandle;
-
-// (const AVCodecParameters *)videoCodecParamsHandle;
-- (const void *)videoCodecParamsHandle;
-
-// (const AVCodecParameters *)audioCodecParamsHandle;
-- (const void *)audioCodecParamsHandle;
+// (const AVStream *)videoStreamHandle;
+- (const void *)videoStreamHandle;
 
 - (void)terminate;
 

@@ -37,11 +37,11 @@ void ZENLogAVFindBestStreamError(NSString *filePath, int returnCode, enum AVMedi
 
 	// Video
 	const AVCodec *_videoCodec;
-	const AVCodecParameters *_videoCodecParameters;
+	const AVStream *_videoStream;
 
 	// Audio
 	const AVCodec *_audioCodec;
-	const AVCodecParameters *_audioCodecParameters;
+	const AVStream *_audioStream;
 }
 
 @property (nonatomic, weak) ZENMediaFile *mediaFile;
@@ -72,14 +72,14 @@ void ZENLogAVFindBestStreamError(NSString *filePath, int returnCode, enum AVMedi
 				// If av_find_best_stream returns successfully and decoder_ret (&_videoCodec) is not NULL,
 				// then *decoder_ret (_videoCodec) is guaranteed to be set to a valid AVCodec.
 				
-				_videoCodecParameters = _formatContext->streams[videoStreamIndex]->codecpar;
+				_videoStream = _formatContext->streams[videoStreamIndex];
 			} else {
 				ZENLogAVFindBestStreamError(filePath, videoStreamIndex, AVMEDIA_TYPE_VIDEO);
 			}
 			
 			const int audioStreamIndex = av_find_best_stream(_formatContext, AVMEDIA_TYPE_AUDIO, -1, -1, &_audioCodec, 0);
 			if (audioStreamIndex > -1) {
-				_audioCodecParameters = _formatContext->streams[audioStreamIndex]->codecpar;
+				_audioStream = _formatContext->streams[audioStreamIndex];
 			} else {
 				ZENLogAVFindBestStreamError(filePath, audioStreamIndex, AVMEDIA_TYPE_AUDIO);
 			}
@@ -109,19 +109,14 @@ void ZENLogAVFindBestStreamError(NSString *filePath, int returnCode, enum AVMedi
 	return _videoCodec;
 }
 
-- (const void *)audioCodecHandle {
-	return _audioCodec;
-}
-
-- (const void *)videoCodecParamsHandle {
-	return _videoCodecParameters;
-}
-
-- (const void *)audioCodecParamsHandle {
-	return _audioCodecParameters;
+- (const void *)videoStreamHandle {
+	return _videoStream;
 }
 
 - (void)terminate {
+	if (self.renderer) {
+		[self.renderer terminate];
+	}
 	if (_formatContext) {
 		avformat_close_input(&_formatContext);
 	}
@@ -141,16 +136,16 @@ void ZENLogAVFindBestStreamError(NSString *filePath, int returnCode, enum AVMedi
 
 - (NSUInteger)frameWidth {
 	NSUInteger width = 0;
-	if (_videoCodecParameters) {
-		width = ((NSUInteger)_videoCodecParameters->width);
+	if (_videoStream) {
+		width = ((NSUInteger)_videoStream->codecpar->width);
 	}
 	return width;
 }
 
 - (NSUInteger)frameHeight {
 	NSUInteger height = 0;
-	if (_videoCodecParameters) {
-		height = ((NSUInteger)_videoCodecParameters->height);
+	if (_videoStream) {
+		height = ((NSUInteger)_videoStream->codecpar->height);
 	}
 	return height;
 }

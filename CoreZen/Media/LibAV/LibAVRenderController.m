@@ -19,32 +19,34 @@
 
 @interface ZENLibAVRenderController ()
 {
-	AVCodecContext *_videoCodecContext;
-	AVCodecContext *_audioCodecContext;
+	AVCodecContext *_codecContext;
 }
 
 @property (nonatomic, weak) ZENMediaFile *mediaFile;
 
-- (void)avInit:(ZENLibAVInfoController *)infoController;
+- (void)avInitWithCodec:(const AVCodec *)codec stream:(const AVStream *)stream;
 
 @end
 
 @implementation ZENLibAVRenderController
 
-- (void)avInit:(ZENLibAVInfoController *)infoController {
-	const AVCodec *videoCodec = infoController.videoCodecHandle;
-	const AVCodecParameters *videoCodecParams = infoController.videoCodecParamsHandle;
+- (void)avInitWithCodec:(const AVCodec *)codec stream:(const AVStream *)stream {
+	_codecContext = avcodec_alloc_context3(codec);
+	avcodec_parameters_to_context(_codecContext, stream->codecpar);
 	
-	const AVCodec *audioCodec = infoController.audioCodecHandle;
-	const AVCodecParameters *audioCodecParams = infoController.audioCodecParamsHandle;
+	if (_codecContext->pix_fmt < 0 || _codecContext->pix_fmt >= AV_PIX_FMT_NB) {
+		NSLog(@"Video codec pixel format is invalid (%@)", _mediaFile.fileURL);
+		return;
+	}
 	
-	_videoCodecContext = avcodec_alloc_context3(videoCodec);
-	int result = avcodec_parameters_to_context(_videoCodecContext, videoCodecParams);
-	result = avcodec_open2(_videoCodecContext, videoCodec, NULL);
+	// iina does this...
+	_codecContext->time_base = stream->time_base;
 	
-	_audioCodecContext = avcodec_alloc_context3(audioCodec);
-	result = avcodec_parameters_to_context(_audioCodecContext, audioCodecParams);
-	result = avcodec_open2(_audioCodecContext, audioCodec, NULL);
+	int result = avcodec_open2(_codecContext, codec, NULL);
+	if (result < 0) {
+		NSLog(@"avcodec_open2(%@) failed, result: %d", _mediaFile.fileURL, result);
+		return;
+	}
 }
 
 - (instancetype)initWithInfoController:(ZENLibAVInfoController *)infoController {
@@ -52,13 +54,18 @@
 	if (self) {
 		_mediaFile = infoController.mediaFile;
 		
-		[self avInit:infoController];
+		const AVCodec *videoCodec = infoController.videoCodecHandle;
+		const AVStream *videoStream = infoController.videoStreamHandle;
+		
+		[self avInitWithCodec:videoCodec stream:videoStream];
 	}
 	return self;
 }
 
 - (void)terminate {
-	
+	if (_codecContext) {
+		avcodec_free_context(&_codecContext);
+	}
 }
 
 @end

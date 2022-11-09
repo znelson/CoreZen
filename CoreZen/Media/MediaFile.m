@@ -7,6 +7,7 @@
 
 #import "MediaFile+Private.h"
 #import "LibAVInfoController.h"
+#import "FrameRenderer.h"
 
 @interface ZENMediaFile ()
 
@@ -30,6 +31,12 @@
 + (instancetype)mediaFileWithURL:(NSURL *)url {
 	ZENMediaFile *mf = [[ZENMediaFile alloc] initWithURL:url];
 	return mf;
+}
+
+- (ZENFrameRenderer *)frameRenderer {
+	NSObject<ZENFrameRenderController> *controller = self.mediaInfoController.frameRenderController;
+	ZENFrameRenderer *frameRenderer = [[ZENFrameRenderer alloc] initWithController:controller];
+	return frameRenderer;
 }
 
 - (NSUInteger)durationMicroseconds {

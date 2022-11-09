@@ -6,6 +6,7 @@
 //
 
 #import "LibAVInfoController.h"
+#import "LibAVRenderController.h"
 #import "MediaFile.h"
 
 #pragma clang diagnostic push
@@ -35,17 +36,17 @@ void ZENLogAVFindBestStreamError(NSString *filePath, int returnCode, enum AVMedi
 	AVFormatContext *_formatContext;
 
 	// Video
-	AVCodec *_videoCodec;
-	AVCodecParameters *_videoCodecParameters;
-	AVCodecContext *_videoCodecContext;
+	const AVCodec *_videoCodec;
+	const AVCodecParameters *_videoCodecParameters;
 
 	// Audio
-	AVCodec *_audioCodec;
-	AVCodecParameters *_audioCodecParameters;
-	AVCodecContext *_audioCodecContext;
+	const AVCodec *_audioCodec;
+	const AVCodecParameters *_audioCodecParameters;
 }
 
 @property (nonatomic, weak) ZENMediaFile *mediaFile;
+
+@property (nonatomic, strong) ZENLibAVRenderController *renderer;
 
 - (void)avInit:(NSString *)filePath;
 
@@ -65,36 +66,20 @@ void ZENLogAVFindBestStreamError(NSString *filePath, int returnCode, enum AVMedi
 		// Returns >=0 if OK, AVERROR_xxx on error
 		result = avformat_find_stream_info(_formatContext, NULL);
 		if (result >= 0) {
-			const AVCodec *constVideoCodec = _videoCodec;
-			const int videoStreamIndex = av_find_best_stream(_formatContext, AVMEDIA_TYPE_VIDEO, -1, -1, &constVideoCodec, 0);
+			const int videoStreamIndex = av_find_best_stream(_formatContext, AVMEDIA_TYPE_VIDEO, -1, -1, &_videoCodec, 0);
 			if (videoStreamIndex > -1) {
 				// av_find_best_stream() documentation:
 				// If av_find_best_stream returns successfully and decoder_ret (&_videoCodec) is not NULL,
 				// then *decoder_ret (_videoCodec) is guaranteed to be set to a valid AVCodec.
 				
 				_videoCodecParameters = _formatContext->streams[videoStreamIndex]->codecpar;
-
-#if 0
-				// This part only needs to happen if we're going to fetch video frames
-				_videoCodecContext = avcodec_alloc_context3(_videoCodec);
-				result = avcodec_parameters_to_context(_videoCodecContext, _videoCodecParameters);
-				result = avcodec_open2(_videoCodecContext, _videoCodec, NULL);
-#endif
 			} else {
 				ZENLogAVFindBestStreamError(filePath, videoStreamIndex, AVMEDIA_TYPE_VIDEO);
 			}
 			
-			const AVCodec *constAudioCodec = _audioCodec;
-			const int audioStreamIndex = av_find_best_stream(_formatContext, AVMEDIA_TYPE_AUDIO, -1, -1, &constAudioCodec, 0);
+			const int audioStreamIndex = av_find_best_stream(_formatContext, AVMEDIA_TYPE_AUDIO, -1, -1, &_audioCodec, 0);
 			if (audioStreamIndex > -1) {
 				_audioCodecParameters = _formatContext->streams[audioStreamIndex]->codecpar;
-				
-#if 0
-				// This part only needs to happen if we're going to fetch audio frames
-				_audioCodecContext = avcodec_alloc_context3(_audioCodec);
-				result = avcodec_parameters_to_context(_audioCodecContext, _audioCodecParameters);
-				result = avcodec_open2(_audioCodecContext, _audioCodec, NULL);
-#endif
 			} else {
 				ZENLogAVFindBestStreamError(filePath, audioStreamIndex, AVMEDIA_TYPE_AUDIO);
 			}
@@ -120,16 +105,33 @@ void ZENLogAVFindBestStreamError(NSString *filePath, int returnCode, enum AVMedi
 	return self;
 }
 
+- (const void *)videoCodecHandle {
+	return _videoCodec;
+}
+
+- (const void *)audioCodecHandle {
+	return _audioCodec;
+}
+
+- (const void *)videoCodecParamsHandle {
+	return _videoCodecParameters;
+}
+
+- (const void *)audioCodecParamsHandle {
+	return _audioCodecParameters;
+}
+
 - (void)terminate {
 	if (_formatContext) {
 		avformat_close_input(&_formatContext);
 	}
-	if (_videoCodecContext) {
-		avcodec_free_context(&_videoCodecContext);
+}
+
+- (NSObject<ZENFrameRenderController> *)frameRenderController {
+	if (!self.renderer) {
+		self.renderer = [[ZENLibAVRenderController alloc] initWithInfoController:self];
 	}
-	if (_audioCodecContext) {
-		avcodec_free_context(&_audioCodecContext);
-	}
+	return self.renderer;
 }
 
 - (NSUInteger)durationMicroseconds {

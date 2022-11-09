@@ -7,11 +7,15 @@
 
 #import <Foundation/Foundation.h>
 
+@class ZENFrameRenderer;
+
 @interface ZENMediaFile : NSObject
 
 @property (nonatomic, strong, readonly) NSURL *fileURL;
 
 + (instancetype)mediaFileWithURL:(NSURL*)url;
+
+- (ZENFrameRenderer *)frameRenderer;
 
 - (NSUInteger)durationMicroseconds;
 

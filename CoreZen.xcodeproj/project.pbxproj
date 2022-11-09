@@ -43,6 +43,10 @@
 		532CA22A291B0CFB008FA673 /* LibAVInfoController.h in Headers */ = {isa = PBXBuildFile; fileRef = 532CA228291B0CFB008FA673 /* LibAVInfoController.h */; };
 		532CA22B291B0CFB008FA673 /* LibAVInfoController.m in Sources */ = {isa = PBXBuildFile; fileRef = 532CA229291B0CFB008FA673 /* LibAVInfoController.m */; };
 		532CA22C291B0E44008FA673 /* MediaInfoController.h in Headers */ = {isa = PBXBuildFile; fileRef = 532CA227291B0CA4008FA673 /* MediaInfoController.h */; };
+		532CA231291B1C8B008FA673 /* FrameRenderer+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 532CA230291B1C8B008FA673 /* FrameRenderer+Private.h */; };
+		532CA234291B1E96008FA673 /* LibAVRenderController.h in Headers */ = {isa = PBXBuildFile; fileRef = 532CA232291B1E96008FA673 /* LibAVRenderController.h */; };
+		532CA235291B1E96008FA673 /* LibAVRenderController.m in Sources */ = {isa = PBXBuildFile; fileRef = 532CA233291B1E96008FA673 /* LibAVRenderController.m */; };
+		532CA236291B1F73008FA673 /* FrameRenderController.h in Headers */ = {isa = PBXBuildFile; fileRef = 532CA22F291B1B85008FA673 /* FrameRenderController.h */; };
 		533005DE28F784B600E59E1D /* ZENMediaPlayerControlsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 533005DD28F784B600E59E1D /* ZENMediaPlayerControlsView.xib */; };
 		5350F8A42886020500F8CA68 /* DatabaseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5350F8A32886020500F8CA68 /* DatabaseTests.m */; };
 		5350F8B42886074F00F8CA68 /* ObjectCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5350F8B32886074F00F8CA68 /* ObjectCacheTests.m */; };
@@ -335,6 +339,10 @@
 		532CA227291B0CA4008FA673 /* MediaInfoController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MediaInfoController.h; sourceTree = "<group>"; };
 		532CA228291B0CFB008FA673 /* LibAVInfoController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LibAVInfoController.h; sourceTree = "<group>"; };
 		532CA229291B0CFB008FA673 /* LibAVInfoController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LibAVInfoController.m; sourceTree = "<group>"; };
+		532CA22F291B1B85008FA673 /* FrameRenderController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameRenderController.h; sourceTree = "<group>"; };
+		532CA230291B1C8B008FA673 /* FrameRenderer+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "FrameRenderer+Private.h"; sourceTree = "<group>"; };
+		532CA232291B1E96008FA673 /* LibAVRenderController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LibAVRenderController.h; sourceTree = "<group>"; };
+		532CA233291B1E96008FA673 /* LibAVRenderController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LibAVRenderController.m; sourceTree = "<group>"; };
 		533005DD28F784B600E59E1D /* ZENMediaPlayerControlsView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ZENMediaPlayerControlsView.xib; sourceTree = "<group>"; };
 		5350F8A32886020500F8CA68 /* DatabaseTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DatabaseTests.m; sourceTree = "<group>"; };
 		5350F8B32886074F00F8CA68 /* ObjectCacheTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ObjectCacheTests.m; sourceTree = "<group>"; };
@@ -779,6 +787,8 @@
 			children = (
 				532CA228291B0CFB008FA673 /* LibAVInfoController.h */,
 				532CA229291B0CFB008FA673 /* LibAVInfoController.m */,
+				532CA232291B1E96008FA673 /* LibAVRenderController.h */,
+				532CA233291B1E96008FA673 /* LibAVRenderController.m */,
 			);
 			path = LibAV;
 			sourceTree = "<group>";
@@ -1182,11 +1192,13 @@
 			isa = PBXGroup;
 			children = (
 				532CA227291B0CA4008FA673 /* MediaInfoController.h */,
+				532CA22F291B1B85008FA673 /* FrameRenderController.h */,
 				5396531E288CE2A7007B53EC /* MediaPlayerController.h */,
 				5396532F288F498B007B53EC /* MediaPlayerRenderController.h */,
 				5356FE7228A459BA00ECCA92 /* MediaPlayer+Private.h */,
 				5356FE6E28A4595800ECCA92 /* MediaPlayerView+Private.h */,
 				532CA226291B09E6008FA673 /* MediaFile+Private.h */,
+				532CA230291B1C8B008FA673 /* FrameRenderer+Private.h */,
 			);
 			path = Interfaces;
 			sourceTree = "<group>";
@@ -1223,6 +1235,9 @@
 				531673662909C1DD003FB35A /* MediaPlayerCTIView.h in Headers */,
 				532CA223291B090E008FA673 /* FrameRenderer.h in Headers */,
 				5316736C2909CC66003FB35A /* ArchivedView.h in Headers */,
+				532CA234291B1E96008FA673 /* LibAVRenderController.h in Headers */,
+				532CA236291B1F73008FA673 /* FrameRenderController.h in Headers */,
+				532CA231291B1C8B008FA673 /* FrameRenderer+Private.h in Headers */,
 				5386706E28BFE16300FB15EB /* MediaPlayerControlsView.h in Headers */,
 				532CA22C291B0E44008FA673 /* MediaInfoController.h in Headers */,
 				53965331288F498B007B53EC /* MediaPlayerRenderController.h in Headers */,
@@ -1363,6 +1378,7 @@
 				53965336288F4C37007B53EC /* MPVViewLayer.m in Sources */,
 				5309C4102885B43B00BC0AAE /* ObjectCache.m in Sources */,
 				5309C40B2885B15400BC0AAE /* NSNumber+CoreZen.m in Sources */,
+				532CA235291B1E96008FA673 /* LibAVRenderController.m in Sources */,
 				5356FE5928A4290000ECCA92 /* MPVConstants.m in Sources */,
 				538E050C2885E53700CE9DE7 /* DomainCommon.m in Sources */,
 				5309C4022885B11400BC0AAE /* NSFileManager+CoreZen.m in Sources */,

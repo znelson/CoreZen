@@ -7,6 +7,10 @@
 
 #import <Foundation/Foundation.h>
 
+@protocol ZENFrameRenderController;
+
 @interface ZENFrameRenderer : NSObject
+
+- (instancetype)initWithController:(NSObject<ZENFrameRenderController> *)controller;
 
 @end

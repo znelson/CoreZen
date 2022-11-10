@@ -42,6 +42,7 @@ FOUNDATION_EXPORT const unsigned char CoreZenVersionString[];
 #import <CoreZen/ObjectIdentifier.h>
 
 #pragma mark - Media
+#import <CoreZen/FrameRenderer.h>
 #import <CoreZen/MediaFile.h>
 #import <CoreZen/MediaPlayer.h>
 #import <CoreZen/MediaPlayerView.h>

@@ -87,4 +87,12 @@ ZENObjectCache* ZENGetWeakMediaPlayerCache(void) {
 	[self.playerController seekBySeconds:seconds];
 }
 
+- (void)seekToSeconds:(double)seconds {
+	[self.playerController seekToSeconds:seconds];
+}
+
+- (void)seekToPercentage:(double)percentage {
+	[self.playerController seekToPercentage:percentage];
+}
+
 @end

@@ -22,5 +22,7 @@
 - (void)frameStepForward;
 
 - (void)seekBySeconds:(double)seconds;
+- (void)seekToSeconds:(double)seconds;
+- (void)seekToPercentage:(double)percentage;
 
 @end

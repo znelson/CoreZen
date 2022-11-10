@@ -183,6 +183,26 @@ static void zen_mpv_wakeup(void *ctx);
 	[self mpvCommand:command];
 }
 
+- (void)seekToSeconds:(double)seconds {
+	const char* command[] = {
+		kMPVCommand_seek,
+		zen_double_to_mpv_string(seconds),
+		kMPVCommandParam_absolute,
+		nil
+	};
+	[self mpvCommand:command];
+}
+
+- (void)seekToPercentage:(double)percentage {
+	const char* command[] = {
+		kMPVCommand_seek,
+		zen_double_to_mpv_string(percentage),
+		kMPVCommandParam_absolute_percent,
+		nil
+	};
+	[self mpvCommand:command];
+}
+
 - (void)mpvHandleEvents {
 	while (true) {
 		mpv_event *event = mpv_wait_event(_mpvHandle, 0);

@@ -9,6 +9,8 @@
 
 @import Darwin.POSIX.pthread;
 
+#import <stdatomic.h>
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdocumentation"
 
@@ -16,8 +18,17 @@
 
 #pragma clang diagnostic pop
 
-NSString *zen_mpv_string(const char *str) {
+NSString *zen_mpv_to_nsstring(const char *str) {
 	return [NSString stringWithCString:str encoding:NSASCIIStringEncoding];
+}
+
+const char *zen_nsstring_to_mpv(NSString *str) {
+	return [str cStringUsingEncoding:NSASCIIStringEncoding];
+}
+
+const char *zen_double_to_mpv_string(double d) {
+	NSString *str = [NSString stringWithFormat:@"%f", d];
+	return zen_nsstring_to_mpv(str);
 }
 
 void zen_mpv_set_bool_property(mpv_handle* mpv, const char* const property, BOOL value) {
@@ -48,4 +59,17 @@ void zen_mpv_init_pthread_mutex_cond(pthread_mutex_t* mutex, pthread_cond_t* con
 void zen_mpv_destroy_pthread_mutex_cond(pthread_mutex_t* mutex, pthread_cond_t* cond) {
 	pthread_mutex_destroy(mutex);
 	pthread_cond_destroy(cond);
+}
+
+uint64_t zen_mpv_next_observer_identifier(void) {
+	static atomic_uint_fast64_t nextIdentifier = 1;
+	return atomic_fetch_add(&nextIdentifier, 1);
+}
+
+void *zen_mpv_get_opengl_proc_address(void *ctx, const char *name) {
+	CFStringRef bundleName = CFStringCreateWithCString(kCFAllocatorDefault, "com.apple.opengl", kCFStringEncodingASCII);
+	CFBundleRef bundle = CFBundleGetBundleWithIdentifier(bundleName);
+	CFStringRef functionName = CFStringCreateWithCString(kCFAllocatorDefault, name, kCFStringEncodingASCII);
+	void *function = CFBundleGetFunctionPointerForName(bundle, functionName);
+	return function;
 }

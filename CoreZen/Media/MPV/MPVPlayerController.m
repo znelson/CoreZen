@@ -12,8 +12,6 @@
 
 @import Darwin.POSIX.pthread;
 
-#import <stdatomic.h>
-
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdocumentation"
 
@@ -21,12 +19,10 @@
 
 #pragma clang diagnostic pop
 
-static uint64_t zen_mpv_next_observer_identifier(void);
 static void zen_mpv_wakeup(void *ctx);
 
 @interface ZENMPVPlayerController ()
 {
-	uint64_t _observerID;
 	mpv_handle *_mpvHandle;
 	
 	BOOL _terminated;
@@ -50,6 +46,8 @@ static void zen_mpv_wakeup(void *ctx);
 
 @implementation ZENMPVPlayerController
 
+@synthesize identifier=_identifier;
+
 - (void)mpvCommand:(const char** const)command {
 	mpv_command(_mpvHandle, command);
 }
@@ -64,7 +62,7 @@ static void zen_mpv_wakeup(void *ctx);
 	if (self) {
 		_player = player;
 		
-		_observerID = zen_mpv_next_observer_identifier();
+		_identifier = zen_mpv_next_observer_identifier();
 		_terminated = NO;
 		
 		// Initialize mutex and condition variable
@@ -77,7 +75,7 @@ static void zen_mpv_wakeup(void *ctx);
 		// Create MPV handle (initialization happens after configuration)
 		_mpvHandle = mpv_create();
 		
-		_clientName = zen_mpv_string(mpv_client_name(_mpvHandle));
+		_clientName = zen_mpv_to_nsstring(mpv_client_name(_mpvHandle));
 		
 		// Set MPV configuration
 		mpv_set_option_string(_mpvHandle, kMPVOption_hwdec, kMPVOptionParam_videotoolbox);
@@ -88,15 +86,15 @@ static void zen_mpv_wakeup(void *ctx);
 		// Initialize MPV handle
 		mpv_initialize(_mpvHandle);
 		
-		_version = zen_mpv_string(mpv_get_property_string(_mpvHandle, kMPVProperty_mpv_version));
+		_version = zen_mpv_to_nsstring(mpv_get_property_string(_mpvHandle, kMPVProperty_mpv_version));
 		
 		// Set event callback function
 		void *selfAsVoid = (__bridge void *)self;
 		mpv_set_wakeup_callback(_mpvHandle, zen_mpv_wakeup, selfAsVoid);
 		
 		// Observe properties
-		mpv_observe_property(_mpvHandle, _observerID, kMPVProperty_percent_pos, MPV_FORMAT_NODE);
-		mpv_observe_property(_mpvHandle, _observerID, kMPVProperty_pause, MPV_FORMAT_NODE);
+		mpv_observe_property(_mpvHandle, _identifier, kMPVProperty_percent_pos, MPV_FORMAT_NODE);
+		mpv_observe_property(_mpvHandle, _identifier, kMPVProperty_pause, MPV_FORMAT_NODE);
 		
 		// Load the initial file
 		// TODO: Remove this, load files dynamically via API
@@ -121,7 +119,7 @@ static void zen_mpv_wakeup(void *ctx);
 }
 
 - (void)terminate {
-	mpv_unobserve_property(_mpvHandle, _observerID);
+	mpv_unobserve_property(_mpvHandle, self.identifier);
 	
 	// Send a mpv quit command, which will trigger MPV_EVENT_SHUTDOWN
 	[self mpvSimpleCommand:kMPVCommand_quit];
@@ -139,7 +137,7 @@ static void zen_mpv_wakeup(void *ctx);
 
 - (void)destroyHandle {
 	// Remove property observers
-	mpv_unobserve_property(_mpvHandle, _observerID);
+	mpv_unobserve_property(_mpvHandle, self.identifier);
 	
 	// Remove event callback function
 	mpv_set_wakeup_callback(_mpvHandle, nil, nil);
@@ -178,8 +176,28 @@ static void zen_mpv_wakeup(void *ctx);
 - (void)seekBySeconds:(double)seconds {
 	const char* command[] = {
 		kMPVCommand_seek,
-		[[NSString stringWithFormat:@"%f", seconds] cStringUsingEncoding:NSASCIIStringEncoding],
+		zen_double_to_mpv_string(seconds),
 		kMPVCommandParam_relative,
+		nil
+	};
+	[self mpvCommand:command];
+}
+
+- (void)seekToSeconds:(double)seconds {
+	const char* command[] = {
+		kMPVCommand_seek,
+		zen_double_to_mpv_string(seconds),
+		kMPVCommandParam_absolute,
+		nil
+	};
+	[self mpvCommand:command];
+}
+
+- (void)seekToPercentage:(double)percentage {
+	const char* command[] = {
+		kMPVCommand_seek,
+		zen_double_to_mpv_string(percentage),
+		kMPVCommandParam_absolute_percent,
 		nil
 	};
 	[self mpvCommand:command];
@@ -258,7 +276,7 @@ static void zen_mpv_wakeup(void *ctx);
 					// Example node map for "pause" property change:
 					// {
 					// 	"event": "property-change",
-					// 	"id": 1,						// _observerID
+					// 	"id": 1,						// self.identifier
 					// 	"name": "pause",
 					// 	"data": 0						// Flag value for "pause" property
 					// }
@@ -285,7 +303,7 @@ static void zen_mpv_wakeup(void *ctx);
 					
 					NSLog(@"MPV_EVENT_PROPERTY_CHANGE (%llu): %s", observerID, property->name);
 
-					if (propertyName && valueNode && observerID == _observerID) {
+					if (propertyName && valueNode && observerID == self.identifier) {
 						if (zen_mpv_compare_strings(kMPVProperty_pause, propertyName)) {
 							BOOL paused = (BOOL)valueNode->u.flag;
 							NSLog(@"Paused: %d", paused);
@@ -322,11 +340,6 @@ static void zen_mpv_wakeup(void *ctx);
 }
 
 @end
-
-static uint64_t zen_mpv_next_observer_identifier(void) {
-	static atomic_uint_fast64_t nextIdentifier = 1;
-	return atomic_fetch_add(&nextIdentifier, 1);
-}
 
 static void zen_mpv_wakeup(void *ctx) {
 	__unsafe_unretained ZENMPVPlayerController *controller = (__bridge ZENMPVPlayerController *)ctx;

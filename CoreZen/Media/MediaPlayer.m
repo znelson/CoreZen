@@ -9,7 +9,6 @@
 #import "MediaPlayerView+Private.h"
 #import "MPVPlayerController.h"
 #import "ObjectCache.h"
-#import <stdatomic.h>
 
 ZENObjectCache* ZENGetWeakMediaPlayerCache(void) {
 	static ZENObjectCache *cache = nil;
@@ -20,19 +19,16 @@ ZENObjectCache* ZENGetWeakMediaPlayerCache(void) {
 	return cache;
 }
 
-ZENIdentifier ZENGetNextMediaPlayerIdentifier(void) {
-	static atomic_int_fast64_t nextIdentifier = 1;
-	return atomic_fetch_add(&nextIdentifier, 1);
-}
-
 @implementation ZENMediaPlayer
+
+@synthesize identifier=_identifier;
 
 - (instancetype)initWithFileURL:(NSURL*)url {
 	self = [super init];
 	if (self) {
 		_fileURL = url;
 		_playerController = [[ZENMPVPlayerController alloc] initWithPlayer:self];
-		_identifier = ZENGetNextMediaPlayerIdentifier();
+		_identifier = _playerController.identifier;
 		
 		ZENObjectCache *cache = ZENGetWeakMediaPlayerCache();
 		[cache cacheObject:self];
@@ -87,8 +83,16 @@ ZENIdentifier ZENGetNextMediaPlayerIdentifier(void) {
 	}
 }
 
-- (void)seekBySeconds:(double)seconds {
+- (void)seekRelativeSeconds:(double)seconds {
 	[self.playerController seekBySeconds:seconds];
+}
+
+- (void)seekAbsoluteSeconds:(double)seconds {
+	[self.playerController seekToSeconds:seconds];
+}
+
+- (void)seekAbsolutePercentage:(double)percentage {
+	[self.playerController seekToPercentage:percentage];
 }
 
 @end

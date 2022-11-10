@@ -7,7 +7,9 @@
 
 #import <Foundation/Foundation.h>
 
-NSString *zen_mpv_string(const char *str);
+NSString *zen_mpv_to_nsstring(const char *str);
+const char *zen_nsstring_to_mpv(NSString *str);
+const char *zen_double_to_mpv_string(double d);
 
 typedef struct mpv_handle mpv_handle;
 
@@ -17,4 +19,8 @@ BOOL zen_mpv_compare_strings(const char* const one, const char* const two);
 
 void zen_mpv_init_pthread_mutex_cond(pthread_mutex_t* mutex, pthread_cond_t* cond);
 void zen_mpv_destroy_pthread_mutex_cond(pthread_mutex_t* mutex, pthread_cond_t* cond);
+
+uint64_t zen_mpv_next_observer_identifier(void);
+
+void *zen_mpv_get_opengl_proc_address(void *ctx, const char *name);
 

@@ -6,8 +6,9 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <CoreZen/Identifiable.h>
 
-@protocol ZENMediaPlayerController <NSObject>
+@protocol ZENMediaPlayerController <NSObject, ZENIdentifiable>
 
 - (void)terminate;
 
@@ -21,5 +22,7 @@
 - (void)frameStepForward;
 
 - (void)seekBySeconds:(double)seconds;
+- (void)seekToSeconds:(double)seconds;
+- (void)seekToPercentage:(double)percentage;
 
 @end

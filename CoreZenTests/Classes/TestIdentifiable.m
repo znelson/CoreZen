@@ -9,15 +9,11 @@
 
 @import CoreZen;
 
-@interface ZENTestIdentifiable ()
-
-@property (nonatomic) ZENIdentifier identifier;
-
-@end
-
 @implementation ZENTestIdentifiable
 
--(instancetype)init {
+@synthesize identifier=_identifier;
+
+- (instancetype)init {
 	ZENIdentifier identifier = ZENGetNextObjectIdentifier();
 	self = [self initWithIdentifier:identifier];
 	return self;

@@ -7,13 +7,9 @@
 
 #import "DataTransferObject.h"
 
-@interface ZENDataTransferObject ()
-
-@property (nonatomic) ZENIdentifier identifier;
-
-@end
-
 @implementation ZENDataTransferObject
+
+@synthesize identifier=_identifier;
 
 - (instancetype)init {
 	self = [super init];

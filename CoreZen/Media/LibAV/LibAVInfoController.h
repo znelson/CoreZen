@@ -18,6 +18,9 @@
 
 // ZENMediaInfoController protocol
 
+// (AVFormatContext *)formatContextHandle;
+- (void *)formatContextHandle;
+
 // (const AVCodec *)videoCodecHandle;
 - (const void *)videoCodecHandle;
 
@@ -29,6 +32,7 @@
 - (NSObject<ZENFrameRenderController> *)frameRenderController;
 
 - (NSUInteger)durationMicroseconds;
+- (double)durationSeconds;
 
 - (NSUInteger)frameWidth;
 - (NSUInteger)frameHeight;

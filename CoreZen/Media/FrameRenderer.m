@@ -5,12 +5,13 @@
 //  Created by Zach Nelson on 11/8/22.
 //
 
-#import "FrameRenderer.h"
+#import "FrameRenderer+Private.h"
 #import "FrameRenderController.h"
 
-@interface ZENFrameRenderer ()
+@implementation ZENRenderedFrame
+@end
 
-@property (nonatomic, strong) NSObject<ZENFrameRenderController> *frameRenderController;
+@interface ZENFrameRenderer ()
 
 @end
 
@@ -22,6 +23,28 @@
 		_frameRenderController = controller;
 	}
 	return self;
+}
+
+- (void)renderFrameAtSeconds:(double)seconds
+					   width:(NSUInteger)width
+					  height:(NSUInteger)height
+				  completion:(ZENFrameRendererResultsBlock)completion {
+	
+	ZENRenderedFrame *frame = [ZENRenderedFrame new];
+	frame.requestedSeconds = seconds;
+	
+	[self.frameRenderController renderFrame:frame size:NSMakeSize(width, height) completion:completion];
+}
+
+- (void)renderFrameAtPercentage:(double)percentage
+						  width:(NSUInteger)width
+						 height:(NSUInteger)height
+					 completion:(ZENFrameRendererResultsBlock)completion {
+	
+	ZENRenderedFrame *frame = [ZENRenderedFrame new];
+	frame.requestedPercentage = percentage;
+	
+	[self.frameRenderController renderFrame:frame size:NSMakeSize(width, height) completion:completion];
 }
 
 @end

@@ -105,6 +105,10 @@ void ZENLogAVFindBestStreamError(NSString *filePath, int returnCode, enum AVMedi
 	return self;
 }
 
+- (void *)formatContextHandle {
+	return _formatContext;
+}
+
 - (const void *)videoCodecHandle {
 	return _videoCodec;
 }
@@ -132,6 +136,11 @@ void ZENLogAVFindBestStreamError(NSString *filePath, int returnCode, enum AVMedi
 - (NSUInteger)durationMicroseconds {
 	NSAssert(AV_TIME_BASE == 1000000, @"Expected libav AV_TIME_BASE 1000000 for microseconds, instead = %d", AV_TIME_BASE);
 	return _formatContext->duration;
+}
+
+- (double)durationSeconds {
+	NSUInteger us = self.durationMicroseconds;
+	return us / (double)AV_TIME_BASE;
 }
 
 - (NSUInteger)frameWidth {

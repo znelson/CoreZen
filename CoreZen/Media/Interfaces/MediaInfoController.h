@@ -13,6 +13,9 @@
 
 - (NSObject<ZENFrameRenderController> *)frameRenderController;
 
+// (AVFormatContext *)formatContextHandle;
+- (void *)formatContextHandle;
+
 // (const AVCodec *)videoCodecHandle;
 - (const void *)videoCodecHandle;
 
@@ -22,6 +25,7 @@
 - (void)terminate;
 
 - (NSUInteger)durationMicroseconds;
+- (double)durationSeconds;
 
 - (NSUInteger)frameWidth;
 - (NSUInteger)frameHeight;

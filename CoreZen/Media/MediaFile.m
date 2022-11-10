@@ -29,8 +29,8 @@
 }
 
 + (instancetype)mediaFileWithURL:(NSURL *)url {
-	ZENMediaFile *mf = [[ZENMediaFile alloc] initWithURL:url];
-	return mf;
+	ZENMediaFile *mediaFile = [[ZENMediaFile alloc] initWithURL:url];
+	return mediaFile;
 }
 
 - (ZENFrameRenderer *)frameRenderer {

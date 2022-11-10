@@ -17,6 +17,12 @@
 
 - (instancetype)initWithInfoController:(ZENLibAVInfoController *)infoController;
 
+// ZENFrameRenderController protocol
+
 - (void)terminate;
+
+- (void)renderFrame:(ZENRenderedFrame *)frame
+			   size:(NSSize)size
+		 completion:(ZENFrameRendererResultsBlock)completion;
 
 @end

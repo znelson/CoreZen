@@ -23,7 +23,6 @@ static void zen_mpv_wakeup(void *ctx);
 
 @interface ZENMPVPlayerController ()
 {
-	uint64_t _observerID;
 	mpv_handle *_mpvHandle;
 	
 	BOOL _terminated;
@@ -47,6 +46,8 @@ static void zen_mpv_wakeup(void *ctx);
 
 @implementation ZENMPVPlayerController
 
+@synthesize identifier=_identifier;
+
 - (void)mpvCommand:(const char** const)command {
 	mpv_command(_mpvHandle, command);
 }
@@ -61,7 +62,7 @@ static void zen_mpv_wakeup(void *ctx);
 	if (self) {
 		_player = player;
 		
-		_observerID = zen_mpv_next_observer_identifier();
+		_identifier = zen_mpv_next_observer_identifier();
 		_terminated = NO;
 		
 		// Initialize mutex and condition variable
@@ -92,8 +93,8 @@ static void zen_mpv_wakeup(void *ctx);
 		mpv_set_wakeup_callback(_mpvHandle, zen_mpv_wakeup, selfAsVoid);
 		
 		// Observe properties
-		mpv_observe_property(_mpvHandle, _observerID, kMPVProperty_percent_pos, MPV_FORMAT_NODE);
-		mpv_observe_property(_mpvHandle, _observerID, kMPVProperty_pause, MPV_FORMAT_NODE);
+		mpv_observe_property(_mpvHandle, _identifier, kMPVProperty_percent_pos, MPV_FORMAT_NODE);
+		mpv_observe_property(_mpvHandle, _identifier, kMPVProperty_pause, MPV_FORMAT_NODE);
 		
 		// Load the initial file
 		// TODO: Remove this, load files dynamically via API
@@ -118,7 +119,7 @@ static void zen_mpv_wakeup(void *ctx);
 }
 
 - (void)terminate {
-	mpv_unobserve_property(_mpvHandle, _observerID);
+	mpv_unobserve_property(_mpvHandle, self.identifier);
 	
 	// Send a mpv quit command, which will trigger MPV_EVENT_SHUTDOWN
 	[self mpvSimpleCommand:kMPVCommand_quit];
@@ -136,7 +137,7 @@ static void zen_mpv_wakeup(void *ctx);
 
 - (void)destroyHandle {
 	// Remove property observers
-	mpv_unobserve_property(_mpvHandle, _observerID);
+	mpv_unobserve_property(_mpvHandle, self.identifier);
 	
 	// Remove event callback function
 	mpv_set_wakeup_callback(_mpvHandle, nil, nil);
@@ -255,7 +256,7 @@ static void zen_mpv_wakeup(void *ctx);
 					// Example node map for "pause" property change:
 					// {
 					// 	"event": "property-change",
-					// 	"id": 1,						// _observerID
+					// 	"id": 1,						// self.identifier
 					// 	"name": "pause",
 					// 	"data": 0						// Flag value for "pause" property
 					// }
@@ -282,7 +283,7 @@ static void zen_mpv_wakeup(void *ctx);
 					
 					NSLog(@"MPV_EVENT_PROPERTY_CHANGE (%llu): %s", observerID, property->name);
 
-					if (propertyName && valueNode && observerID == _observerID) {
+					if (propertyName && valueNode && observerID == self.identifier) {
 						if (zen_mpv_compare_strings(kMPVProperty_pause, propertyName)) {
 							BOOL paused = (BOOL)valueNode->u.flag;
 							NSLog(@"Paused: %d", paused);

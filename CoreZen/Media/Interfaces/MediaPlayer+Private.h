@@ -11,8 +11,6 @@
 
 @interface ZENMediaPlayer ()
 
-@property (nonatomic) ZENIdentifier identifier;
-
 @property (nonatomic, strong) ZENMediaPlayerView *playerView;
 @property (nonatomic, strong, readonly) NSObject<ZENMediaPlayerController> *playerController;
 

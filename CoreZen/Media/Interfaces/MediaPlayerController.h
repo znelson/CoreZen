@@ -6,8 +6,9 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <CoreZen/Identifiable.h>
 
-@protocol ZENMediaPlayerController <NSObject>
+@protocol ZENMediaPlayerController <NSObject, ZENIdentifiable>
 
 - (void)terminate;
 

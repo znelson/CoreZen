@@ -12,8 +12,6 @@
 
 @import Darwin.POSIX.pthread;
 
-#import <stdatomic.h>
-
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdocumentation"
 
@@ -21,7 +19,6 @@
 
 #pragma clang diagnostic pop
 
-static uint64_t zen_mpv_next_observer_identifier(void);
 static void zen_mpv_wakeup(void *ctx);
 
 @interface ZENMPVPlayerController ()
@@ -322,11 +319,6 @@ static void zen_mpv_wakeup(void *ctx);
 }
 
 @end
-
-static uint64_t zen_mpv_next_observer_identifier(void) {
-	static atomic_uint_fast64_t nextIdentifier = 1;
-	return atomic_fetch_add(&nextIdentifier, 1);
-}
 
 static void zen_mpv_wakeup(void *ctx) {
 	__unsafe_unretained ZENMPVPlayerController *controller = (__bridge ZENMPVPlayerController *)ctx;

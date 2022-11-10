@@ -21,7 +21,6 @@
 
 #pragma clang diagnostic pop
 
-static void *zen_mpv_get_proc_address(void *ctx, const char *name);
 static void zen_mpv_render_context_update(void *ctx);
 
 @interface ZENMPVRenderController ()
@@ -97,7 +96,7 @@ static void zen_mpv_render_context_update(void *ctx);
 	void *selfAsVoid = (__bridge void *)self;
 	
 	mpv_opengl_init_params glParams = {
-		.get_proc_address = zen_mpv_get_proc_address,
+		.get_proc_address = zen_mpv_get_opengl_proc_address,
 		.get_proc_address_ctx = selfAsVoid,
 		.extra_exts = 0
 	};
@@ -213,14 +212,6 @@ static void zen_mpv_render_context_update(void *ctx);
 }
 
 @end
-
-void *zen_mpv_get_proc_address(void *ctx, const char *name) {
-	CFStringRef bundleName = CFStringCreateWithCString(kCFAllocatorDefault, "com.apple.opengl", kCFStringEncodingASCII);
-	CFBundleRef bundle = CFBundleGetBundleWithIdentifier(bundleName);
-	CFStringRef functionName = CFStringCreateWithCString(kCFAllocatorDefault, name, kCFStringEncodingASCII);
-	void *function = CFBundleGetFunctionPointerForName(bundle, functionName);
-	return function;
-}
 
 static void zen_mpv_render_context_update(void *ctx) {
 	__unsafe_unretained ZENMPVRenderController *controller = (__bridge ZENMPVRenderController *)ctx;

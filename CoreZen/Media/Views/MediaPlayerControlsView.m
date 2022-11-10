@@ -48,10 +48,10 @@ static const double kSeekForwardLargeSeconds = 15.0;
 			[self.player stepOneFrame:forward];
 		} else if (sender == self.prevButton2 || sender == self.nextButton2) {
 			double seconds = (sender == self.nextButton2) ? kSeekForwardSmallSeconds : kSeekBackSmallSeconds;
-			[self.player seekBySeconds:seconds];
+			[self.player seekRelativeSeconds:seconds];
 		} else if (sender == self.prevButton3 || sender == self.nextButton3) {
 			double seconds = (sender == self.nextButton3) ? kSeekForwardLargeSeconds : kSeekBackLargeSeconds;
-			[self.player seekBySeconds:seconds];
+			[self.player seekRelativeSeconds:seconds];
 		} else if (sender == self.prevButton4 || sender == self.nextButton4) {
 		} else if (sender == self.playPauseButton) {
 			if (self.player.paused) {

@@ -31,8 +31,10 @@
 - (void)pausePlayback;
 
 - (void)stepOneFrame:(BOOL)forward;
-- (void)seekBySeconds:(double)seconds;
-- (void)seekToSeconds:(double)seconds;
-- (void)seekToPercentage:(double)percentage;
+
+- (void)seekRelativeSeconds:(double)seconds;
+
+- (void)seekAbsoluteSeconds:(double)seconds;
+- (void)seekAbsolutePercentage:(double)percentage;
 
 @end

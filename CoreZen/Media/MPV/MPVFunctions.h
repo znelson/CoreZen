@@ -7,7 +7,9 @@
 
 #import <Foundation/Foundation.h>
 
-NSString *zen_mpv_string(const char *str);
+NSString *zen_mpv_to_nsstring(const char *str);
+const char *zen_nsstring_to_mpv(NSString *str);
+const char *zen_double_to_mpv_string(double d);
 
 typedef struct mpv_handle mpv_handle;
 

@@ -77,7 +77,7 @@ static void zen_mpv_wakeup(void *ctx);
 		// Create MPV handle (initialization happens after configuration)
 		_mpvHandle = mpv_create();
 		
-		_clientName = zen_mpv_string(mpv_client_name(_mpvHandle));
+		_clientName = zen_mpv_to_nsstring(mpv_client_name(_mpvHandle));
 		
 		// Set MPV configuration
 		mpv_set_option_string(_mpvHandle, kMPVOption_hwdec, kMPVOptionParam_videotoolbox);
@@ -88,7 +88,7 @@ static void zen_mpv_wakeup(void *ctx);
 		// Initialize MPV handle
 		mpv_initialize(_mpvHandle);
 		
-		_version = zen_mpv_string(mpv_get_property_string(_mpvHandle, kMPVProperty_mpv_version));
+		_version = zen_mpv_to_nsstring(mpv_get_property_string(_mpvHandle, kMPVProperty_mpv_version));
 		
 		// Set event callback function
 		void *selfAsVoid = (__bridge void *)self;
@@ -178,7 +178,7 @@ static void zen_mpv_wakeup(void *ctx);
 - (void)seekBySeconds:(double)seconds {
 	const char* command[] = {
 		kMPVCommand_seek,
-		[[NSString stringWithFormat:@"%f", seconds] cStringUsingEncoding:NSASCIIStringEncoding],
+		zen_double_to_mpv_string(seconds),
 		kMPVCommandParam_relative,
 		nil
 	};

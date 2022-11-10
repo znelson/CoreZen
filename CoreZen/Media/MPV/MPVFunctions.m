@@ -16,8 +16,17 @@
 
 #pragma clang diagnostic pop
 
-NSString *zen_mpv_string(const char *str) {
+NSString *zen_mpv_to_nsstring(const char *str) {
 	return [NSString stringWithCString:str encoding:NSASCIIStringEncoding];
+}
+
+const char *zen_nsstring_to_mpv(NSString *str) {
+	return [str cStringUsingEncoding:NSASCIIStringEncoding];
+}
+
+const char *zen_double_to_mpv_string(double d) {
+	NSString *str = [NSString stringWithFormat:@"%f", d];
+	return zen_nsstring_to_mpv(str);
 }
 
 void zen_mpv_set_bool_property(mpv_handle* mpv, const char* const property, BOOL value) {

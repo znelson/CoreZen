@@ -70,7 +70,7 @@ static void zen_mpv_wakeup(void *ctx);
 		
 		// Initialize MPV player event serial queue
 		dispatch_queue_attr_t qos = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INITIATED, 0);
-		_eventQueue = dispatch_queue_create("com.zdnelson.CoreZen.mpv-player", qos);
+		_eventQueue = dispatch_queue_create("ZENMediaPlayer.mpv-player", qos);
 		
 		// Create MPV handle (initialization happens after configuration)
 		_mpvHandle = mpv_create();
@@ -121,6 +121,8 @@ static void zen_mpv_wakeup(void *ctx);
 - (void)terminate {
 	mpv_unobserve_property(_mpvHandle, self.identifier);
 	
+	NSLog(@"Terminating mpv player queue...");
+	
 	// Send a mpv quit command, which will trigger MPV_EVENT_SHUTDOWN
 	[self mpvSimpleCommand:kMPVCommand_quit];
 
@@ -130,6 +132,8 @@ static void zen_mpv_wakeup(void *ctx);
 		pthread_cond_wait(&_playerCondition, &_playerMutex);
 	}
 	pthread_mutex_unlock(&_playerMutex);
+	
+	NSLog(@"Finished terminating mpv player queue");
 	
 	// Clean up mutex and condition variable
 	zen_mpv_destroy_pthread_mutex_cond(&_playerMutex, &_playerCondition);

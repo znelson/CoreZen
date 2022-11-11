@@ -12,7 +12,7 @@
 
 - (void)terminate;
 
-- (void)renderFrame:(ZENRenderedFrame *)frame
+- (void)renderFrame:(ZENRenderedFrame *)renderedFrame
 			   size:(NSSize)size
 		 completion:(ZENFrameRendererResultsBlock)completion;
 

@@ -11,7 +11,7 @@
 
 #import <stdatomic.h>
 
-#define RETURN_IF_TERMINATING if (atomic_load(&self->_terminating)) { return; }
+#define RETURN_IF_TERMINATING if (atomic_load(&_terminating)) { return; }
 #define RETURN_IF_TERMINATED if (self->_terminated) { return; }
 
 @interface ZENDatabaseQueue ()
@@ -47,15 +47,15 @@
 		NSLog(@"Database in memory");
 		_databaseURL = nil;
 		
-		static NSUInteger cacheID = 0;
-		NSString *databaseID = [NSString stringWithFormat:@"corezen-mem-db-%lu", cacheID];
+		static atomic_uint_fast64_t nextIdentifier = 0;
+		uint64_t cacheID = atomic_fetch_add(&nextIdentifier, 1);
+
+		NSString *databaseID = [NSString stringWithFormat:@"corezen-mem-db-%llu", cacheID];
 		
 		_databaseKey = [NSString stringWithFormat:@"file:%@?mode=memory&cache=shared", databaseID];
 	
-		NSString *queueLabel = [NSString stringWithFormat:@"ZENDatabaseQueue-InMemory-%lu", cacheID];
+		NSString *queueLabel = [NSString stringWithFormat:@"ZENDatabaseQueue-InMemory-%llu", cacheID];
 		[self internalInit:queueLabel];
-		
-		cacheID++;
 	}
 	return self;
 }

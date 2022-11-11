@@ -63,7 +63,7 @@ static void zen_mpv_render_context_update(void *ctx);
 		zen_mpv_init_pthread_mutex_cond(&_renderMutex, &_renderCondition);
 		
 		dispatch_queue_attr_t qos = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INTERACTIVE, 0);
-		_renderQueue = dispatch_queue_create("com.zdnelson.CoreZen.mpv-render", qos);
+		_renderQueue = dispatch_queue_create("ZENMediaPlayer.mpv-render", qos);
 		
 		NSSize playerViewSize = playerView.frame.size;
 		_mpvFBO = (mpv_opengl_fbo) { .fbo = 1, .w = playerViewSize.width, .h = playerViewSize.height };
@@ -119,6 +119,8 @@ static void zen_mpv_render_context_update(void *ctx);
 - (void)destroyRenderContext {
 	mpv_render_context_set_update_callback(_mpvRenderContext, NULL, NULL);
 	
+	NSLog(@"Terminating mpv render queue...");
+	
 	pthread_mutex_lock(&_renderMutex);
 	
 	_terminated = YES;
@@ -127,6 +129,8 @@ static void zen_mpv_render_context_update(void *ctx);
 	pthread_mutex_unlock(&_renderMutex);
 	
 	dispatch_sync(_renderQueue, ^{});
+	
+	NSLog(@"Finished terminating mpv render queue");
 	
 	zen_mpv_destroy_pthread_mutex_cond(&_renderMutex, &_renderCondition);
 	

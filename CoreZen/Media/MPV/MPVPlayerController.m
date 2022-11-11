@@ -10,6 +10,8 @@
 #import "MPVConstants.h"
 #import "MediaPlayer+Private.h"
 
+#import <stdatomic.h>
+
 @import Darwin.POSIX.pthread;
 
 #pragma clang diagnostic push
@@ -62,7 +64,9 @@ static void zen_mpv_wakeup(void *ctx);
 	if (self) {
 		_player = player;
 		
-		_identifier = zen_mpv_next_observer_identifier();
+		static atomic_uint_fast64_t nextIdentifier = 1;
+		_identifier = atomic_fetch_add(&nextIdentifier, 1);
+		
 		_terminated = NO;
 		
 		// Initialize mutex and condition variable
@@ -70,7 +74,7 @@ static void zen_mpv_wakeup(void *ctx);
 		
 		// Initialize MPV player event serial queue
 		dispatch_queue_attr_t qos = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INITIATED, 0);
-		_eventQueue = dispatch_queue_create("com.zdnelson.CoreZen.mpv-player", qos);
+		_eventQueue = dispatch_queue_create("ZENMediaPlayer.mpv-player", qos);
 		
 		// Create MPV handle (initialization happens after configuration)
 		_mpvHandle = mpv_create();
@@ -121,6 +125,8 @@ static void zen_mpv_wakeup(void *ctx);
 - (void)terminate {
 	mpv_unobserve_property(_mpvHandle, self.identifier);
 	
+	NSLog(@"Terminating mpv player queue...");
+	
 	// Send a mpv quit command, which will trigger MPV_EVENT_SHUTDOWN
 	[self mpvSimpleCommand:kMPVCommand_quit];
 
@@ -130,6 +136,8 @@ static void zen_mpv_wakeup(void *ctx);
 		pthread_cond_wait(&_playerCondition, &_playerMutex);
 	}
 	pthread_mutex_unlock(&_playerMutex);
+	
+	NSLog(@"Finished terminating mpv player queue");
 	
 	// Clean up mutex and condition variable
 	zen_mpv_destroy_pthread_mutex_cond(&_playerMutex, &_playerCondition);

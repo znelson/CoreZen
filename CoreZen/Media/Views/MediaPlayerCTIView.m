@@ -36,6 +36,22 @@ static void* ObserverContext = &ObserverContext;
 	self.slider.maxValue = 100.0;
 }
 
+- (void)updateTrackingAreas {
+	[super updateTrackingAreas];
+	
+	if (self.slider.trackingAreas.count > 0) {
+		NSTrackingArea *area = self.slider.trackingAreas.firstObject;
+		[self.slider removeTrackingArea:area];
+	}
+	
+	NSRect rect = self.slider.bounds;
+	NSTrackingAreaOptions options = NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved | NSTrackingActiveInActiveApp;
+	NSDictionary *userData = nil;
+	
+	NSTrackingArea *area = [[NSTrackingArea alloc] initWithRect:rect options:options owner:self userInfo:userData];
+	[self.slider addTrackingArea:area];
+}
+
 - (void)attachPlayer:(ZENMediaPlayer *)player {
 	self.player = player;
 	
@@ -76,6 +92,18 @@ static void* ObserverContext = &ObserverContext;
 	} else if (eventType == NSEventTypeLeftMouseUp) {
 		self.scrubbing = NO;
 	}
+}
+
+- (void)mouseEntered:(NSEvent *)event {
+	[super mouseEntered:event];
+}
+
+- (void)mouseMoved:(NSEvent *)event {
+	[super mouseMoved:event];
+}
+
+- (void)mouseExited:(NSEvent *)event {
+	[super mouseExited:event];
 }
 
 @end

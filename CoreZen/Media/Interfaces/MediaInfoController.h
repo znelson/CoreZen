@@ -6,10 +6,11 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <CoreZen/Identifiable.h>
 
 @protocol ZENFrameRenderController;
 
-@protocol ZENMediaInfoController <NSObject>
+@protocol ZENMediaInfoController <NSObject, ZENIdentifiable>
 
 - (NSObject<ZENFrameRenderController> *)frameRenderController;
 

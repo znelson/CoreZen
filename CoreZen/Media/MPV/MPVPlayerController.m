@@ -10,6 +10,8 @@
 #import "MPVConstants.h"
 #import "MediaPlayer+Private.h"
 
+#import <stdatomic.h>
+
 @import Darwin.POSIX.pthread;
 
 #pragma clang diagnostic push
@@ -62,7 +64,9 @@ static void zen_mpv_wakeup(void *ctx);
 	if (self) {
 		_player = player;
 		
-		_identifier = zen_mpv_next_observer_identifier();
+		static atomic_uint_fast64_t nextIdentifier = 1;
+		_identifier = atomic_fetch_add(&nextIdentifier, 1);
+		
 		_terminated = NO;
 		
 		// Initialize mutex and condition variable

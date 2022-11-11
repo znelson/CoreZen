@@ -9,6 +9,8 @@
 #import "LibAVRenderController.h"
 #import "MediaFile.h"
 
+#import <stdatomic.h>
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdocumentation"
 
@@ -54,6 +56,8 @@ void ZENLogAVFindBestStreamError(NSString *filePath, int returnCode, enum AVMedi
 
 @implementation ZENLibAVInfoController
 
+@synthesize identifier=_identifier;
+
 - (void)avInit:(NSString *)filePath {
 	_formatContext = avformat_alloc_context();
 	
@@ -98,6 +102,9 @@ void ZENLogAVFindBestStreamError(NSString *filePath, int returnCode, enum AVMedi
 	self = [super init];
 	if (self) {
 		_mediaFile = mediaFile;
+		
+		static atomic_uint_fast64_t nextIdentifier = 0;
+		_identifier = atomic_fetch_add(&nextIdentifier, 1);
 		
 		NSString *filePath = mediaFile.fileURL.path;
 		[self avInit:filePath];

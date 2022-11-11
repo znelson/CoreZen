@@ -19,11 +19,14 @@
 
 @implementation ZENMediaFile
 
+@synthesize identifier=_identifier;
+
 - (instancetype)initWithURL:(NSURL *)url {
 	self = [super init];
 	if (self) {
 		_fileURL = url;
 		_mediaInfoController = [[ZENLibAVInfoController alloc] initWithMediaFile:self];
+		_identifier = _mediaInfoController.identifier;
 	}
 	return self;
 }

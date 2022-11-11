@@ -9,8 +9,6 @@
 
 @import Darwin.POSIX.pthread;
 
-#import <stdatomic.h>
-
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdocumentation"
 
@@ -59,11 +57,6 @@ void zen_mpv_init_pthread_mutex_cond(pthread_mutex_t* mutex, pthread_cond_t* con
 void zen_mpv_destroy_pthread_mutex_cond(pthread_mutex_t* mutex, pthread_cond_t* cond) {
 	pthread_mutex_destroy(mutex);
 	pthread_cond_destroy(cond);
-}
-
-uint64_t zen_mpv_next_observer_identifier(void) {
-	static atomic_uint_fast64_t nextIdentifier = 1;
-	return atomic_fetch_add(&nextIdentifier, 1);
 }
 
 void *zen_mpv_get_opengl_proc_address(void *ctx, const char *name) {

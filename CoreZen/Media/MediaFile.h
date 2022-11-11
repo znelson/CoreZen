@@ -6,10 +6,11 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <CoreZen/Identifiable.h>
 
 @class ZENFrameRenderer;
 
-@interface ZENMediaFile : NSObject
+@interface ZENMediaFile : NSObject <ZENIdentifiable>
 
 @property (nonatomic, strong, readonly) NSURL *fileURL;
 

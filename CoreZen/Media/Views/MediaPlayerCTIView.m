@@ -13,7 +13,6 @@ static void* ObserverContext = &ObserverContext;
 @interface ZENMediaPlayerCTIView ()
 
 @property (nonatomic, weak) IBOutlet NSSlider *slider;
-@property (nonatomic, weak) IBOutlet ZENMediaPlayerPeekView *peekView;
 
 - (IBAction)sliderChanged:(id)sender;
 

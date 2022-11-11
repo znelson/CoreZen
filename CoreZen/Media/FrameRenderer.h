@@ -26,12 +26,16 @@
 
 @end
 
+@class ZENMediaFile;
 @protocol ZENFrameRenderController;
 
 // Interface for requesting rendered frames
 @interface ZENFrameRenderer : NSObject
 
-- (instancetype)initWithController:(NSObject<ZENFrameRenderController> *)controller;
+@property (nonatomic, strong, readonly) ZENMediaFile *mediaFile;
+
+- (instancetype)initWithController:(NSObject<ZENFrameRenderController> *)controller
+						 mediaFile:(ZENMediaFile *)mediaFile;
 
 - (void)renderFrameAtSeconds:(double)seconds
 					   width:(NSUInteger)width

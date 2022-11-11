@@ -13,8 +13,6 @@
 
 @interface ZENLibAVRenderController : NSObject <ZENFrameRenderController>
 
-@property (nonatomic, weak, readonly) ZENMediaFile *mediaFile;
-
 - (instancetype)initWithInfoController:(ZENLibAVInfoController *)infoController;
 
 // ZENFrameRenderController protocol

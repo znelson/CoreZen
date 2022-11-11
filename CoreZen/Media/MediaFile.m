@@ -66,7 +66,7 @@ ZENObjectCache* ZENGetWeakMediaFileCache(void) {
 
 - (ZENFrameRenderer *)frameRenderer {
 	NSObject<ZENFrameRenderController> *controller = self.mediaInfoController.frameRenderController;
-	ZENFrameRenderer *frameRenderer = [[ZENFrameRenderer alloc] initWithController:controller];
+	ZENFrameRenderer *frameRenderer = [[ZENFrameRenderer alloc] initWithController:controller mediaFile:self];
 	return frameRenderer;
 }
 

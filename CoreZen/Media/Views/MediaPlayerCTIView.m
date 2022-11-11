@@ -12,7 +12,10 @@ static void* ObserverContext = &ObserverContext;
 
 @interface ZENMediaPlayerCTIView ()
 
-@property (nonatomic, weak) IBOutlet NSProgressIndicator *progressBar;
+@property (nonatomic, weak) IBOutlet NSSlider *slider;
+@property (nonatomic, weak) IBOutlet ZENMediaPlayerPeekView *peekView;
+
+- (IBAction)sliderChanged:(id)sender;
 
 @property (nonatomic, weak) ZENMediaPlayer *player;
 @property (nonatomic) BOOL scrubbing;
@@ -28,9 +31,10 @@ static void* ObserverContext = &ObserverContext;
 - (void)initCommon {
 	[super initCommon];
 	
-	self.progressBar.minValue = 0.0;
-	self.progressBar.maxValue = 100.0;
 	self.scrubbing = NO;
+	
+	self.slider.minValue = 0.0;
+	self.slider.maxValue = 100.0;
 }
 
 - (void)attachPlayer:(ZENMediaPlayer *)player {

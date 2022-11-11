@@ -49,6 +49,8 @@
 		532CA236291B1F73008FA673 /* FrameRenderController.h in Headers */ = {isa = PBXBuildFile; fileRef = 532CA22F291B1B85008FA673 /* FrameRenderController.h */; };
 		532CA237291C5C65008FA673 /* libswscale.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 539A15B128DA2099007D001A /* libswscale.6.dylib */; };
 		532CA23D291D8152008FA673 /* FrameRendererTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 532CA23C291D8152008FA673 /* FrameRendererTypes.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		532CA240291ED1F9008FA673 /* MediaPlayerSliderCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 532CA23E291ED1F9008FA673 /* MediaPlayerSliderCell.h */; };
+		532CA241291ED1F9008FA673 /* MediaPlayerSliderCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 532CA23F291ED1F9008FA673 /* MediaPlayerSliderCell.m */; };
 		533005DE28F784B600E59E1D /* ZENMediaPlayerControlsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 533005DD28F784B600E59E1D /* ZENMediaPlayerControlsView.xib */; };
 		5350F8A42886020500F8CA68 /* DatabaseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5350F8A32886020500F8CA68 /* DatabaseTests.m */; };
 		5350F8B42886074F00F8CA68 /* ObjectCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5350F8B32886074F00F8CA68 /* ObjectCacheTests.m */; };
@@ -346,6 +348,8 @@
 		532CA232291B1E96008FA673 /* LibAVRenderController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LibAVRenderController.h; sourceTree = "<group>"; };
 		532CA233291B1E96008FA673 /* LibAVRenderController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LibAVRenderController.m; sourceTree = "<group>"; };
 		532CA23C291D8152008FA673 /* FrameRendererTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FrameRendererTypes.h; path = CoreZen/Media/FrameRendererTypes.h; sourceTree = SOURCE_ROOT; };
+		532CA23E291ED1F9008FA673 /* MediaPlayerSliderCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MediaPlayerSliderCell.h; sourceTree = "<group>"; };
+		532CA23F291ED1F9008FA673 /* MediaPlayerSliderCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MediaPlayerSliderCell.m; sourceTree = "<group>"; };
 		533005DD28F784B600E59E1D /* ZENMediaPlayerControlsView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ZENMediaPlayerControlsView.xib; sourceTree = "<group>"; };
 		5350F8A32886020500F8CA68 /* DatabaseTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DatabaseTests.m; sourceTree = "<group>"; };
 		5350F8B32886074F00F8CA68 /* ObjectCacheTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ObjectCacheTests.m; sourceTree = "<group>"; };
@@ -773,6 +777,8 @@
 				5386706928BFE16300FB15EB /* MediaPlayerControlsView.m */,
 				531673642909C1DD003FB35A /* MediaPlayerCTIView.h */,
 				531673652909C1DD003FB35A /* MediaPlayerCTIView.m */,
+				532CA23E291ED1F9008FA673 /* MediaPlayerSliderCell.h */,
+				532CA23F291ED1F9008FA673 /* MediaPlayerSliderCell.m */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -1229,6 +1235,7 @@
 				538E05072885DD1D00CE9DE7 /* DomainCallbacks.h in Headers */,
 				538E050B2885E53700CE9DE7 /* DomainCommon.h in Headers */,
 				538E05032885DCED00CE9DE7 /* DomainObject.h in Headers */,
+				532CA240291ED1F9008FA673 /* MediaPlayerSliderCell.h in Headers */,
 				5309C4212885CB1400BC0AAE /* DataTransferObject.h in Headers */,
 				5309C40F2885B43B00BC0AAE /* ObjectCache.h in Headers */,
 				538E05132885ED2200CE9DE7 /* ObjectRepository.h in Headers */,
@@ -1372,6 +1379,7 @@
 				5309C3AE2885A1DC00BC0AAE /* CoreZen.docc in Sources */,
 				538E05142885ED2200CE9DE7 /* ObjectRepository.m in Sources */,
 				5350FB0728889E7400F8CA68 /* Node.m in Sources */,
+				532CA241291ED1F9008FA673 /* MediaPlayerSliderCell.m in Sources */,
 				5309C3F22885A74A00BC0AAE /* ObjectIdentifier.m in Sources */,
 				5396532E288F453E007B53EC /* MPVRenderController.m in Sources */,
 				5350F8C32886194200F8CA68 /* MediaFile.m in Sources */,

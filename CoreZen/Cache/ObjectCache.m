@@ -8,6 +8,8 @@
 #import "ObjectCache.h"
 #import "Identifiable.h"
 
+#import <stdatomic.h>
+
 @interface ZENObjectCache ()
 
 @property (nonatomic, strong, readonly) NSMapTable *mapTable;
@@ -15,6 +17,8 @@
 
 - (instancetype)initWeakObjectCache;
 - (instancetype)initStrongObjectCache;
+
+- (void)initCommon:(NSString *)queueLabel;
 
 @end
 
@@ -24,11 +28,20 @@
 	return [self initWeakObjectCache];
 }
 
+- (void)initCommon:(NSString *)queueLabel {
+	static atomic_uint_fast64_t nextIdentifier = 0;
+	uint64_t cacheID = atomic_fetch_add(&nextIdentifier, 1);
+	
+	NSString *label = [NSString stringWithFormat:@"%@-%llu", queueLabel, cacheID];
+	_isolationQueue = dispatch_queue_create(label.UTF8String, DISPATCH_QUEUE_CONCURRENT);
+}
+
 - (instancetype)initWeakObjectCache {
 	self = [super init];
 	if (self) {
 		_mapTable = [NSMapTable strongToWeakObjectsMapTable];
-		_isolationQueue = dispatch_queue_create(@"ZENWeakObjectCache".UTF8String, DISPATCH_QUEUE_CONCURRENT);
+		
+		[self initCommon:@"ZENWeakObjectCache"];
 	}
 	return self;
 }
@@ -41,7 +54,8 @@
 	self = [super init];
 	if (self) {
 		_mapTable = [NSMapTable strongToStrongObjectsMapTable];
-		_isolationQueue = dispatch_queue_create(@"ZENStrongObjectCache".UTF8String, DISPATCH_QUEUE_CONCURRENT);
+		
+		[self initCommon:@"ZENStrongObjectCache"];
 	}
 	return self;
 }

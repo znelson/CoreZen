@@ -11,6 +11,7 @@
 #import "FrameRenderer.h"
 
 #import <stdatomic.h>
+#import <math.h>
 
 @import Cocoa;
 
@@ -45,7 +46,7 @@
 			 timestamp:(int64_t)timestamp;
 
 - (BOOL)resizeRawFrame:(AVFrame **)frame
-					   size:(NSSize)size;
+			   maxSize:(NSSize)size;
 
 - (NSImage *)convertRawFrameToImage:(AVFrame *)frame;
 
@@ -160,55 +161,67 @@
 }
 
 - (BOOL)resizeRawFrame:(AVFrame **)frame
-				  size:(NSSize)size {
+			   maxSize:(NSSize)maxSize {
 	
 	BOOL success = NO;
 	AVFrame *rgbFrame = av_frame_alloc();
-	
-	AVFrame *sourceFrame = *frame;
 	
 	// At the end, one frame will get freed and the other returned. If conversion
 	// is successful, we'll update this to point to sourceFrame.
 	AVFrame *frameToFree = rgbFrame;
 	
-	rgbFrame->width = size.width;
-	rgbFrame->height = size.height;
-	rgbFrame->format = AV_PIX_FMT_RGBA;
+	AVFrame *sourceFrame = *frame;
 	
-	int bufferSize = av_image_get_buffer_size(rgbFrame->format, rgbFrame->width, rgbFrame->height, 1);
+	NSSize sourceSize = NSMakeSize(sourceFrame->width, sourceFrame->height);
 	
-	uint8_t *rgbBuffer = av_malloc(bufferSize);
-	
-	int result = av_image_fill_arrays(rgbFrame->data, rgbFrame->linesize, rgbBuffer, rgbFrame->format, rgbFrame->width, rgbFrame->height, 1);
-	
-	av_free(rgbBuffer);
-	
-	if (result >= 0) {
-		// Cast to get around rules about adding `const` more than one level deep: https://stackoverflow.com/a/5055789
-		const uint8_t * const * frameData = (const uint8_t * const *)sourceFrame->data;
+	if (sourceSize.width > 0 && sourceSize.height > 0) {
 		
-		// Create scale context
-		struct SwsContext *scaleContext = sws_getContext(_codecContext->width, _codecContext->height, _codecContext->pix_fmt, rgbFrame->width, rgbFrame->height, rgbFrame->format, SWS_BILINEAR, NULL, NULL, NULL);
+		double factorX = maxSize.width / sourceSize.width;
+		double factorY = maxSize.height / sourceSize.height;
+		double scaleFactor = fmin(factorX, factorY);
 		
-		// Scale and convert colorspace to new frame
-		result = sws_scale(scaleContext, frameData, sourceFrame->linesize, 0, _codecContext->height, rgbFrame->data, rgbFrame->linesize);
+		double scaledX = round(sourceSize.width * scaleFactor);
+		double scaledY = round(sourceSize.height * scaleFactor);
 		
-		// Clean up scale context
-		sws_freeContext(scaleContext);
+		rgbFrame->width = scaledX;
+		rgbFrame->height = scaledY;
+		rgbFrame->format = AV_PIX_FMT_RGBA;
+		
+		int bufferSize = av_image_get_buffer_size(rgbFrame->format, rgbFrame->width, rgbFrame->height, 1);
+		
+		uint8_t *rgbBuffer = av_malloc(bufferSize);
+		
+		int result = av_image_fill_arrays(rgbFrame->data, rgbFrame->linesize, rgbBuffer, rgbFrame->format, rgbFrame->width, rgbFrame->height, 1);
+		
+		av_free(rgbBuffer);
 		
 		if (result >= 0) {
-			frameToFree = sourceFrame;
-			*frame = rgbFrame;
-			success = YES;
+			// Cast to get around rules about adding `const` more than one level deep: https://stackoverflow.com/a/5055789
+			const uint8_t * const * frameData = (const uint8_t * const *)sourceFrame->data;
+			
+			// Create scale context
+			struct SwsContext *scaleContext = sws_getContext(_codecContext->width, _codecContext->height, _codecContext->pix_fmt, rgbFrame->width, rgbFrame->height, rgbFrame->format, SWS_BILINEAR, NULL, NULL, NULL);
+			
+			// Scale and convert colorspace to new frame
+			result = sws_scale(scaleContext, frameData, sourceFrame->linesize, 0, _codecContext->height, rgbFrame->data, rgbFrame->linesize);
+			
+			// Clean up scale context
+			sws_freeContext(scaleContext);
+			
+			if (result >= 0) {
+				frameToFree = sourceFrame;
+				*frame = rgbFrame;
+				success = YES;
 
+			} else {
+				NSLog(@"sws_scale failed: %d", result);
+			}
 		} else {
-			NSLog(@"sws_scale failed: %d", result);
+			NSLog(@"av_image_fill_arrays failed: %d", result);
 		}
-	} else {
-		NSLog(@"av_image_fill_arrays failed: %d", result);
+		
+		av_frame_free(&frameToFree);
 	}
-	
-	av_frame_free(&frameToFree);
 	
 	return success;
 }
@@ -278,7 +291,7 @@
 				renderedFrame.actualSeconds = renderedFrame.actualPercentage * durationSeconds;
 				
 				// Resize the frame to desired size, convert to RGB
-				if ([self resizeRawFrame:&rawFrame size:size]) {
+				if ([self resizeRawFrame:&rawFrame maxSize:size]) {
 					renderedFrame.image = [self convertRawFrameToImage:rawFrame];
 				}
 			}

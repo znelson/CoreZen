@@ -12,9 +12,12 @@ static void* ObserverContext = &ObserverContext;
 
 @interface ZENMediaPlayerCTIView ()
 
-@property (nonatomic, weak) IBOutlet NSProgressIndicator *progressBar;
+@property (nonatomic, weak) IBOutlet NSSlider *slider;
+
+- (IBAction)sliderChanged:(id)sender;
 
 @property (nonatomic, weak) ZENMediaPlayer *player;
+@property (nonatomic) BOOL scrubbing;
 
 @end
 
@@ -27,8 +30,10 @@ static void* ObserverContext = &ObserverContext;
 - (void)initCommon {
 	[super initCommon];
 	
-	self.progressBar.minValue = 0.0;
-	self.progressBar.maxValue = 100.0;
+	self.scrubbing = NO;
+	
+	self.slider.minValue = 0.0;
+	self.slider.maxValue = 100.0;
 }
 
 - (void)attachPlayer:(ZENMediaPlayer *)player {
@@ -49,10 +54,27 @@ static void* ObserverContext = &ObserverContext;
 	if (context == ObserverContext) {
 		if (object == self.player) {
 			if ([keyPath isEqualToString:@"positionPercent"]) {
-				NSNumber *positionPercent = [change objectForKey:NSKeyValueChangeNewKey];
-				self.progressBar.doubleValue = positionPercent.doubleValue;
+				if (!self.scrubbing) {
+					NSNumber *positionPercent = [change objectForKey:NSKeyValueChangeNewKey];
+					self.slider.doubleValue = positionPercent.doubleValue;
+				}
 			}
 		}
+	}
+}
+
+- (IBAction)sliderChanged:(id)sender {
+	NSEvent *event = NSApplication.sharedApplication.currentEvent;
+	NSEventType eventType = event.type;
+	
+	if (eventType == NSEventTypeLeftMouseDown || eventType == NSEventTypeLeftMouseDragged) {
+		self.scrubbing = YES;
+		
+		double percentage = self.slider.doubleValue;
+		[self.player seekAbsolutePercentage:percentage];
+		
+	} else if (eventType == NSEventTypeLeftMouseUp) {
+		self.scrubbing = NO;
 	}
 }
 

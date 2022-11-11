@@ -16,6 +16,7 @@
 
 @property (nonatomic) BOOL paused;
 @property (nonatomic) double positionPercent;
+@property (nonatomic) BOOL seeking;
 
 // Reciprocal of ZENMediaPlayerView attachPlayer:
 - (void)attachPlayerView:(ZENMediaPlayerView *)view;

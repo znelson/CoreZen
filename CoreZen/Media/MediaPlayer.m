@@ -84,15 +84,24 @@ ZENObjectCache* ZENGetWeakMediaPlayerCache(void) {
 }
 
 - (void)seekRelativeSeconds:(double)seconds {
-	[self.playerController seekBySeconds:seconds];
+	if (!self.seeking) {
+		self.seeking = YES;
+		[self.playerController seekBySeconds:seconds];
+	}
 }
 
 - (void)seekAbsoluteSeconds:(double)seconds {
-	[self.playerController seekToSeconds:seconds];
+	if (!self.seeking) {
+		self.seeking = YES;
+		[self.playerController seekToSeconds:seconds];
+	}
 }
 
 - (void)seekAbsolutePercentage:(double)percentage {
-	[self.playerController seekToPercentage:percentage];
+	if (!self.seeking) {
+		self.seeking = YES;
+		[self.playerController seekToPercentage:percentage];
+	}
 }
 
 @end

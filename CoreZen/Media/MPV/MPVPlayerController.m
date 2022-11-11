@@ -269,10 +269,16 @@ static void zen_mpv_wakeup(void *ctx);
 			}
 			case MPV_EVENT_SEEK: {
 				NSLog(@"MPV_EVENT_SEEK");
+				dispatch_async(dispatch_get_main_queue(), ^{
+					self.player.seeking = YES;
+				});
 				break;
 			}
 			case MPV_EVENT_PLAYBACK_RESTART: {
 				NSLog(@"MPV_EVENT_PLAYBACK_RESTART");
+				dispatch_async(dispatch_get_main_queue(), ^{
+					self.player.seeking = NO;
+				});
 				break;
 			}
 			case MPV_EVENT_PROPERTY_CHANGE: {

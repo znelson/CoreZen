@@ -20,6 +20,7 @@
 // Observe these properties for updates to the UI. They will only change on the main thread.
 @property (nonatomic, readonly) BOOL paused;
 @property (nonatomic, readonly) double positionPercent;
+@property (nonatomic, readonly) BOOL seeking;
 
 // Terminate and detach the player view, terminate player controller
 - (void)terminatePlayer;

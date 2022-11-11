@@ -8,6 +8,16 @@
 #import "MediaFile+Private.h"
 #import "LibAVInfoController.h"
 #import "FrameRenderer.h"
+#import "ObjectCache.h"
+
+ZENObjectCache* ZENGetWeakMediaFileCache(void) {
+	static ZENObjectCache *cache = nil;
+	static dispatch_once_t once;
+	dispatch_once(&once, ^{
+		cache = [ZENObjectCache weakObjectCache];
+	});
+	return cache;
+}
 
 @interface ZENMediaFile ()
 
@@ -27,6 +37,9 @@
 		_fileURL = url;
 		_mediaInfoController = [[ZENLibAVInfoController alloc] initWithMediaFile:self];
 		_identifier = _mediaInfoController.identifier;
+		
+		ZENObjectCache *cache = ZENGetWeakMediaFileCache();
+		[cache cacheObject:self];
 	}
 	return self;
 }
@@ -34,6 +47,21 @@
 + (instancetype)mediaFileWithURL:(NSURL *)url {
 	ZENMediaFile *mediaFile = [[ZENMediaFile alloc] initWithURL:url];
 	return mediaFile;
+}
+
+- (void)terminateMediaFile {
+	// mediaInfoController owns the lazily created frameRenderController
+	// and will terminate it here if it was ever created
+	[self.mediaInfoController terminate];
+}
+
++ (void)terminateAllMediaFiles {
+	ZENObjectCache *cache = ZENGetWeakMediaFileCache();
+	NSArray<id<ZENIdentifiable>> *objs = cache.allCachedObjects;
+	for (ZENMediaFile *mediaFile in objs) {
+		[mediaFile terminateMediaFile];
+	}
+	[cache removeAllObjects];
 }
 
 - (ZENFrameRenderer *)frameRenderer {

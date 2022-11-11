@@ -16,6 +16,13 @@
 
 + (instancetype)mediaFileWithURL:(NSURL*)url;
 
+// Terminate frame renderer (and frame render controller) if one was created,
+// then terminate media file format context
+- (void)terminateMediaFile;
+
+// Call before application terminates to terminate all ZENMediaFile instances
++ (void)terminateAllMediaFiles;
+
 - (ZENFrameRenderer *)frameRenderer;
 
 - (NSUInteger)durationMicroseconds;

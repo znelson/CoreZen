@@ -11,10 +11,6 @@
 @implementation ZENRenderedFrame
 @end
 
-@interface ZENFrameRenderer ()
-
-@end
-
 @implementation ZENFrameRenderer
 
 - (instancetype)initWithController:(NSObject<ZENFrameRenderController> *)controller {

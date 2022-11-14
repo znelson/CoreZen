@@ -25,8 +25,13 @@ static void* ObserverContext = &ObserverContext;
 @property (nonatomic) BOOL previewing;
 
 @property (nonatomic, strong) ZENFrameRenderer *frameRenderer;
+@property (nonatomic, strong) NSArray *previewFrames;
 
 - (void)updateMediaFile:(NSURL *)url;
+
+- (NSImage *)fetchPreview:(double)percentage;
+- (double)windowPointToSliderPercentage:(NSPoint)point;
+- (void)updatePeekPreview:(NSImage *)preview;
 
 @end
 
@@ -87,7 +92,6 @@ static void* ObserverContext = &ObserverContext;
 			if ([keyPath isEqualToString:@"positionPercent"]) {
 				if (!self.scrubbing) {
 					NSNumber *positionPercent = [change objectForKey:NSKeyValueChangeNewKey];
-					NSLog(@"MediaPlayerCTIView position change: %f", positionPercent.doubleValue);
 					self.slider.doubleValue = positionPercent.doubleValue;
 				}
 			} else if ([keyPath isEqualToString:@"fileURL"]) {
@@ -117,26 +121,94 @@ static void* ObserverContext = &ObserverContext;
 	
 	if (self.frameRenderer) {
 		[self.frameRenderer.mediaFile terminateMediaFile];
+		self.previewFrames = nil;
 	}
 	
-	ZENMediaFile *mediaFile = [ZENMediaFile mediaFileWithURL:url];
-	self.frameRenderer = mediaFile.frameRenderer;
+	if (url) {
+		ZENMediaFile *mediaFile = [ZENMediaFile mediaFileWithURL:url];
+		self.frameRenderer = mediaFile.frameRenderer;
+		
+		NSUInteger width = 640;
+		
+		[self.frameRenderer renderFrames:5 width:width height:width completion:^(NSArray<ZENRenderedFrame *> *frames) {
+			self.previewFrames = frames;
+			
+			NSLog(@"Rendered %lu frames", frames.count);
+			for (ZENRenderedFrame *frame in frames) {
+				NSLog(@"Rendered frame at %f %%", frame.actualPercentage);
+			}
+		}];
+	}
+}
+
+- (NSImage *)fetchPreview:(double)percentage {
+	NSLog(@"fetchPreview: %f %%", percentage * 100);
+	
+	NSImage *preview = nil;
+	
+	if (self.previewFrames) {
+		double minDistance = 1.0;
+		for (ZENRenderedFrame *frame in self.previewFrames) {
+			double distance = fabs(frame.actualPercentage - percentage);
+			if (distance < minDistance) {
+				preview = frame.image;
+				minDistance = distance;
+			}
+		}
+	}
+	
+	return preview;
+}
+
+- (double)windowPointToSliderPercentage:(NSPoint)point {
+	NSPoint sliderPoint = [self.slider convertPoint:point fromView:nil];
+	double sliderWidth = self.slider.bounds.size.width;
+	double percentage = sliderPoint.x / sliderWidth;
+	return percentage;
+}
+
+- (void)updatePeekPreview:(NSImage *)preview {
+	ZENMediaPlayerPeekView *peekView = self.peekView;
+	if (preview) {
+		peekView.imageView.image = preview;
+		[peekView setHidden:NO];
+		peekView.bounds = NSMakeRect(0.0, 0.0, preview.size.width, preview.size.height);
+	} else {
+		[peekView setHidden:YES];
+	}
 }
 
 - (void)mouseEntered:(NSEvent *)event {
 	[super mouseEntered:event];
 	
 	self.previewing = YES;
+	
+	double percentage = [self windowPointToSliderPercentage:event.locationInWindow];
+	NSImage *preview = [self fetchPreview:percentage];
+	
+	[self updatePeekPreview:preview];
 }
 
 - (void)mouseMoved:(NSEvent *)event {
 	[super mouseMoved:event];
+	
+	double percentage = [self windowPointToSliderPercentage:event.locationInWindow];
+	NSImage *preview = [self fetchPreview:percentage];
+	
+	[self updatePeekPreview:preview];
 }
 
 - (void)mouseExited:(NSEvent *)event {
 	[super mouseExited:event];
 	
+	NSPoint sliderPoint = [self.slider convertPoint:event.locationInWindow fromView:nil];
+	NSLog(@"mouseExited: %f x %f", sliderPoint.x, sliderPoint.y);
+	
 	self.previewing = NO;
+	
+	if (!self.peekView.isHidden) {
+		[self.peekView setHidden:YES];
+	}
 }
 
 @end

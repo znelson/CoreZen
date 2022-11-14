@@ -8,7 +8,7 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="ZENMediaPlayerCTIView">
             <connections>
-                <outlet property="peekView" destination="CbS-EO-qut" id="rVG-4b-NNf"/>
+                <outlet property="peekView" destination="CbS-EO-qut" id="tdS-9c-7Mk"/>
                 <outlet property="rootView" destination="c22-O7-iKe" id="ElT-Au-SCX"/>
                 <outlet property="slider" destination="Kcy-pW-27Q" id="Ger-lQ-7ny"/>
             </connections>

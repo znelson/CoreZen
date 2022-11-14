@@ -10,7 +10,6 @@
 #import "FrameRenderer.h"
 
 #import <stdatomic.h>
-#import <math.h>
 
 @import Cocoa;
 

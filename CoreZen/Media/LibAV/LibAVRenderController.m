@@ -229,11 +229,11 @@
 	return image;
 }
 
-- (void)renderFrame:(ZENRenderedFrame *)renderedFrame
-			   size:(NSSize)size
-		 completion:(ZENFrameRendererResultsBlock)completion {
+- (ZENCancelToken *)renderFrame:(ZENRenderedFrame *)renderedFrame
+						   size:(NSSize)size
+					 completion:(ZENRenderFrameResultsBlock)completion {
 	
-	[self.workQueue async:^(ZENCancelToken *canceled) {
+	return [self.workQueue async:^(ZENCancelToken *canceled) {
 		if (!canceled.canceled) {
 			NSObject<ZENMediaInfoController> *infoController = self.infoController;
 			

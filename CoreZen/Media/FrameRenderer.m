@@ -23,26 +23,26 @@
 	return self;
 }
 
-- (void)renderFrameAtSeconds:(double)seconds
-					   width:(NSUInteger)width
-					  height:(NSUInteger)height
-				  completion:(ZENFrameRendererResultsBlock)completion {
+- (ZENCancelToken *)renderFrameAtSeconds:(double)seconds
+								   width:(NSUInteger)width
+								  height:(NSUInteger)height
+							  completion:(ZENRenderFrameResultsBlock)completion {
 	
 	ZENRenderedFrame *frame = [ZENRenderedFrame new];
 	frame.requestedSeconds = seconds;
 	
-	[self.frameRenderController renderFrame:frame size:NSMakeSize(width, height) completion:completion];
+	return [self.frameRenderController renderFrame:frame size:NSMakeSize(width, height) completion:completion];
 }
 
-- (void)renderFrameAtPercentage:(double)percentage
-						  width:(NSUInteger)width
-						 height:(NSUInteger)height
-					 completion:(ZENFrameRendererResultsBlock)completion {
+- (ZENCancelToken *)renderFrameAtPercentage:(double)percentage
+									  width:(NSUInteger)width
+									 height:(NSUInteger)height
+								 completion:(ZENRenderFrameResultsBlock)completion {
 	
 	ZENRenderedFrame *frame = [ZENRenderedFrame new];
 	frame.requestedPercentage = percentage;
 	
-	[self.frameRenderController renderFrame:frame size:NSMakeSize(width, height) completion:completion];
+	return [self.frameRenderController renderFrame:frame size:NSMakeSize(width, height) completion:completion];
 }
 
 @end

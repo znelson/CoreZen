@@ -10,4 +10,4 @@
 @class ZENRenderedFrame;
 
 // Completion block type
-typedef void (^ZENFrameRendererResultsBlock)(ZENRenderedFrame *frame);
+typedef void (^ZENRenderFrameResultsBlock)(ZENRenderedFrame *frame);

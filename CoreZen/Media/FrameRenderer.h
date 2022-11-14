@@ -7,6 +7,7 @@
 
 #import <Foundation/Foundation.h>
 #import <CoreZen/FrameRendererTypes.h>
+#import <CoreZen/WorkQueueTypes.h>
 
 // Rendered frame result
 @interface ZENRenderedFrame : NSObject
@@ -37,14 +38,14 @@
 - (instancetype)initWithController:(NSObject<ZENFrameRenderController> *)controller
 						 mediaFile:(ZENMediaFile *)mediaFile;
 
-- (void)renderFrameAtSeconds:(double)seconds
-					   width:(NSUInteger)width
-					  height:(NSUInteger)height
-				  completion:(ZENFrameRendererResultsBlock)completion;
+- (ZENCancelToken *)renderFrameAtSeconds:(double)seconds
+								   width:(NSUInteger)width
+								  height:(NSUInteger)height
+							  completion:(ZENRenderFrameResultsBlock)completion;
 
-- (void)renderFrameAtPercentage:(double)percentage
-						  width:(NSUInteger)width
-						 height:(NSUInteger)height
-					 completion:(ZENFrameRendererResultsBlock)completion;
+- (ZENCancelToken *)renderFrameAtPercentage:(double)percentage
+									  width:(NSUInteger)width
+									 height:(NSUInteger)height
+								 completion:(ZENRenderFrameResultsBlock)completion;
 
 @end

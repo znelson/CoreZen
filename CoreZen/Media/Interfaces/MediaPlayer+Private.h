@@ -14,6 +14,7 @@
 @property (nonatomic, strong) ZENMediaPlayerView *playerView;
 @property (nonatomic, strong, readonly) NSObject<ZENMediaPlayerController> *playerController;
 
+@property (nonatomic, strong) NSURL *fileURL;
 @property (nonatomic) BOOL paused;
 @property (nonatomic) double positionPercent;
 @property (nonatomic) BOOL seeking;

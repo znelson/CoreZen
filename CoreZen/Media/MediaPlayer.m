@@ -22,7 +22,6 @@ ZENObjectCache* ZENGetWeakMediaPlayerCache(void) {
 @interface ZENMediaPlayer ()
 
 @property (nonatomic) BOOL terminated;
-@property (nonatomic, strong) NSURL *fileURL;
 
 @end
 

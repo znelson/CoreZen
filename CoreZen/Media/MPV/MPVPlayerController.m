@@ -99,6 +99,7 @@ static void zen_mpv_wakeup(void *ctx);
 		// Observe properties
 		mpv_observe_property(_mpvHandle, _identifier, kMPVProperty_percent_pos, MPV_FORMAT_NODE);
 		mpv_observe_property(_mpvHandle, _identifier, kMPVProperty_pause, MPV_FORMAT_NODE);
+		mpv_observe_property(_mpvHandle, _identifier, kMPVProperty_path, MPV_FORMAT_NODE);
 	}
 	return self;
 }
@@ -322,6 +323,13 @@ static void zen_mpv_wakeup(void *ctx);
 							NSLog(@"Position: %f", percentPos);
 							dispatch_async(dispatch_get_main_queue(), ^{
 								self.player.positionPercent = percentPos;
+							});
+						} else if (zen_mpv_compare_strings(kMPVProperty_path, propertyName)) {
+							NSString *path = zen_mpv_to_nsstring(valueNode->u.string);
+							NSURL *url = [NSURL fileURLWithPath:path];
+							// NSLog(@"Path: %@", url);
+							dispatch_async(dispatch_get_main_queue(), ^{
+								self.player.fileURL = url;
 							});
 						}
 					}

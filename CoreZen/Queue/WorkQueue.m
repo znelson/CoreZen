@@ -36,7 +36,7 @@ typedef BOOL (^ZENWorkQueueTokenBlock)(void);
 }
 
 - (BOOL)terminated {
-	return self.terminated;
+	return self.activated;
 }
 
 - (BOOL)activate {

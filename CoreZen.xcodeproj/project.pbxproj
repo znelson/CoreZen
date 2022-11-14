@@ -48,6 +48,8 @@
 		532CA235291B1E96008FA673 /* LibAVRenderController.m in Sources */ = {isa = PBXBuildFile; fileRef = 532CA233291B1E96008FA673 /* LibAVRenderController.m */; };
 		532CA236291B1F73008FA673 /* FrameRenderController.h in Headers */ = {isa = PBXBuildFile; fileRef = 532CA22F291B1B85008FA673 /* FrameRenderController.h */; };
 		532CA237291C5C65008FA673 /* libswscale.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 539A15B128DA2099007D001A /* libswscale.6.dylib */; };
+		532CA23A291D8050008FA673 /* MediaPlayerPeekView.h in Headers */ = {isa = PBXBuildFile; fileRef = 532CA238291D8050008FA673 /* MediaPlayerPeekView.h */; };
+		532CA23B291D8050008FA673 /* MediaPlayerPeekView.m in Sources */ = {isa = PBXBuildFile; fileRef = 532CA239291D8050008FA673 /* MediaPlayerPeekView.m */; };
 		532CA23D291D8152008FA673 /* FrameRendererTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 532CA23C291D8152008FA673 /* FrameRendererTypes.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		532CA240291ED1F9008FA673 /* MediaPlayerSliderCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 532CA23E291ED1F9008FA673 /* MediaPlayerSliderCell.h */; };
 		532CA241291ED1F9008FA673 /* MediaPlayerSliderCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 532CA23F291ED1F9008FA673 /* MediaPlayerSliderCell.m */; };
@@ -349,6 +351,8 @@
 		532CA230291B1C8B008FA673 /* FrameRenderer+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "FrameRenderer+Private.h"; sourceTree = "<group>"; };
 		532CA232291B1E96008FA673 /* LibAVRenderController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LibAVRenderController.h; sourceTree = "<group>"; };
 		532CA233291B1E96008FA673 /* LibAVRenderController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LibAVRenderController.m; sourceTree = "<group>"; };
+		532CA238291D8050008FA673 /* MediaPlayerPeekView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MediaPlayerPeekView.h; sourceTree = "<group>"; };
+		532CA239291D8050008FA673 /* MediaPlayerPeekView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MediaPlayerPeekView.m; sourceTree = "<group>"; };
 		532CA23C291D8152008FA673 /* FrameRendererTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FrameRendererTypes.h; path = CoreZen/Media/FrameRendererTypes.h; sourceTree = SOURCE_ROOT; };
 		532CA23E291ED1F9008FA673 /* MediaPlayerSliderCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MediaPlayerSliderCell.h; sourceTree = "<group>"; };
 		532CA23F291ED1F9008FA673 /* MediaPlayerSliderCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MediaPlayerSliderCell.m; sourceTree = "<group>"; };
@@ -782,6 +786,8 @@
 				5386706928BFE16300FB15EB /* MediaPlayerControlsView.m */,
 				531673642909C1DD003FB35A /* MediaPlayerCTIView.h */,
 				531673652909C1DD003FB35A /* MediaPlayerCTIView.m */,
+				532CA238291D8050008FA673 /* MediaPlayerPeekView.h */,
+				532CA239291D8050008FA673 /* MediaPlayerPeekView.m */,
 				532CA23E291ED1F9008FA673 /* MediaPlayerSliderCell.h */,
 				532CA23F291ED1F9008FA673 /* MediaPlayerSliderCell.m */,
 			);
@@ -1248,6 +1254,7 @@
 				5309C3E82885A39C00BC0AAE /* PreferencesWindowController.h in Headers */,
 				538E05072885DD1D00CE9DE7 /* DomainCallbacks.h in Headers */,
 				538E050B2885E53700CE9DE7 /* DomainCommon.h in Headers */,
+				532CA23A291D8050008FA673 /* MediaPlayerPeekView.h in Headers */,
 				538E05032885DCED00CE9DE7 /* DomainObject.h in Headers */,
 				532CA240291ED1F9008FA673 /* MediaPlayerSliderCell.h in Headers */,
 				5309C4212885CB1400BC0AAE /* DataTransferObject.h in Headers */,
@@ -1410,6 +1417,7 @@
 				5309C40B2885B15400BC0AAE /* NSNumber+CoreZen.m in Sources */,
 				532CA235291B1E96008FA673 /* LibAVRenderController.m in Sources */,
 				5356FE5928A4290000ECCA92 /* MPVConstants.m in Sources */,
+				532CA23B291D8050008FA673 /* MediaPlayerPeekView.m in Sources */,
 				538E050C2885E53700CE9DE7 /* DomainCommon.m in Sources */,
 				5309C4022885B11400BC0AAE /* NSFileManager+CoreZen.m in Sources */,
 			);

@@ -57,6 +57,7 @@
 		5331FE612922AD8700C15950 /* WorkQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 5331FE5F2922AD8700C15950 /* WorkQueue.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5331FE622922AD8700C15950 /* WorkQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 5331FE602922AD8700C15950 /* WorkQueue.m */; };
 		5331FE682922DF6400C15950 /* WorkQueueTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 5331FE672922DF3600C15950 /* WorkQueueTypes.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		5331FE6A2922E9DC00C15950 /* WorkQueue+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 5331FE692922E9DC00C15950 /* WorkQueue+Private.h */; };
 		5350F8A42886020500F8CA68 /* DatabaseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5350F8A32886020500F8CA68 /* DatabaseTests.m */; };
 		5350F8B42886074F00F8CA68 /* ObjectCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5350F8B32886074F00F8CA68 /* ObjectCacheTests.m */; };
 		5350F8B72886080500F8CA68 /* CategoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5350F8B62886080500F8CA68 /* CategoryTests.m */; };
@@ -361,6 +362,7 @@
 		5331FE5F2922AD8700C15950 /* WorkQueue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WorkQueue.h; sourceTree = "<group>"; };
 		5331FE602922AD8700C15950 /* WorkQueue.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WorkQueue.m; sourceTree = "<group>"; };
 		5331FE672922DF3600C15950 /* WorkQueueTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WorkQueueTypes.h; sourceTree = "<group>"; };
+		5331FE692922E9DC00C15950 /* WorkQueue+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WorkQueue+Private.h"; sourceTree = "<group>"; };
 		5350F8A32886020500F8CA68 /* DatabaseTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DatabaseTests.m; sourceTree = "<group>"; };
 		5350F8B32886074F00F8CA68 /* ObjectCacheTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ObjectCacheTests.m; sourceTree = "<group>"; };
 		5350F8B62886080500F8CA68 /* CategoryTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CategoryTests.m; sourceTree = "<group>"; };
@@ -821,6 +823,7 @@
 			children = (
 				5331FE5F2922AD8700C15950 /* WorkQueue.h */,
 				5331FE602922AD8700C15950 /* WorkQueue.m */,
+				5331FE692922E9DC00C15950 /* WorkQueue+Private.h */,
 				5331FE672922DF3600C15950 /* WorkQueueTypes.h */,
 			);
 			path = Queue;
@@ -1261,6 +1264,7 @@
 				538E05032885DCED00CE9DE7 /* DomainObject.h in Headers */,
 				532CA240291ED1F9008FA673 /* MediaPlayerSliderCell.h in Headers */,
 				5309C4212885CB1400BC0AAE /* DataTransferObject.h in Headers */,
+				5331FE6A2922E9DC00C15950 /* WorkQueue+Private.h in Headers */,
 				5309C40F2885B43B00BC0AAE /* ObjectCache.h in Headers */,
 				538E05132885ED2200CE9DE7 /* ObjectRepository.h in Headers */,
 				5350FB0628889E7400F8CA68 /* Node.h in Headers */,

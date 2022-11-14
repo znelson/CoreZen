@@ -5,7 +5,7 @@
 //  Created by Zach Nelson on 11/14/22.
 //
 
-#import "WorkQueue.h"
+#import "WorkQueue+Private.h"
 
 #import <stdatomic.h>
 
@@ -55,15 +55,13 @@ typedef BOOL (^ZENWorkQueueTokenBlock)(void);
 
 @end
 
-@interface ZENCompositeWorkQueueToken : ZENWorkQueueToken
+@interface ZENWorkQueueMultiToken ()
 
 @property (nonatomic, strong, readonly) NSArray<ZENWorkQueueToken *> *tokens;
 
-- (instancetype)initWithTokens:(NSArray<ZENWorkQueueToken *> *)tokens;
-
 @end
 
-@implementation ZENCompositeWorkQueueToken
+@implementation ZENWorkQueueMultiToken
 
 - (instancetype)initWithTokens:(NSArray<ZENWorkQueueToken *> *)tokens {
 	self = [super init];
@@ -83,8 +81,11 @@ typedef BOOL (^ZENWorkQueueTokenBlock)(void);
 }
 
 - (BOOL)activate {
-	assert(false);
-	NSLog(@"ZENCompositeWorkQueueToken -activate should not be used");
+	BOOL result = (self.tokens.count > 0);
+	for (ZENWorkQueueToken *token in self.tokens.reverseObjectEnumerator) {
+		result |= [token activate];
+	}
+	return result;
 }
 
 @end
@@ -169,7 +170,7 @@ typedef BOOL (^ZENWorkQueueTokenBlock)(void);
 	
 	dispatch_async(self.queue, ^{
 		NSArray *tokens = @[self.terminateToken, cancelToken];
-		ZENWorkQueueToken *compositeToken = [[ZENCompositeWorkQueueToken alloc] initWithTokens:tokens];
+		ZENWorkQueueToken *compositeToken = [[ZENWorkQueueMultiToken alloc] initWithTokens:tokens];
 		block(compositeToken);
 	});
 	

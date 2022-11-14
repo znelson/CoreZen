@@ -48,4 +48,9 @@
 									 height:(NSUInteger)height
 								 completion:(ZENRenderFrameResultsBlock)completion;
 
+- (ZENCancelToken *)renderFrames:(NSUInteger)count
+						   width:(NSUInteger)width
+						  height:(NSUInteger)height
+					  completion:(ZENRenderFramesResultsBlock)completion;
+
 @end

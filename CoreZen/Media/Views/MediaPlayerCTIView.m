@@ -18,6 +18,7 @@ static void* ObserverContext = &ObserverContext;
 
 @property (nonatomic, weak) ZENMediaPlayer *player;
 @property (nonatomic) BOOL scrubbing;
+@property (nonatomic) BOOL previewing;
 
 @end
 
@@ -96,6 +97,8 @@ static void* ObserverContext = &ObserverContext;
 
 - (void)mouseEntered:(NSEvent *)event {
 	[super mouseEntered:event];
+	
+	self.previewing = YES;
 }
 
 - (void)mouseMoved:(NSEvent *)event {
@@ -104,6 +107,8 @@ static void* ObserverContext = &ObserverContext;
 
 - (void)mouseExited:(NSEvent *)event {
 	[super mouseExited:event];
+	
+	self.previewing = NO;
 }
 
 @end

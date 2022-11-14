@@ -8,6 +8,8 @@
 #import "MediaPlayerCTIView.h"
 #import "MediaPlayer.h"
 #import "MediaPlayerPeekView.h"
+#import "MediaFile.h"
+#import "FrameRenderer.h"
 
 static void* ObserverContext = &ObserverContext;
 
@@ -21,6 +23,10 @@ static void* ObserverContext = &ObserverContext;
 @property (nonatomic, weak) ZENMediaPlayer *player;
 @property (nonatomic) BOOL scrubbing;
 @property (nonatomic) BOOL previewing;
+
+@property (nonatomic, strong) ZENFrameRenderer *frameRenderer;
+
+- (void)updateMediaFile:(NSURL *)url;
 
 @end
 
@@ -64,6 +70,11 @@ static void* ObserverContext = &ObserverContext;
 				 forKeyPath:@"positionPercent"
 					options:(NSKeyValueObservingOptionInitial | NSKeyValueObservingOptionNew)
 					context:ObserverContext];
+		
+		[player addObserver:self
+				 forKeyPath:@"fileURL"
+					options:(NSKeyValueObservingOptionInitial | NSKeyValueObservingOptionNew)
+					context:ObserverContext];
 	}
 }
 
@@ -76,8 +87,11 @@ static void* ObserverContext = &ObserverContext;
 			if ([keyPath isEqualToString:@"positionPercent"]) {
 				if (!self.scrubbing) {
 					NSNumber *positionPercent = [change objectForKey:NSKeyValueChangeNewKey];
+					NSLog(@"MediaPlayerCTIView position change: %f", positionPercent.doubleValue);
 					self.slider.doubleValue = positionPercent.doubleValue;
 				}
+			} else if ([keyPath isEqualToString:@"fileURL"]) {
+				[self updateMediaFile:self.player.fileURL];
 			}
 		}
 	}
@@ -96,6 +110,17 @@ static void* ObserverContext = &ObserverContext;
 	} else if (eventType == NSEventTypeLeftMouseUp) {
 		self.scrubbing = NO;
 	}
+}
+
+- (void)updateMediaFile:(NSURL *)url {
+	NSLog(@"MediaPlayerCTIView fileURL changed: %@", url);
+	
+	if (self.frameRenderer) {
+		[self.frameRenderer.mediaFile terminateMediaFile];
+	}
+	
+	ZENMediaFile *mediaFile = [ZENMediaFile mediaFileWithURL:url];
+	self.frameRenderer = mediaFile.frameRenderer;
 }
 
 - (void)mouseEntered:(NSEvent *)event {

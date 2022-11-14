@@ -98,18 +98,13 @@
 						  height:(NSUInteger)height
 					  completion:(ZENRenderFramesResultsBlock)completion {
 	ZENCancelToken *result = nil;
-	if (count > 2) {
-		NSUInteger denominator = (count - 1);
+	if (count >= 2) {
 		ZENRenderedFrameCollector *collector = [[ZENRenderedFrameCollector alloc] initWithCount:count completion:completion];
 		NSMutableArray<ZENWorkQueueToken *> *tokens = [NSMutableArray new];
+		double denominator = count - 1;
 		
 		for (NSUInteger index = 0; index < count; ++index) {
 			double percentage = index / denominator;
-			
-			// Scale to 1% to 99% range
-			const double kBufferPercentage = 0.01;
-			const double kScaledPercentage = 1.00 - (2 * kBufferPercentage);
-			percentage = (percentage * kScaledPercentage) + kBufferPercentage;
 			
 			ZENCancelToken *token = [self renderFrameAtPercentage:percentage
 															width:width

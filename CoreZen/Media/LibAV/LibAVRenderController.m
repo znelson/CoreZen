@@ -122,15 +122,15 @@
 				}
 				
 				result = avcodec_receive_frame(_codecContext, frame);
-				if (result < 0) {
-					if (result == AVERROR(EAGAIN)) {
-						NSLog(@"avcodec_receive_frame failed: EAGAIN (input not ready, retrying)");
-						continue;
-					} else {
-						NSLog(@"avcodec_receive_frame failed: %d", result);
-						break;
-					}
+				if (result == AVERROR(EAGAIN)) {
+					NSLog(@"avcodec_receive_frame failed: EAGAIN (input not ready, retrying)");
+					continue;
 				}
+				
+				if (result < 0) {
+					NSLog(@"avcodec_receive_frame failed: %d", result);
+				}
+				break;
 			}
 		} @catch (NSException *exception) {
 			NSLog(@"Exception caught during decode: %@", exception);

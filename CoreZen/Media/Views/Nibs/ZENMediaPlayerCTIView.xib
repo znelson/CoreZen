@@ -34,5 +34,27 @@
             </constraints>
             <point key="canvasLocation" x="79" y="154"/>
         </customView>
+        <customView wantsLayer="YES" translatesAutoresizingMaskIntoConstraints="NO" id="CbS-EO-qut" customClass="ZENMediaPlayerPeekView">
+            <rect key="frame" x="0.0" y="0.0" width="316" height="135"/>
+            <subviews>
+                <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="MWa-HD-KfO">
+                    <rect key="frame" x="0.0" y="0.0" width="316" height="135"/>
+                    <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" id="Xjq-g7-s7V"/>
+                </imageView>
+            </subviews>
+            <constraints>
+                <constraint firstItem="MWa-HD-KfO" firstAttribute="leading" secondItem="CbS-EO-qut" secondAttribute="leading" id="AM1-Ha-1TS"/>
+                <constraint firstItem="MWa-HD-KfO" firstAttribute="top" secondItem="CbS-EO-qut" secondAttribute="top" id="RtI-YR-F3f"/>
+                <constraint firstAttribute="trailing" secondItem="MWa-HD-KfO" secondAttribute="trailing" id="TRu-vE-aaF"/>
+                <constraint firstAttribute="bottom" secondItem="MWa-HD-KfO" secondAttribute="bottom" id="vLa-hu-HTO"/>
+            </constraints>
+            <shadow key="shadow">
+                <color key="color" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            </shadow>
+            <connections>
+                <outlet property="imageView" destination="MWa-HD-KfO" id="k5S-UM-BEm"/>
+            </connections>
+            <point key="canvasLocation" x="-441" y="-23.5"/>
+        </customView>
     </objects>
 </document>

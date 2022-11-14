@@ -7,12 +7,14 @@
 
 #import "MediaPlayerCTIView.h"
 #import "MediaPlayer.h"
+#import "MediaPlayerPeekView.h"
 
 static void* ObserverContext = &ObserverContext;
 
 @interface ZENMediaPlayerCTIView ()
 
 @property (nonatomic, weak) IBOutlet NSSlider *slider;
+@property (nonatomic, weak) IBOutlet ZENMediaPlayerPeekView *peekView;
 
 - (IBAction)sliderChanged:(id)sender;
 
@@ -32,6 +34,7 @@ static void* ObserverContext = &ObserverContext;
 	[super initCommon];
 	
 	self.scrubbing = NO;
+	self.previewing = NO;
 	
 	self.slider.minValue = 0.0;
 	self.slider.maxValue = 100.0;

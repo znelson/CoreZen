@@ -276,8 +276,6 @@ static void zen_mpv_wakeup(void *ctx);
 				break;
 			}
 			case MPV_EVENT_PROPERTY_CHANGE: {
-				mpv_event_property *property = event->data;
-
 				mpv_node node = {};
 				if (mpv_event_to_node(&node, event) == MPV_ERROR_SUCCESS) {
 
@@ -309,18 +307,19 @@ static void zen_mpv_wakeup(void *ctx);
 						}
 					}
 					
-					NSLog(@"MPV_EVENT_PROPERTY_CHANGE (%llu): %s", observerID, property->name);
+					// mpv_event_property *property = event->data;
+					// NSLog(@"MPV_EVENT_PROPERTY_CHANGE (%llu): %s", observerID, property->name);
 
 					if (propertyName && valueNode && observerID == self.identifier) {
 						if (zen_mpv_compare_strings(kMPVProperty_pause, propertyName)) {
 							BOOL paused = (BOOL)valueNode->u.flag;
-							NSLog(@"Paused: %d", paused);
+							// NSLog(@"Paused: %d", paused);
 							dispatch_async(dispatch_get_main_queue(), ^{
 								self.player.paused = paused;
 							});
 						} else if (zen_mpv_compare_strings(kMPVProperty_percent_pos, propertyName)) {
 							double percentPos = valueNode->u.double_;
-							NSLog(@"Position: %f", percentPos);
+							// NSLog(@"Position: %f", percentPos);
 							dispatch_async(dispatch_get_main_queue(), ^{
 								self.player.positionPercent = percentPos;
 							});

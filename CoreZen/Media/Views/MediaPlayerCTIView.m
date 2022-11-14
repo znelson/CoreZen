@@ -49,9 +49,9 @@ static void* ObserverContext = &ObserverContext;
 - (void)updateTrackingAreas {
 	[super updateTrackingAreas];
 	
-	if (self.slider.trackingAreas.count > 0) {
+	if (self.slider.cell.controlView.trackingAreas.count > 0) {
 		NSTrackingArea *area = self.slider.trackingAreas.firstObject;
-		[self.slider removeTrackingArea:area];
+		[self.slider.cell.controlView removeTrackingArea:area];
 	}
 	
 	NSRect rect = self.slider.bounds;
@@ -59,7 +59,7 @@ static void* ObserverContext = &ObserverContext;
 	NSDictionary *userData = nil;
 	
 	NSTrackingArea *area = [[NSTrackingArea alloc] initWithRect:rect options:options owner:self userInfo:userData];
-	[self.slider addTrackingArea:area];
+	[self.slider.cell.controlView addTrackingArea:area];
 }
 
 - (void)attachPlayer:(ZENMediaPlayer *)player {

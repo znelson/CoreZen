@@ -19,6 +19,13 @@ ZENObjectCache* ZENGetWeakMediaPlayerCache(void) {
 	return cache;
 }
 
+@interface ZENMediaPlayer ()
+
+@property (nonatomic) BOOL terminated;
+@property (nonatomic, strong) NSURL *fileURL;
+
+@end
+
 @implementation ZENMediaPlayer
 
 @synthesize identifier=_identifier;
@@ -26,6 +33,7 @@ ZENObjectCache* ZENGetWeakMediaPlayerCache(void) {
 - (instancetype)initWithFileURL:(NSURL*)url {
 	self = [super init];
 	if (self) {
+		_terminated = NO;
 		_fileURL = url;
 		_playerController = [[ZENMPVPlayerController alloc] initWithPlayer:self];
 		_identifier = _playerController.identifier;
@@ -36,15 +44,28 @@ ZENObjectCache* ZENGetWeakMediaPlayerCache(void) {
 	return self;
 }
 
-- (void)terminatePlayer {
-	if (self.playerView) {
-		[self.playerView terminatePlayerView];
+- (void)dealloc {
+	if (!self.terminated) {
+		NSLog(@"WARNING: ZENMediaPlayer -terminatePlayer was not called before -dealloc (%@)", self.fileURL);
+		[self terminatePlayer];
 	}
-	[self detachPlayerView];
-	[self.playerController terminate];
-	
-	ZENObjectCache *cache = ZENGetWeakMediaPlayerCache();
-	[cache removeObject:self.identifier];
+}
+
+- (void)terminatePlayer {
+	if (self.terminated) {
+		NSLog(@"WARNING: ZENMediaPlayer -terminatePlayer called more than once (%@)", self.fileURL);
+	} else {
+		if (self.playerView) {
+			[self.playerView terminatePlayerView];
+		}
+		[self detachPlayerView];
+		[self.playerController terminate];
+		
+		ZENObjectCache *cache = ZENGetWeakMediaPlayerCache();
+		[cache removeObject:self.identifier];
+		
+		self.terminated = YES;
+	}
 }
 
 + (void)terminateAllPlayers {

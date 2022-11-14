@@ -14,10 +14,10 @@
 
 - (instancetype)initWithFileURL:(NSURL*)url;
 
-@property (nonatomic, strong, readonly) NSURL *fileURL;
 @property (nonatomic, strong, readonly) ZENMediaPlayerView *playerView;
 
 // Observe these properties for updates to the UI. They will only change on the main thread.
+@property (nonatomic, strong, readonly) NSURL *fileURL;
 @property (nonatomic, readonly) BOOL paused;
 @property (nonatomic, readonly) double positionPercent;
 @property (nonatomic, readonly) BOOL seeking;

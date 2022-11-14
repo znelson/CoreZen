@@ -178,14 +178,14 @@ typedef BOOL (^ZENWorkQueueTokenBlock)(void);
 
 - (void)terminate:(ZENWorkQueueBlock)block {
 	if (![self.terminateToken terminate]) {
-		NSLog(@"WARNING: Work queue %@ terminated more than once", self.label);
+		NSLog(@"WARNING: ZENWorkQueue %@ terminated more than once", self.label);
 		block();
 		return;
 	}
 	
 	dispatch_sync(self.queue, ^{
 		block();
-		NSLog(@"Terminated work queue %@", self.label);
+		NSLog(@"Work queue %@ terminated", self.label);
 	});
 }
 

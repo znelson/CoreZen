@@ -83,8 +83,9 @@
 }
 
 - (void)terminate {
+	NSLog(@"Terminating libav render queue...");
 	[self.workQueue terminate:^{
-		NSLog(@"Terminated libav render queue");
+		NSLog(@"Finished terminating libav render queue");
 	}];
 	
 	if (_codecContext) {

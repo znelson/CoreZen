@@ -251,11 +251,11 @@
 			AVFormatContext *formatContext = infoController.formatContextHandle;
 			const AVStream *stream = infoController.videoStreamHandle;
 			
-			int64_t durationTicks = formatContext->duration;
+			int64_t durationAVTicks = formatContext->duration;
 			
 			// Get duration in terms of the video stream time base (instead of overall libav time base)
-			int64_t duration = av_rescale_q(durationTicks, AV_TIME_BASE_Q, stream->time_base);
-			int64_t frameTimestamp = duration * renderedFrame.requestedPercentage;
+			int64_t durationStreamTicks = av_rescale_q(durationAVTicks, AV_TIME_BASE_Q, stream->time_base);
+			int64_t frameTimestamp = durationStreamTicks * renderedFrame.requestedPercentage;
 			
 			renderedFrame.requestedTimestamp = frameTimestamp;
 			
@@ -265,7 +265,7 @@
 			if ([self renderRawFrame:rawFrame formatContext:formatContext stream:stream timestamp:frameTimestamp]) {
 				
 				renderedFrame.actualTimestamp = rawFrame->best_effort_timestamp;
-				renderedFrame.actualPercentage = renderedFrame.actualTimestamp / (double)durationTicks;
+				renderedFrame.actualPercentage = renderedFrame.actualTimestamp / (double)durationStreamTicks;
 				renderedFrame.actualSeconds = renderedFrame.actualPercentage * durationSeconds;
 				
 				// Resize the frame to desired size, convert to RGB

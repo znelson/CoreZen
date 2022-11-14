@@ -6,39 +6,29 @@
 //
 
 #import "DatabaseQueue.h"
-
-@import FMDB;
+#import "WorkQueue.h"
 
 #import <stdatomic.h>
 
-#define RETURN_IF_TERMINATING if (atomic_load(&_terminating)) { return; }
-#define RETURN_IF_TERMINATED if (self->_terminated) { return; }
+@import FMDB;
 
 @interface ZENDatabaseQueue ()
-{
-	atomic_bool _terminating;
-	BOOL _terminated;
-}
 
 - (void)internalInit:(NSString *)queueLabel;
 - (instancetype)initInMemory;
 - (instancetype)initWithURL:(NSURL *)URL;
 - (FMDatabase *)threadDatabase;
 
-@property (nonatomic, strong, readonly) NSString *queueLabel;
 @property (nonatomic, strong, readonly) NSURL *databaseURL;
 @property (nonatomic, strong, readonly) NSString *databaseKey;
-@property (nonatomic, strong, readonly) dispatch_queue_t dispatchQueue;
+@property (nonatomic, strong, readonly) ZENWorkQueue *workQueue;
 
 @end;
 
 @implementation ZENDatabaseQueue
 
 - (void)internalInit:(NSString *)queueLabel {
-	_queueLabel = queueLabel;
-	_dispatchQueue = dispatch_queue_create(queueLabel.UTF8String, DISPATCH_QUEUE_SERIAL);
-	atomic_store(&_terminating, false);
-	_terminated = NO;
+	_workQueue = [ZENWorkQueue workQueue:queueLabel];
 }
 
 - (instancetype)initInMemory {
@@ -86,21 +76,16 @@
 }
 
 - (void)shutdown:(ZENDatabaseBlock)updateBlock {
-	bool expected = false;
-	if (!atomic_compare_exchange_strong(&_terminating, &expected, true)) {
-		return;
-	}
-	NSLog(@"Terminating database queue %@...", self.queueLabel);
-	dispatch_sync(self.dispatchQueue, ^{
+	NSLog(@"Terminating database queue...");
+	[self.workQueue terminate:^{
 		if (updateBlock) {
 			@autoreleasepool {
 				FMDatabase *database = self.threadDatabase;
 				updateBlock(database);
 			}
 		}
-		_terminated = YES;
-		NSLog(@"Finished terminating database queue %@", self.queueLabel);
-	});
+		NSLog(@"Finished terminating database queue");
+	}];
 }
 
 - (FMDatabase *)threadDatabase {
@@ -134,62 +119,56 @@
 }
 
 - (void)transactionAsync:(ZENDatabaseBlock)updateBlock {
-	RETURN_IF_TERMINATING;
-	dispatch_async(self.dispatchQueue, ^{
-		RETURN_IF_TERMINATED;
-		@autoreleasepool {
-			FMDatabase *database = self.threadDatabase;
-			[database beginTransaction];
-			updateBlock(database);
-			[database commit];
+	[self.workQueue async:^(ZENCancelToken *canceled) {
+		if (!canceled.canceled) {
+			@autoreleasepool {
+				FMDatabase *database = self.threadDatabase;
+				[database beginTransaction];
+				updateBlock(database);
+				[database commit];
+			}
 		}
-	});
+	}];
 }
 
 - (void)transactionSync:(ZENDatabaseBlock)updateBlock {
-	RETURN_IF_TERMINATING;
-	dispatch_sync(self.dispatchQueue, ^{
-		RETURN_IF_TERMINATED;
+	[self.workQueue sync:^{
 		@autoreleasepool {
 			FMDatabase *database = self.threadDatabase;
 			[database beginTransaction];
 			updateBlock(database);
 			[database commit];
 		}
-	});
+	}];
 }
 
 - (void)fetchAsync:(ZENDatabaseBlock)fetchBlock {
-	RETURN_IF_TERMINATING;
-	dispatch_async(self.dispatchQueue, ^{
-		RETURN_IF_TERMINATED;
-		@autoreleasepool {
-			FMDatabase *database = self.threadDatabase;
-			fetchBlock(database);
+	[self.workQueue async:^(ZENCancelToken *canceled) {
+		if (!canceled.canceled) {
+			@autoreleasepool {
+				FMDatabase *database = self.threadDatabase;
+				fetchBlock(database);
+			}
 		}
-	});
+	}];
 }
 
 - (void)fetchSync:(ZENDatabaseBlock)fetchBlock {
-	RETURN_IF_TERMINATING;
-	dispatch_sync(self.dispatchQueue, ^{
-		RETURN_IF_TERMINATED;
+	[self.workQueue sync:^{
 		@autoreleasepool {
 			FMDatabase *database = self.threadDatabase;
 			fetchBlock(database);
 		}
-	});
+	}];
 }
 
 - (void)vacuumAsync {
-	RETURN_IF_TERMINATING;
-	dispatch_async(self.dispatchQueue, ^{
-		RETURN_IF_TERMINATED;
+	[self.workQueue async:^(ZENCancelToken *canceled) {
 		@autoreleasepool {
 			FMDatabase *database = self.threadDatabase;
 			[database executeUpdate:@"VACUUM;"];
 		}
-	});
+	}];
 }
 
 @end

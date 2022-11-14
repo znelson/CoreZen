@@ -13,10 +13,12 @@
 
 @implementation ZENFrameRenderer
 
-- (instancetype)initWithController:(NSObject<ZENFrameRenderController> *)controller {
+- (instancetype)initWithController:(NSObject<ZENFrameRenderController> *)controller
+						 mediaFile:(ZENMediaFile *)mediaFile {
 	self = [super init];
 	if (self) {
 		_frameRenderController = controller;
+		_mediaFile = mediaFile;
 	}
 	return self;
 }

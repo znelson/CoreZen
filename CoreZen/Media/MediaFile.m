@@ -21,7 +21,7 @@ ZENObjectCache* ZENGetWeakMediaFileCache(void) {
 
 @interface ZENMediaFile ()
 
-@property (nonatomic, strong) NSURL *fileURL;
+@property (nonatomic) BOOL terminated;
 
 - (instancetype)initWithURL:(NSURL *)url;
 
@@ -34,6 +34,7 @@ ZENObjectCache* ZENGetWeakMediaFileCache(void) {
 - (instancetype)initWithURL:(NSURL *)url {
 	self = [super init];
 	if (self) {
+		_terminated = NO;
 		_fileURL = url;
 		_mediaInfoController = [[ZENLibAVInfoController alloc] initWithMediaFile:self];
 		_identifier = _mediaInfoController.identifier;
@@ -44,15 +45,31 @@ ZENObjectCache* ZENGetWeakMediaFileCache(void) {
 	return self;
 }
 
+- (void)dealloc {
+	if (!self.terminated) {
+		NSLog(@"WARNING: ZENMediaFile -terminateMediaFile was not called before -dealloc (%@)", self.fileURL);
+		[self terminateMediaFile];
+	}
+}
+
 + (instancetype)mediaFileWithURL:(NSURL *)url {
 	ZENMediaFile *mediaFile = [[ZENMediaFile alloc] initWithURL:url];
 	return mediaFile;
 }
 
 - (void)terminateMediaFile {
-	// mediaInfoController owns the lazily created frameRenderController
-	// and will terminate it here if it was ever created
-	[self.mediaInfoController terminate];
+	if (self.terminated) {
+		NSLog(@"WARNING: ZENMediaFile -terminateMediaFile called more than once (%@)", self.fileURL);
+	} else {
+		// mediaInfoController owns the lazily created frameRenderController
+		// and will terminate it here if it was ever created
+		[self.mediaInfoController terminate];
+		
+		ZENObjectCache *cache = ZENGetWeakMediaFileCache();
+		[cache removeObject:self.identifier];
+		
+		self.terminated = YES;
+	}
 }
 
 + (void)terminateAllMediaFiles {
@@ -66,7 +83,7 @@ ZENObjectCache* ZENGetWeakMediaFileCache(void) {
 
 - (ZENFrameRenderer *)frameRenderer {
 	NSObject<ZENFrameRenderController> *controller = self.mediaInfoController.frameRenderController;
-	ZENFrameRenderer *frameRenderer = [[ZENFrameRenderer alloc] initWithController:controller];
+	ZENFrameRenderer *frameRenderer = [[ZENFrameRenderer alloc] initWithController:controller mediaFile:self];
 	return frameRenderer;
 }
 

@@ -7,8 +7,6 @@
 
 #import <CoreZen/FrameRenderer.h>
 
-@protocol ZENFrameRenderController;
-
 @interface ZENFrameRenderer ()
 
 @property (nonatomic, strong, readonly) NSObject<ZENFrameRenderController> *frameRenderController;

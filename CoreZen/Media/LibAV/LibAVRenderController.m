@@ -7,11 +7,8 @@
 
 #import "LibAVRenderController.h"
 #import "LibAVInfoController.h"
-#import "MediaFile.h"
 #import "FrameRenderer.h"
-
-#import <stdatomic.h>
-#import <math.h>
+#import "WorkQueue.h"
 
 @import Cocoa;
 
@@ -28,14 +25,11 @@
 @interface ZENLibAVRenderController ()
 {
 	AVCodecContext *_codecContext;
-
-	atomic_bool _terminating;
-	BOOL _terminated;
 }
 
-@property (nonatomic, weak) ZENMediaFile *mediaFile;
 @property (nonatomic, weak) ZENLibAVInfoController *infoController;
-@property (nonatomic, strong, readonly) dispatch_queue_t renderQueue;
+
+@property (nonatomic, strong) ZENWorkQueue *workQueue;
 
 - (void)avInitWithCodec:(const AVCodec *)codec
 				 stream:(const AVStream *)stream;
@@ -59,7 +53,7 @@
 	avcodec_parameters_to_context(_codecContext, stream->codecpar);
 	
 	if (_codecContext->pix_fmt < 0 || _codecContext->pix_fmt >= AV_PIX_FMT_NB) {
-		NSLog(@"Video codec pixel format is invalid (%@)", _mediaFile.fileURL);
+		NSLog(@"Video codec pixel format is invalid");
 		return;
 	}
 	
@@ -68,7 +62,7 @@
 	
 	int result = avcodec_open2(_codecContext, codec, NULL);
 	if (result < 0) {
-		NSLog(@"avcodec_open2(%@) failed, result: %d", _mediaFile.fileURL, result);
+		NSLog(@"avcodec_open2 failed, result: %d", result);
 		return;
 	}
 }
@@ -76,14 +70,9 @@
 - (instancetype)initWithInfoController:(ZENLibAVInfoController *)infoController {
 	self = [super init];
 	if (self) {
-		_mediaFile = infoController.mediaFile;
 		_infoController = infoController;
 		
-		dispatch_queue_attr_t qos = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INITIATED, 0);
-		_renderQueue = dispatch_queue_create("ZENMediaFile.libav-render", qos);
-		
-		atomic_store(&_terminating, false);
-		_terminated = NO;
+		_workQueue = [ZENWorkQueue workQueue:@"ZENMediaFile.libav-render" qos:QOS_CLASS_USER_INITIATED];
 		
 		const AVCodec *videoCodec = infoController.videoCodecHandle;
 		const AVStream *videoStream = infoController.videoStreamHandle;
@@ -94,17 +83,10 @@
 }
 
 - (void)terminate {
-	bool expected = false;
-	if (!atomic_compare_exchange_strong(&_terminating, &expected, true)) {
-		return;
-	}
-	
 	NSLog(@"Terminating libav render queue...");
-	
-	dispatch_sync(self.renderQueue, ^{
-		_terminated = YES;
+	[self.workQueue terminate:^{
 		NSLog(@"Finished terminating libav render queue");
-	});
+	}];
 	
 	if (_codecContext) {
 		avcodec_free_context(&_codecContext);
@@ -251,12 +233,8 @@
 			   size:(NSSize)size
 		 completion:(ZENFrameRendererResultsBlock)completion {
 	
-	if (atomic_load(&_terminating)) {
-		return;
-	}
-	
-	dispatch_async(self.renderQueue, ^{
-		if (!self->_terminated) {
+	[self.workQueue async:^(ZENCancelToken *canceled) {
+		if (!canceled.canceled) {
 			NSObject<ZENMediaInfoController> *infoController = self.infoController;
 			
 			double durationSeconds = infoController.durationSeconds;
@@ -302,7 +280,7 @@
 		dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
 			completion(renderedFrame);
 		});
-	});
+	}];
 }
 
 @end

@@ -76,7 +76,7 @@
 }
 
 - (void)shutdown:(ZENDatabaseBlock)updateBlock {
-	NSLog(@"Terminating database queue %@...", self.workQueue.label);
+	NSLog(@"Terminating database queue...");
 	[self.workQueue terminate:^{
 		if (updateBlock) {
 			@autoreleasepool {
@@ -84,7 +84,7 @@
 				updateBlock(database);
 			}
 		}
-		NSLog(@"Finished terminating database queue %@", self.workQueue.label);
+		NSLog(@"Finished terminating database queue");
 	}];
 }
 

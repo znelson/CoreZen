@@ -99,25 +99,6 @@ static void zen_mpv_wakeup(void *ctx);
 		// Observe properties
 		mpv_observe_property(_mpvHandle, _identifier, kMPVProperty_percent_pos, MPV_FORMAT_NODE);
 		mpv_observe_property(_mpvHandle, _identifier, kMPVProperty_pause, MPV_FORMAT_NODE);
-		
-		// Load the initial file
-		// TODO: Remove this, load files dynamically via API
-		const char* loadCommand[] = {
-			kMPVCommand_loadfile,
-			player.fileURL.path.fileSystemRepresentation,
-			"append",
-			nil
-		};
-		[self mpvCommand:loadCommand];
-
-		const char* playCommand[] = {
-			kMPVCommand_playlist_play_index,
-			"0",
-			nil
-		};
-		[self mpvCommand:playCommand];
-
-		[self pausePlayback];
 	}
 	return self;
 }
@@ -163,6 +144,18 @@ static void zen_mpv_wakeup(void *ctx);
 	
 - (void *)playerHandle {
 	return _mpvHandle;
+}
+
+- (void)openFileURL:(NSURL *)url {
+	const char* loadCommand[] = {
+		kMPVCommand_loadfile,
+		url.path.fileSystemRepresentation,
+		kMPVCommandParam_replace,
+		nil
+	};
+	[self mpvCommand:loadCommand];
+	
+	[self pausePlayback];
 }
 
 - (void)startPlayback {

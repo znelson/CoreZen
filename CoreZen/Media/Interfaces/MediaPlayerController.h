@@ -15,6 +15,8 @@
 // (mpv_handle *)playerHandle;
 - (void *)playerHandle;
 
+- (void)openFileURL:(NSURL *)url;
+
 - (void)startPlayback;
 - (void)pausePlayback;
 

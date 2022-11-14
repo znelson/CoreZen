@@ -12,8 +12,6 @@
 
 @interface ZENMediaPlayer : NSObject <ZENIdentifiable>
 
-- (instancetype)initWithFileURL:(NSURL*)url;
-
 @property (nonatomic, strong, readonly) ZENMediaPlayerView *playerView;
 
 // Observe these properties for updates to the UI. They will only change on the main thread.
@@ -27,6 +25,8 @@
 
 // Call before application terminates to terminate all ZENMediaPlayer instances
 + (void)terminateAllPlayers;
+
+- (void)loadFileURL:(NSURL *)url;
 
 - (void)startPlayback;
 - (void)pausePlayback;

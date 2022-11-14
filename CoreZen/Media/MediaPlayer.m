@@ -30,11 +30,10 @@ ZENObjectCache* ZENGetWeakMediaPlayerCache(void) {
 
 @synthesize identifier=_identifier;
 
-- (instancetype)initWithFileURL:(NSURL*)url {
+- (instancetype)init {
 	self = [super init];
 	if (self) {
 		_terminated = NO;
-		_fileURL = url;
 		_playerController = [[ZENMPVPlayerController alloc] initWithPlayer:self];
 		_identifier = _playerController.identifier;
 		
@@ -86,6 +85,10 @@ ZENObjectCache* ZENGetWeakMediaPlayerCache(void) {
 		[self pausePlayback];
 		self.playerView = nil;
 	}
+}
+
+- (void)loadFileURL:(NSURL *)url {
+	[self.playerController openFileURL:url];
 }
 
 - (void)startPlayback {

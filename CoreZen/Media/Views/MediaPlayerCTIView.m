@@ -30,9 +30,7 @@ static void* ObserverContext = &ObserverContext;
 - (void)updateMediaFile:(NSURL *)url;
 
 - (NSImage *)fetchPreview:(double)percentage;
-- (double)windowPointToSliderPercentage:(NSPoint)point;
-- (void)updatePeekPreview:(NSImage *)preview
-					   at:(NSPoint)mousePoint;
+- (void)updatePeekPreviewAt:(NSPoint)mousePoint;
 
 @end
 
@@ -121,12 +119,12 @@ static void* ObserverContext = &ObserverContext;
 		
 		double percentage = self.slider.doubleValue;
 		[self.player seekAbsolutePercentage:percentage];
-		[self updatePeekPreview:nil at:event.locationInWindow];
 		
 	} else if (eventType == NSEventTypeLeftMouseUp) {
 		self.scrubbing = NO;
-		// TODO: Restore peek preview
 	}
+	
+	[self updatePeekPreviewAt:event.locationInWindow];
 }
 
 - (void)updateMediaFile:(NSURL *)url {
@@ -168,15 +166,15 @@ static void* ObserverContext = &ObserverContext;
 	return preview;
 }
 
-- (double)windowPointToSliderPercentage:(NSPoint)point {
-	NSPoint sliderPoint = [self.slider convertPoint:point fromView:nil];
-	double sliderWidth = self.slider.bounds.size.width;
-	double percentage = sliderPoint.x / sliderWidth;
-	return percentage;
-}
-
-- (void)updatePeekPreview:(NSImage *)preview
-					   at:(NSPoint)mousePoint {
+- (void)updatePeekPreviewAt:(NSPoint)mousePoint {
+	NSImage *preview = nil;
+	if (!self.scrubbing) {
+		NSPoint sliderPoint = [self.slider convertPoint:mousePoint fromView:nil];
+		double sliderWidth = self.slider.bounds.size.width;
+		double percentage = sliderPoint.x / sliderWidth;
+		
+		preview = [self fetchPreview:percentage];
+	}
 	if (preview) {
 		[self.peekView setFrameSize:preview.size];
 		
@@ -203,32 +201,19 @@ static void* ObserverContext = &ObserverContext;
 
 - (void)mouseEntered:(NSEvent *)event {
 	[super mouseEntered:event];
-	
 	self.previewing = YES;
-	
-	NSPoint point = event.locationInWindow;
-	double percentage = [self windowPointToSliderPercentage:point];
-	NSImage *preview = [self fetchPreview:percentage];
-	
-	[self updatePeekPreview:preview at:point];
+	[self updatePeekPreviewAt:event.locationInWindow];
 }
 
 - (void)mouseMoved:(NSEvent *)event {
 	[super mouseMoved:event];
-	
-	NSPoint point = event.locationInWindow;
-	double percentage = [self windowPointToSliderPercentage:point];
-	NSImage *preview = [self fetchPreview:percentage];
-	
-	[self updatePeekPreview:preview at:point];
+	[self updatePeekPreviewAt:event.locationInWindow];
 }
 
 - (void)mouseExited:(NSEvent *)event {
 	[super mouseExited:event];
-	
 	self.previewing = NO;
-	
-	[self updatePeekPreview:nil at:event.locationInWindow];
+	[self updatePeekPreviewAt:event.locationInWindow];
 }
 
 @end

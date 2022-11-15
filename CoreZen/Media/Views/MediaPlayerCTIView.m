@@ -16,7 +16,7 @@ static void* ObserverContext = &ObserverContext;
 @interface ZENMediaPlayerCTIView ()
 
 @property (nonatomic, weak) IBOutlet NSSlider *slider;
-@property (nonatomic, weak) IBOutlet ZENMediaPlayerPeekView *peekView;
+@property (nonatomic, strong) IBOutlet ZENMediaPlayerPeekView *peekView;
 
 - (IBAction)sliderChanged:(id)sender;
 
@@ -31,7 +31,8 @@ static void* ObserverContext = &ObserverContext;
 
 - (NSImage *)fetchPreview:(double)percentage;
 - (double)windowPointToSliderPercentage:(NSPoint)point;
-- (void)updatePeekPreview:(NSImage *)preview;
+- (void)updatePeekPreview:(NSImage *)preview
+					   at:(NSPoint)mousePoint;
 
 @end
 
@@ -54,9 +55,11 @@ static void* ObserverContext = &ObserverContext;
 - (void)updateTrackingAreas {
 	[super updateTrackingAreas];
 	
-	if (self.slider.cell.controlView.trackingAreas.count > 0) {
-		NSTrackingArea *area = self.slider.trackingAreas.firstObject;
-		[self.slider.cell.controlView removeTrackingArea:area];
+	NSView *trackingView = self.slider.cell.controlView;
+	
+	if (trackingView.trackingAreas.count > 0) {
+		NSTrackingArea *area = trackingView.trackingAreas.firstObject;
+		[trackingView removeTrackingArea:area];
 	}
 	
 	NSRect rect = self.slider.bounds;
@@ -64,7 +67,15 @@ static void* ObserverContext = &ObserverContext;
 	NSDictionary *userData = nil;
 	
 	NSTrackingArea *area = [[NSTrackingArea alloc] initWithRect:rect options:options owner:self userInfo:userData];
-	[self.slider.cell.controlView addTrackingArea:area];
+	[trackingView addTrackingArea:area];
+}
+
+- (void)viewDidMoveToWindow {
+	[super viewDidMoveToWindow];
+	NSWindow *window = self.window;
+	if (window) {
+		[window.contentView addSubview:self.peekView];
+	}
 }
 
 - (void)attachPlayer:(ZENMediaPlayer *)player {
@@ -110,9 +121,11 @@ static void* ObserverContext = &ObserverContext;
 		
 		double percentage = self.slider.doubleValue;
 		[self.player seekAbsolutePercentage:percentage];
+		[self updatePeekPreview:nil at:event.locationInWindow];
 		
 	} else if (eventType == NSEventTypeLeftMouseUp) {
 		self.scrubbing = NO;
+		// TODO: Restore peek preview
 	}
 }
 
@@ -128,22 +141,17 @@ static void* ObserverContext = &ObserverContext;
 		ZENMediaFile *mediaFile = [ZENMediaFile mediaFileWithURL:url];
 		self.frameRenderer = mediaFile.frameRenderer;
 		
-		NSUInteger width = 640;
+		NSUInteger width = 320;
 		
-		[self.frameRenderer renderFrames:5 width:width height:width completion:^(NSArray<ZENRenderedFrame *> *frames) {
+		[self.frameRenderer renderFrames:101 width:width height:width completion:^(NSArray<ZENRenderedFrame *> *frames) {
 			self.previewFrames = frames;
 			
 			NSLog(@"Rendered %lu frames", frames.count);
-			for (ZENRenderedFrame *frame in frames) {
-				NSLog(@"Rendered frame at %f %%", frame.actualPercentage);
-			}
 		}];
 	}
 }
 
 - (NSImage *)fetchPreview:(double)percentage {
-	NSLog(@"fetchPreview: %f %%", percentage * 100);
-	
 	NSImage *preview = nil;
 	
 	if (self.previewFrames) {
@@ -167,14 +175,29 @@ static void* ObserverContext = &ObserverContext;
 	return percentage;
 }
 
-- (void)updatePeekPreview:(NSImage *)preview {
-	ZENMediaPlayerPeekView *peekView = self.peekView;
+- (void)updatePeekPreview:(NSImage *)preview
+					   at:(NSPoint)mousePoint {
 	if (preview) {
-		peekView.imageView.image = preview;
-		[peekView setHidden:NO];
-		peekView.bounds = NSMakeRect(0.0, 0.0, preview.size.width, preview.size.height);
+		[self.peekView setFrameSize:preview.size];
+		
+		NSRect sliderRect = [self.slider convertRect:self.bounds toView:nil];
+		
+		// Centered over the mouse point
+		double originX = mousePoint.x - (preview.size.width / 2.0);
+		originX = fmax(sliderRect.origin.x, originX);
+		originX = fmin(sliderRect.origin.x + sliderRect.size.width - preview.size.width, originX);
+		
+		// Above the slider
+		double originY = sliderRect.origin.y + sliderRect.size.height;
+		
+		NSPoint peekOrigin = NSMakePoint(originX, originY);
+		
+		[self.peekView setFrameOrigin:peekOrigin];
+		
+		self.peekView.imageView.image = preview;
+		[self.peekView setHidden:NO];
 	} else {
-		[peekView setHidden:YES];
+		[self.peekView setHidden:YES];
 	}
 }
 
@@ -183,32 +206,29 @@ static void* ObserverContext = &ObserverContext;
 	
 	self.previewing = YES;
 	
-	double percentage = [self windowPointToSliderPercentage:event.locationInWindow];
+	NSPoint point = event.locationInWindow;
+	double percentage = [self windowPointToSliderPercentage:point];
 	NSImage *preview = [self fetchPreview:percentage];
 	
-	[self updatePeekPreview:preview];
+	[self updatePeekPreview:preview at:point];
 }
 
 - (void)mouseMoved:(NSEvent *)event {
 	[super mouseMoved:event];
 	
-	double percentage = [self windowPointToSliderPercentage:event.locationInWindow];
+	NSPoint point = event.locationInWindow;
+	double percentage = [self windowPointToSliderPercentage:point];
 	NSImage *preview = [self fetchPreview:percentage];
 	
-	[self updatePeekPreview:preview];
+	[self updatePeekPreview:preview at:point];
 }
 
 - (void)mouseExited:(NSEvent *)event {
 	[super mouseExited:event];
 	
-	NSPoint sliderPoint = [self.slider convertPoint:event.locationInWindow fromView:nil];
-	NSLog(@"mouseExited: %f x %f", sliderPoint.x, sliderPoint.y);
-	
 	self.previewing = NO;
 	
-	if (!self.peekView.isHidden) {
-		[self.peekView setHidden:YES];
-	}
+	[self updatePeekPreview:nil at:event.locationInWindow];
 }
 
 @end

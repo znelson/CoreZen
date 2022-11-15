@@ -21,7 +21,7 @@
 	self.layer.masksToBounds = YES;
 	self.layer.shadowRadius = 2;
 	self.layer.borderWidth = 1;
-	self.layer.borderColor = CGColorCreateSRGB(1.f, 0.f, 0.f, 1.f);
+	self.layer.borderColor = CGColorCreateGenericGray(0.7, 0.6);
 	
 	self.imageView.wantsLayer = YES;
 	self.imageView.layer.cornerRadius = 4;

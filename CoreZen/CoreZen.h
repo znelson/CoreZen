@@ -22,6 +22,7 @@ FOUNDATION_EXPORT const unsigned char CoreZenVersionString[];
 #import <CoreZen/NSFileManager+CoreZen.h>
 #import <CoreZen/NSURL+CoreZen.h>
 #import <CoreZen/NSNumber+CoreZen.h>
+#import <CoreZen/NSView+CoreZen.h>
 
 #pragma mark - Database
 #import <CoreZen/DatabaseQueue.h>

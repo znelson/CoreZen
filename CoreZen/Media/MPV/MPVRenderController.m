@@ -97,8 +97,7 @@ static void zen_mpv_render_context_update(void *ctx);
 	
 	mpv_opengl_init_params glParams = {
 		.get_proc_address = zen_mpv_get_opengl_proc_address,
-		.get_proc_address_ctx = selfAsVoid,
-		.extra_exts = 0
+		.get_proc_address_ctx = selfAsVoid
 	};
 	
 	mpv_render_param renderParams[] = {

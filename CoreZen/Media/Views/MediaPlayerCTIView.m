@@ -168,7 +168,7 @@ static void* ObserverContext = &ObserverContext;
 
 - (void)updatePeekPreviewAt:(NSPoint)mousePoint {
 	NSImage *preview = nil;
-	if (!self.scrubbing) {
+	if (self.previewing && !self.scrubbing) {
 		NSPoint sliderPoint = [self.slider convertPoint:mousePoint fromView:nil];
 		double sliderWidth = self.slider.bounds.size.width;
 		double percentage = sliderPoint.x / sliderWidth;

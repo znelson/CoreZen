@@ -1,6 +1,6 @@
 {
 	"dependencies": {
-		"libmpv": 1
+		"libmpv": 2
 	},
 	"headers": [
 		"libmpv",

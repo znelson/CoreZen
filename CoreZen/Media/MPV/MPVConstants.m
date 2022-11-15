@@ -44,11 +44,13 @@ const char* const kMPVProperty_percent_pos =			"percent-pos";
 const char* const kMPVProperty_playback_time =			"playback-time";
 const char* const kMPVProperty_playlist_pos =			"playlist-pos";
 const char* const kMPVProperty_time_pos =				"time-pos";
+const char* const kMPVProperty_sid =					"sid";
 
 // Property keys
 const char* const kMPVPropertyKey_name =				"name";
 const char* const kMPVPropertyKey_data =				"data";
 const char* const kMPVPropertyKey_id =					"id";
+const char* const kMPVPropertyKey_no =					"no";
 
 // Config options
 const char* const kMPVOption_hwdec =					"hwdec";

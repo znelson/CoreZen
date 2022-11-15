@@ -92,6 +92,9 @@ static void zen_mpv_wakeup(void *ctx);
 		
 		_version = zen_mpv_to_nsstring(mpv_get_property_string(_mpvHandle, kMPVProperty_mpv_version));
 		
+		// Disable subtitles
+		zen_mpv_set_string_property(_mpvHandle, kMPVProperty_sid, kMPVPropertyKey_no);
+		
 		// Set event callback function
 		void *selfAsVoid = (__bridge void *)self;
 		mpv_set_wakeup_callback(_mpvHandle, zen_mpv_wakeup, selfAsVoid);

@@ -14,6 +14,7 @@ const char *zen_double_to_mpv_string(double d);
 typedef struct mpv_handle mpv_handle;
 
 void zen_mpv_set_bool_property(mpv_handle* mpv, const char* const property, BOOL value);
+void zen_mpv_set_string_property(mpv_handle* mpv, const char* const property, const char* const value);
 
 BOOL zen_mpv_compare_strings(const char* const one, const char* const two);
 

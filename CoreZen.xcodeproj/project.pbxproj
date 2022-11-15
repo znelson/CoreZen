@@ -155,6 +155,8 @@
 		5331FFF0292322B800C15950 /* dependencies.resolved in Resources */ = {isa = PBXBuildFile; fileRef = 5331FF05292322B700C15950 /* dependencies.resolved */; };
 		5331FFF3292322B800C15950 /* libavformat.59.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5331FF09292322B700C15950 /* libavformat.59.dylib */; };
 		5331FFFF292322B800C15950 /* libavutil.57.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5331FF15292322B700C15950 /* libavutil.57.dylib */; };
+		534A7A792924068B0033A538 /* FrameCollector.h in Headers */ = {isa = PBXBuildFile; fileRef = 534A7A772924068B0033A538 /* FrameCollector.h */; };
+		534A7A7A2924068B0033A538 /* FrameCollector.m in Sources */ = {isa = PBXBuildFile; fileRef = 534A7A782924068B0033A538 /* FrameCollector.m */; };
 		5350F8A42886020500F8CA68 /* DatabaseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5350F8A32886020500F8CA68 /* DatabaseTests.m */; };
 		5350F8B42886074F00F8CA68 /* ObjectCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5350F8B32886074F00F8CA68 /* ObjectCacheTests.m */; };
 		5350F8B72886080500F8CA68 /* CategoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5350F8B62886080500F8CA68 /* CategoryTests.m */; };
@@ -599,6 +601,8 @@
 		5331FF60292322B700C15950 /* libogg.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libogg.0.dylib; sourceTree = "<group>"; };
 		5331FF61292322B700C15950 /* libavfilter.8.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libavfilter.8.dylib; sourceTree = "<group>"; };
 		5331FF62292322B700C15950 /* libopus.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libopus.0.dylib; sourceTree = "<group>"; };
+		534A7A772924068B0033A538 /* FrameCollector.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameCollector.h; sourceTree = "<group>"; };
+		534A7A782924068B0033A538 /* FrameCollector.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FrameCollector.m; sourceTree = "<group>"; };
 		5350F8A32886020500F8CA68 /* DatabaseTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DatabaseTests.m; sourceTree = "<group>"; };
 		5350F8B32886074F00F8CA68 /* ObjectCacheTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ObjectCacheTests.m; sourceTree = "<group>"; };
 		5350F8B62886080500F8CA68 /* CategoryTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CategoryTests.m; sourceTree = "<group>"; };
@@ -1183,6 +1187,8 @@
 				532CA23C291D8152008FA673 /* FrameRendererTypes.h */,
 				532CA221291B090E008FA673 /* FrameRenderer.h */,
 				532CA222291B090E008FA673 /* FrameRenderer.m */,
+				534A7A772924068B0033A538 /* FrameCollector.h */,
+				534A7A782924068B0033A538 /* FrameCollector.m */,
 			);
 			path = Media;
 			sourceTree = "<group>";
@@ -1276,6 +1282,7 @@
 				5356FE7028A4595800ECCA92 /* MediaPlayerView+Private.h in Headers */,
 				531673662909C1DD003FB35A /* MediaPlayerCTIView.h in Headers */,
 				5331FE682922DF6400C15950 /* WorkQueueTypes.h in Headers */,
+				534A7A792924068B0033A538 /* FrameCollector.h in Headers */,
 				532CA223291B090E008FA673 /* FrameRenderer.h in Headers */,
 				5331FE612922AD8700C15950 /* WorkQueue.h in Headers */,
 				532CA23D291D8152008FA673 /* FrameRendererTypes.h in Headers */,
@@ -1412,6 +1419,7 @@
 				5309C3AE2885A1DC00BC0AAE /* CoreZen.docc in Sources */,
 				538E05142885ED2200CE9DE7 /* ObjectRepository.m in Sources */,
 				5350FB0728889E7400F8CA68 /* Node.m in Sources */,
+				534A7A7A2924068B0033A538 /* FrameCollector.m in Sources */,
 				532CA241291ED1F9008FA673 /* MediaPlayerSliderCell.m in Sources */,
 				5309C3F22885A74A00BC0AAE /* ObjectIdentifier.m in Sources */,
 				5396532E288F453E007B53EC /* MPVRenderController.m in Sources */,

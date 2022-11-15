@@ -701,6 +701,7 @@
 				5350FB0328889E5F00F8CA68 /* Node */,
 				5309C3E52885A37900BC0AAE /* Preferences */,
 				5331FE5E29229FD200C15950 /* Queue */,
+				534A7A7B292437BC0033A538 /* Views */,
 				5309C3AC2885A1DC00BC0AAE /* CoreZen.h */,
 				5309C3AD2885A1DC00BC0AAE /* CoreZen.docc */,
 			);
@@ -788,8 +789,6 @@
 			isa = PBXGroup;
 			children = (
 				5316736F2909CF37003FB35A /* Nibs */,
-				5316736A2909CC66003FB35A /* ArchivedView.h */,
-				5316736B2909CC66003FB35A /* ArchivedView.m */,
 				5396531A288CD19C007B53EC /* MediaPlayerView.h */,
 				5396531B288CD19C007B53EC /* MediaPlayerView.m */,
 				5386706B28BFE16300FB15EB /* MediaPlayerControlsView.h */,
@@ -1162,6 +1161,15 @@
 				5331FF53292322B700C15950 /* libzstd.1.dylib */,
 			);
 			path = lib;
+			sourceTree = "<group>";
+		};
+		534A7A7B292437BC0033A538 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				5316736A2909CC66003FB35A /* ArchivedView.h */,
+				5316736B2909CC66003FB35A /* ArchivedView.m */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 		5350F8B52886079F00F8CA68 /* Classes */ = {

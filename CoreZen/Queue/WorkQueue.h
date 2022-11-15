@@ -6,6 +6,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <CoreZen/WorkQueueTypes.h>
 
 @interface ZENWorkQueueToken : NSObject
 
@@ -25,8 +26,6 @@
 - (BOOL)terminate;
 
 @end
-
-typedef ZENWorkQueueToken ZENCancelToken;
 
 typedef void (^ZENWorkQueueBlock)(void);
 typedef void (^ZENWorkQueueCancelBlock)(ZENCancelToken *canceled);

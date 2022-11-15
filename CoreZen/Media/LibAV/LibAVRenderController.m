@@ -122,15 +122,15 @@
 				}
 				
 				result = avcodec_receive_frame(_codecContext, frame);
-				if (result < 0) {
-					if (result == AVERROR(EAGAIN)) {
-						NSLog(@"avcodec_receive_frame failed: EAGAIN (input not ready, retrying)");
-						continue;
-					} else {
-						NSLog(@"avcodec_receive_frame failed: %d", result);
-						break;
-					}
+				if (result == AVERROR(EAGAIN)) {
+					NSLog(@"avcodec_receive_frame failed: EAGAIN (input not ready, retrying)");
+					continue;
 				}
+				
+				if (result < 0) {
+					NSLog(@"avcodec_receive_frame failed: %d", result);
+				}
+				break;
 			}
 		} @catch (NSException *exception) {
 			NSLog(@"Exception caught during decode: %@", exception);
@@ -229,11 +229,11 @@
 	return image;
 }
 
-- (void)renderFrame:(ZENRenderedFrame *)renderedFrame
-			   size:(NSSize)size
-		 completion:(ZENFrameRendererResultsBlock)completion {
+- (ZENCancelToken *)renderFrame:(ZENRenderedFrame *)renderedFrame
+						   size:(NSSize)size
+					 completion:(ZENRenderFrameResultsBlock)completion {
 	
-	[self.workQueue async:^(ZENCancelToken *canceled) {
+	return [self.workQueue async:^(ZENCancelToken *canceled) {
 		if (!canceled.canceled) {
 			NSObject<ZENMediaInfoController> *infoController = self.infoController;
 			
@@ -251,11 +251,11 @@
 			AVFormatContext *formatContext = infoController.formatContextHandle;
 			const AVStream *stream = infoController.videoStreamHandle;
 			
-			int64_t durationTicks = formatContext->duration;
+			int64_t durationAVTicks = formatContext->duration;
 			
 			// Get duration in terms of the video stream time base (instead of overall libav time base)
-			int64_t duration = av_rescale_q(durationTicks, AV_TIME_BASE_Q, stream->time_base);
-			int64_t frameTimestamp = duration * renderedFrame.requestedPercentage;
+			int64_t durationStreamTicks = av_rescale_q(durationAVTicks, AV_TIME_BASE_Q, stream->time_base);
+			int64_t frameTimestamp = durationStreamTicks * renderedFrame.requestedPercentage;
 			
 			renderedFrame.requestedTimestamp = frameTimestamp;
 			
@@ -265,7 +265,7 @@
 			if ([self renderRawFrame:rawFrame formatContext:formatContext stream:stream timestamp:frameTimestamp]) {
 				
 				renderedFrame.actualTimestamp = rawFrame->best_effort_timestamp;
-				renderedFrame.actualPercentage = renderedFrame.actualTimestamp / (double)durationTicks;
+				renderedFrame.actualPercentage = renderedFrame.actualTimestamp / (double)durationStreamTicks;
 				renderedFrame.actualSeconds = renderedFrame.actualPercentage * durationSeconds;
 				
 				// Resize the frame to desired size, convert to RGB

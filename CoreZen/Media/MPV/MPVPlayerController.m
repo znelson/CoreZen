@@ -99,25 +99,7 @@ static void zen_mpv_wakeup(void *ctx);
 		// Observe properties
 		mpv_observe_property(_mpvHandle, _identifier, kMPVProperty_percent_pos, MPV_FORMAT_NODE);
 		mpv_observe_property(_mpvHandle, _identifier, kMPVProperty_pause, MPV_FORMAT_NODE);
-		
-		// Load the initial file
-		// TODO: Remove this, load files dynamically via API
-		const char* loadCommand[] = {
-			kMPVCommand_loadfile,
-			player.fileURL.path.fileSystemRepresentation,
-			"append",
-			nil
-		};
-		[self mpvCommand:loadCommand];
-
-		const char* playCommand[] = {
-			kMPVCommand_playlist_play_index,
-			"0",
-			nil
-		};
-		[self mpvCommand:playCommand];
-
-		[self pausePlayback];
+		mpv_observe_property(_mpvHandle, _identifier, kMPVProperty_path, MPV_FORMAT_NODE);
 	}
 	return self;
 }
@@ -163,6 +145,18 @@ static void zen_mpv_wakeup(void *ctx);
 	
 - (void *)playerHandle {
 	return _mpvHandle;
+}
+
+- (void)openFileURL:(NSURL *)url {
+	const char* loadCommand[] = {
+		kMPVCommand_loadfile,
+		url.path.fileSystemRepresentation,
+		kMPVCommandParam_replace,
+		nil
+	};
+	[self mpvCommand:loadCommand];
+	
+	[self pausePlayback];
 }
 
 - (void)startPlayback {
@@ -282,8 +276,6 @@ static void zen_mpv_wakeup(void *ctx);
 				break;
 			}
 			case MPV_EVENT_PROPERTY_CHANGE: {
-				mpv_event_property *property = event->data;
-
 				mpv_node node = {};
 				if (mpv_event_to_node(&node, event) == MPV_ERROR_SUCCESS) {
 
@@ -315,20 +307,28 @@ static void zen_mpv_wakeup(void *ctx);
 						}
 					}
 					
-					NSLog(@"MPV_EVENT_PROPERTY_CHANGE (%llu): %s", observerID, property->name);
+					// mpv_event_property *property = event->data;
+					// NSLog(@"MPV_EVENT_PROPERTY_CHANGE (%llu): %s", observerID, property->name);
 
 					if (propertyName && valueNode && observerID == self.identifier) {
 						if (zen_mpv_compare_strings(kMPVProperty_pause, propertyName)) {
 							BOOL paused = (BOOL)valueNode->u.flag;
-							NSLog(@"Paused: %d", paused);
+							// NSLog(@"Paused: %d", paused);
 							dispatch_async(dispatch_get_main_queue(), ^{
 								self.player.paused = paused;
 							});
 						} else if (zen_mpv_compare_strings(kMPVProperty_percent_pos, propertyName)) {
 							double percentPos = valueNode->u.double_;
-							NSLog(@"Position: %f", percentPos);
+							// NSLog(@"Position: %f", percentPos);
 							dispatch_async(dispatch_get_main_queue(), ^{
 								self.player.positionPercent = percentPos;
+							});
+						} else if (zen_mpv_compare_strings(kMPVProperty_path, propertyName)) {
+							NSString *path = zen_mpv_to_nsstring(valueNode->u.string);
+							NSURL *url = [NSURL fileURLWithPath:path];
+							// NSLog(@"Path: %@", url);
+							dispatch_async(dispatch_get_main_queue(), ^{
+								self.player.fileURL = url;
 							});
 						}
 					}

@@ -72,3 +72,4 @@ const char* const kMPVCommandParam_absolute =			"absolute";
 const char* const kMPVCommandParam_absolute_percent =	"absolute-percent";
 const char* const kMPVCommandParam_keyframes =			"keyframes";
 const char* const kMPVCommandParam_exact =				"exact";
+const char* const kMPVCommandParam_replace =			"replace";

@@ -48,12 +48,16 @@
 		532CA235291B1E96008FA673 /* LibAVRenderController.m in Sources */ = {isa = PBXBuildFile; fileRef = 532CA233291B1E96008FA673 /* LibAVRenderController.m */; };
 		532CA236291B1F73008FA673 /* FrameRenderController.h in Headers */ = {isa = PBXBuildFile; fileRef = 532CA22F291B1B85008FA673 /* FrameRenderController.h */; };
 		532CA237291C5C65008FA673 /* libswscale.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 539A15B128DA2099007D001A /* libswscale.6.dylib */; };
+		532CA23A291D8050008FA673 /* MediaPlayerPeekView.h in Headers */ = {isa = PBXBuildFile; fileRef = 532CA238291D8050008FA673 /* MediaPlayerPeekView.h */; };
+		532CA23B291D8050008FA673 /* MediaPlayerPeekView.m in Sources */ = {isa = PBXBuildFile; fileRef = 532CA239291D8050008FA673 /* MediaPlayerPeekView.m */; };
 		532CA23D291D8152008FA673 /* FrameRendererTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 532CA23C291D8152008FA673 /* FrameRendererTypes.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		532CA240291ED1F9008FA673 /* MediaPlayerSliderCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 532CA23E291ED1F9008FA673 /* MediaPlayerSliderCell.h */; };
 		532CA241291ED1F9008FA673 /* MediaPlayerSliderCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 532CA23F291ED1F9008FA673 /* MediaPlayerSliderCell.m */; };
 		533005DE28F784B600E59E1D /* ZENMediaPlayerControlsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 533005DD28F784B600E59E1D /* ZENMediaPlayerControlsView.xib */; };
 		5331FE612922AD8700C15950 /* WorkQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 5331FE5F2922AD8700C15950 /* WorkQueue.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5331FE622922AD8700C15950 /* WorkQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 5331FE602922AD8700C15950 /* WorkQueue.m */; };
+		5331FE682922DF6400C15950 /* WorkQueueTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 5331FE672922DF3600C15950 /* WorkQueueTypes.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		5331FE6A2922E9DC00C15950 /* WorkQueue+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 5331FE692922E9DC00C15950 /* WorkQueue+Private.h */; };
 		5350F8A42886020500F8CA68 /* DatabaseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5350F8A32886020500F8CA68 /* DatabaseTests.m */; };
 		5350F8B42886074F00F8CA68 /* ObjectCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5350F8B32886074F00F8CA68 /* ObjectCacheTests.m */; };
 		5350F8B72886080500F8CA68 /* CategoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5350F8B62886080500F8CA68 /* CategoryTests.m */; };
@@ -349,12 +353,16 @@
 		532CA230291B1C8B008FA673 /* FrameRenderer+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "FrameRenderer+Private.h"; sourceTree = "<group>"; };
 		532CA232291B1E96008FA673 /* LibAVRenderController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LibAVRenderController.h; sourceTree = "<group>"; };
 		532CA233291B1E96008FA673 /* LibAVRenderController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LibAVRenderController.m; sourceTree = "<group>"; };
+		532CA238291D8050008FA673 /* MediaPlayerPeekView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MediaPlayerPeekView.h; sourceTree = "<group>"; };
+		532CA239291D8050008FA673 /* MediaPlayerPeekView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MediaPlayerPeekView.m; sourceTree = "<group>"; };
 		532CA23C291D8152008FA673 /* FrameRendererTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FrameRendererTypes.h; path = CoreZen/Media/FrameRendererTypes.h; sourceTree = SOURCE_ROOT; };
 		532CA23E291ED1F9008FA673 /* MediaPlayerSliderCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MediaPlayerSliderCell.h; sourceTree = "<group>"; };
 		532CA23F291ED1F9008FA673 /* MediaPlayerSliderCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MediaPlayerSliderCell.m; sourceTree = "<group>"; };
 		533005DD28F784B600E59E1D /* ZENMediaPlayerControlsView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ZENMediaPlayerControlsView.xib; sourceTree = "<group>"; };
 		5331FE5F2922AD8700C15950 /* WorkQueue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WorkQueue.h; sourceTree = "<group>"; };
 		5331FE602922AD8700C15950 /* WorkQueue.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WorkQueue.m; sourceTree = "<group>"; };
+		5331FE672922DF3600C15950 /* WorkQueueTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WorkQueueTypes.h; sourceTree = "<group>"; };
+		5331FE692922E9DC00C15950 /* WorkQueue+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WorkQueue+Private.h"; sourceTree = "<group>"; };
 		5350F8A32886020500F8CA68 /* DatabaseTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DatabaseTests.m; sourceTree = "<group>"; };
 		5350F8B32886074F00F8CA68 /* ObjectCacheTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ObjectCacheTests.m; sourceTree = "<group>"; };
 		5350F8B62886080500F8CA68 /* CategoryTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CategoryTests.m; sourceTree = "<group>"; };
@@ -782,6 +790,8 @@
 				5386706928BFE16300FB15EB /* MediaPlayerControlsView.m */,
 				531673642909C1DD003FB35A /* MediaPlayerCTIView.h */,
 				531673652909C1DD003FB35A /* MediaPlayerCTIView.m */,
+				532CA238291D8050008FA673 /* MediaPlayerPeekView.h */,
+				532CA239291D8050008FA673 /* MediaPlayerPeekView.m */,
 				532CA23E291ED1F9008FA673 /* MediaPlayerSliderCell.h */,
 				532CA23F291ED1F9008FA673 /* MediaPlayerSliderCell.m */,
 			);
@@ -813,6 +823,8 @@
 			children = (
 				5331FE5F2922AD8700C15950 /* WorkQueue.h */,
 				5331FE602922AD8700C15950 /* WorkQueue.m */,
+				5331FE692922E9DC00C15950 /* WorkQueue+Private.h */,
+				5331FE672922DF3600C15950 /* WorkQueueTypes.h */,
 			);
 			path = Queue;
 			sourceTree = "<group>";
@@ -1248,9 +1260,11 @@
 				5309C3E82885A39C00BC0AAE /* PreferencesWindowController.h in Headers */,
 				538E05072885DD1D00CE9DE7 /* DomainCallbacks.h in Headers */,
 				538E050B2885E53700CE9DE7 /* DomainCommon.h in Headers */,
+				532CA23A291D8050008FA673 /* MediaPlayerPeekView.h in Headers */,
 				538E05032885DCED00CE9DE7 /* DomainObject.h in Headers */,
 				532CA240291ED1F9008FA673 /* MediaPlayerSliderCell.h in Headers */,
 				5309C4212885CB1400BC0AAE /* DataTransferObject.h in Headers */,
+				5331FE6A2922E9DC00C15950 /* WorkQueue+Private.h in Headers */,
 				5309C40F2885B43B00BC0AAE /* ObjectCache.h in Headers */,
 				538E05132885ED2200CE9DE7 /* ObjectRepository.h in Headers */,
 				5350FB0628889E7400F8CA68 /* Node.h in Headers */,
@@ -1259,6 +1273,7 @@
 				5356FE7428A459BA00ECCA92 /* MediaPlayer+Private.h in Headers */,
 				5356FE7028A4595800ECCA92 /* MediaPlayerView+Private.h in Headers */,
 				531673662909C1DD003FB35A /* MediaPlayerCTIView.h in Headers */,
+				5331FE682922DF6400C15950 /* WorkQueueTypes.h in Headers */,
 				532CA223291B090E008FA673 /* FrameRenderer.h in Headers */,
 				5331FE612922AD8700C15950 /* WorkQueue.h in Headers */,
 				532CA23D291D8152008FA673 /* FrameRendererTypes.h in Headers */,
@@ -1410,6 +1425,7 @@
 				5309C40B2885B15400BC0AAE /* NSNumber+CoreZen.m in Sources */,
 				532CA235291B1E96008FA673 /* LibAVRenderController.m in Sources */,
 				5356FE5928A4290000ECCA92 /* MPVConstants.m in Sources */,
+				532CA23B291D8050008FA673 /* MediaPlayerPeekView.m in Sources */,
 				538E050C2885E53700CE9DE7 /* DomainCommon.m in Sources */,
 				5309C4022885B11400BC0AAE /* NSFileManager+CoreZen.m in Sources */,
 			);

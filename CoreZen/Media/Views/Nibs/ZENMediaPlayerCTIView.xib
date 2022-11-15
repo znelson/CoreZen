@@ -8,7 +8,7 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="ZENMediaPlayerCTIView">
             <connections>
-                <outlet property="peekView" destination="CbS-EO-qut" id="rVG-4b-NNf"/>
+                <outlet property="peekView" destination="Zja-qd-VVX" id="feT-zd-kuv"/>
                 <outlet property="rootView" destination="c22-O7-iKe" id="ElT-Au-SCX"/>
                 <outlet property="slider" destination="Kcy-pW-27Q" id="Ger-lQ-7ny"/>
             </connections>
@@ -33,6 +33,30 @@
                 <constraint firstAttribute="trailing" secondItem="Kcy-pW-27Q" secondAttribute="trailing" constant="1" id="x0J-UD-NCD"/>
             </constraints>
             <point key="canvasLocation" x="79" y="154"/>
+        </customView>
+        <customView wantsLayer="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Zja-qd-VVX" customClass="ZENMediaPlayerPeekView">
+            <rect key="frame" x="0.0" y="0.0" width="100" height="96"/>
+            <subviews>
+                <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="3qo-GU-e3I">
+                    <rect key="frame" x="0.0" y="0.0" width="100" height="96"/>
+                    <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" id="sWl-hQ-Oea"/>
+                </imageView>
+            </subviews>
+            <constraints>
+                <constraint firstAttribute="trailing" secondItem="3qo-GU-e3I" secondAttribute="trailing" id="5qJ-Kw-wfI"/>
+                <constraint firstItem="3qo-GU-e3I" firstAttribute="leading" secondItem="Zja-qd-VVX" secondAttribute="leading" id="6bb-lF-fOo"/>
+                <constraint firstAttribute="height" relation="greaterThanOrEqual" priority="100" constant="100" id="Is1-28-xpq"/>
+                <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="100" id="Lfa-9b-9fe"/>
+                <constraint firstAttribute="bottom" secondItem="3qo-GU-e3I" secondAttribute="bottom" id="WC7-wo-IGc"/>
+                <constraint firstItem="3qo-GU-e3I" firstAttribute="top" secondItem="Zja-qd-VVX" secondAttribute="top" id="bvY-Rw-7Tv"/>
+            </constraints>
+            <shadow key="shadow">
+                <color key="color" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            </shadow>
+            <connections>
+                <outlet property="imageView" destination="3qo-GU-e3I" id="VXS-I3-QNl"/>
+            </connections>
+            <point key="canvasLocation" x="-577" y="-68"/>
         </customView>
     </objects>
 </document>

@@ -72,3 +72,4 @@ extern const char* const kMPVCommandParam_absolute;
 extern const char* const kMPVCommandParam_absolute_percent;
 extern const char* const kMPVCommandParam_keyframes;
 extern const char* const kMPVCommandParam_exact;
+extern const char* const kMPVCommandParam_replace;

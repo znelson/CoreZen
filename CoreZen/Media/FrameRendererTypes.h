@@ -9,5 +9,6 @@
 
 @class ZENRenderedFrame;
 
-// Completion block type
-typedef void (^ZENFrameRendererResultsBlock)(ZENRenderedFrame *frame);
+// Completion block types
+typedef void (^ZENRenderFrameResultsBlock)(ZENRenderedFrame *frame);
+typedef void (^ZENRenderFramesResultsBlock)(NSArray<ZENRenderedFrame *> *frames);

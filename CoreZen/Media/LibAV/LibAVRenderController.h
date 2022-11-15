@@ -19,8 +19,8 @@
 
 - (void)terminate;
 
-- (void)renderFrame:(ZENRenderedFrame *)renderedFrame
-			   size:(NSSize)size
-		 completion:(ZENFrameRendererResultsBlock)completion;
+- (ZENCancelToken *)renderFrame:(ZENRenderedFrame *)renderedFrame
+						   size:(NSSize)size
+					 completion:(ZENRenderFrameResultsBlock)completion;
 
 @end

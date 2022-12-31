@@ -474,6 +474,9 @@ for header_library in header_libraries:
 	if header_library.startswith('lib'):
 		include_names.append(header_library[3:])
 
+	# search for 'libxyz.h' and 'xyz.h'
+	include_names.extend([f'{lib}.h' for lib in include_names])
+
 	lib_path = os.path.dirname(os.path.dirname(dylib_path))
 	src_include_path = None
 	dest_include_path = None
@@ -485,7 +488,10 @@ for header_library in header_libraries:
 			break
 	if src_include_path:
 		print(f'Copying includes from {src_include_path} to {dest_include_path}')
-		shutil.copytree(src_include_path, dest_include_path)
+		if os.path.isfile(src_include_path):
+			shutil.copyfile(src_include_path, dest_include_path)
+		else:
+			shutil.copytree(src_include_path, dest_include_path)
 	else:
 		print(f'ERROR: Include directory not found for {dylib_path}')
 		exit(1)

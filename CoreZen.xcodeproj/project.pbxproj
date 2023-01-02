@@ -155,6 +155,10 @@
 		5331FFF0292322B800C15950 /* dependencies.resolved in Resources */ = {isa = PBXBuildFile; fileRef = 5331FF05292322B700C15950 /* dependencies.resolved */; };
 		5331FFF3292322B800C15950 /* libavformat.59.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5331FF09292322B700C15950 /* libavformat.59.dylib */; };
 		5331FFFF292322B800C15950 /* libavutil.57.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5331FF15292322B700C15950 /* libavutil.57.dylib */; };
+		534A7A792924068B0033A538 /* FrameCollector.h in Headers */ = {isa = PBXBuildFile; fileRef = 534A7A772924068B0033A538 /* FrameCollector.h */; };
+		534A7A7A2924068B0033A538 /* FrameCollector.m in Sources */ = {isa = PBXBuildFile; fileRef = 534A7A782924068B0033A538 /* FrameCollector.m */; };
+		534A7A822924384F0033A538 /* NSView+CoreZen.h in Headers */ = {isa = PBXBuildFile; fileRef = 534A7A802924384F0033A538 /* NSView+CoreZen.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		534A7A832924384F0033A538 /* NSView+CoreZen.m in Sources */ = {isa = PBXBuildFile; fileRef = 534A7A812924384F0033A538 /* NSView+CoreZen.m */; };
 		5350F8A42886020500F8CA68 /* DatabaseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5350F8A32886020500F8CA68 /* DatabaseTests.m */; };
 		5350F8B42886074F00F8CA68 /* ObjectCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5350F8B32886074F00F8CA68 /* ObjectCacheTests.m */; };
 		5350F8B72886080500F8CA68 /* CategoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5350F8B62886080500F8CA68 /* CategoryTests.m */; };
@@ -599,6 +603,10 @@
 		5331FF60292322B700C15950 /* libogg.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libogg.0.dylib; sourceTree = "<group>"; };
 		5331FF61292322B700C15950 /* libavfilter.8.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libavfilter.8.dylib; sourceTree = "<group>"; };
 		5331FF62292322B700C15950 /* libopus.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libopus.0.dylib; sourceTree = "<group>"; };
+		534A7A772924068B0033A538 /* FrameCollector.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameCollector.h; sourceTree = "<group>"; };
+		534A7A782924068B0033A538 /* FrameCollector.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FrameCollector.m; sourceTree = "<group>"; };
+		534A7A802924384F0033A538 /* NSView+CoreZen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSView+CoreZen.h"; sourceTree = "<group>"; };
+		534A7A812924384F0033A538 /* NSView+CoreZen.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSView+CoreZen.m"; sourceTree = "<group>"; };
 		5350F8A32886020500F8CA68 /* DatabaseTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DatabaseTests.m; sourceTree = "<group>"; };
 		5350F8B32886074F00F8CA68 /* ObjectCacheTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ObjectCacheTests.m; sourceTree = "<group>"; };
 		5350F8B62886080500F8CA68 /* CategoryTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CategoryTests.m; sourceTree = "<group>"; };
@@ -697,6 +705,7 @@
 				5350FB0328889E5F00F8CA68 /* Node */,
 				5309C3E52885A37900BC0AAE /* Preferences */,
 				5331FE5E29229FD200C15950 /* Queue */,
+				534A7A7B292437BC0033A538 /* Views */,
 				5309C3AC2885A1DC00BC0AAE /* CoreZen.h */,
 				5309C3AD2885A1DC00BC0AAE /* CoreZen.docc */,
 			);
@@ -745,6 +754,8 @@
 				5309C4052885B14C00BC0AAE /* NSURL+CoreZen.m */,
 				5309C4082885B15400BC0AAE /* NSNumber+CoreZen.h */,
 				5309C4092885B15400BC0AAE /* NSNumber+CoreZen.m */,
+				534A7A802924384F0033A538 /* NSView+CoreZen.h */,
+				534A7A812924384F0033A538 /* NSView+CoreZen.m */,
 			);
 			path = Categories;
 			sourceTree = "<group>";
@@ -784,8 +795,6 @@
 			isa = PBXGroup;
 			children = (
 				5316736F2909CF37003FB35A /* Nibs */,
-				5316736A2909CC66003FB35A /* ArchivedView.h */,
-				5316736B2909CC66003FB35A /* ArchivedView.m */,
 				5396531A288CD19C007B53EC /* MediaPlayerView.h */,
 				5396531B288CD19C007B53EC /* MediaPlayerView.m */,
 				5386706B28BFE16300FB15EB /* MediaPlayerControlsView.h */,
@@ -1160,6 +1169,15 @@
 			path = lib;
 			sourceTree = "<group>";
 		};
+		534A7A7B292437BC0033A538 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				5316736A2909CC66003FB35A /* ArchivedView.h */,
+				5316736B2909CC66003FB35A /* ArchivedView.m */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
 		5350F8B52886079F00F8CA68 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
@@ -1183,6 +1201,8 @@
 				532CA23C291D8152008FA673 /* FrameRendererTypes.h */,
 				532CA221291B090E008FA673 /* FrameRenderer.h */,
 				532CA222291B090E008FA673 /* FrameRenderer.m */,
+				534A7A772924068B0033A538 /* FrameCollector.h */,
+				534A7A782924068B0033A538 /* FrameCollector.m */,
 			);
 			path = Media;
 			sourceTree = "<group>";
@@ -1276,6 +1296,8 @@
 				5356FE7028A4595800ECCA92 /* MediaPlayerView+Private.h in Headers */,
 				531673662909C1DD003FB35A /* MediaPlayerCTIView.h in Headers */,
 				5331FE682922DF6400C15950 /* WorkQueueTypes.h in Headers */,
+				534A7A822924384F0033A538 /* NSView+CoreZen.h in Headers */,
+				534A7A792924068B0033A538 /* FrameCollector.h in Headers */,
 				532CA223291B090E008FA673 /* FrameRenderer.h in Headers */,
 				5331FE612922AD8700C15950 /* WorkQueue.h in Headers */,
 				532CA23D291D8152008FA673 /* FrameRendererTypes.h in Headers */,
@@ -1412,6 +1434,7 @@
 				5309C3AE2885A1DC00BC0AAE /* CoreZen.docc in Sources */,
 				538E05142885ED2200CE9DE7 /* ObjectRepository.m in Sources */,
 				5350FB0728889E7400F8CA68 /* Node.m in Sources */,
+				534A7A7A2924068B0033A538 /* FrameCollector.m in Sources */,
 				532CA241291ED1F9008FA673 /* MediaPlayerSliderCell.m in Sources */,
 				5309C3F22885A74A00BC0AAE /* ObjectIdentifier.m in Sources */,
 				5396532E288F453E007B53EC /* MPVRenderController.m in Sources */,
@@ -1428,6 +1451,7 @@
 				532CA235291B1E96008FA673 /* LibAVRenderController.m in Sources */,
 				5356FE5928A4290000ECCA92 /* MPVConstants.m in Sources */,
 				532CA23B291D8050008FA673 /* MediaPlayerPeekView.m in Sources */,
+				534A7A832924384F0033A538 /* NSView+CoreZen.m in Sources */,
 				538E050C2885E53700CE9DE7 /* DomainCommon.m in Sources */,
 				5309C4022885B11400BC0AAE /* NSFileManager+CoreZen.m in Sources */,
 			);

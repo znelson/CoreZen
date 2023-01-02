@@ -7,56 +7,10 @@
 
 #import "FrameRenderer+Private.h"
 #import "FrameRenderController.h"
+#import "FrameCollector.h"
 #import "WorkQueue+Private.h"
 
 @implementation ZENRenderedFrame
-@end
-
-@interface ZENRenderedFrameCollector : NSObject
-
-@property (nonatomic, readonly) NSUInteger count;
-@property (nonatomic, strong, readonly) ZENRenderFramesResultsBlock completion;
-@property (nonatomic, strong, readonly) NSMutableArray<ZENRenderedFrame *> *frames;
-@property (nonatomic, strong, readonly) NSLock *lock;
-
-- (instancetype)initWithCount:(NSUInteger)count
-				   completion:(ZENRenderFramesResultsBlock)completion;
-
-- (void)collect:(ZENRenderedFrame *)frame;
-
-@end
-
-@implementation ZENRenderedFrameCollector
-
-- (instancetype)initWithCount:(NSUInteger)count
-				   completion:(ZENRenderFramesResultsBlock)completion {
-	self = [super init];
-	if (self) {
-		_count = count;
-		_completion = completion;
-		_frames = [NSMutableArray new];
-		_lock = [NSLock new];
-	}
-	return self;
-}
-
-- (void)collect:(ZENRenderedFrame *)frame {
-	NSArray<ZENRenderedFrame *> *result = nil;
-	
-	[self.lock lock];
-	
-	[self.frames addObject:frame];
-	if (self.frames.count == self.count) {
-		result = self.frames;
-	}
-
-	[self.lock unlock];
-	
-	if (result) {
-		self.completion(result);
-	}
-}
-
 @end
 
 @implementation ZENFrameRenderer
@@ -99,7 +53,7 @@
 					  completion:(ZENRenderFramesResultsBlock)completion {
 	ZENCancelToken *result = nil;
 	if (count >= 2) {
-		ZENRenderedFrameCollector *collector = [[ZENRenderedFrameCollector alloc] initWithCount:count completion:completion];
+		ZENFrameCollector *collector = [ZENFrameCollector frameCollectorWithCount:count completion:completion];
 		NSMutableArray<ZENWorkQueueToken *> *tokens = [NSMutableArray new];
 		double denominator = count - 1;
 		

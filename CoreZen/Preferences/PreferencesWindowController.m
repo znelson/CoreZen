@@ -117,10 +117,7 @@
 
 	NSView *contentView = viewController.view;
 	contentView.alphaValue = 0.0;
-
-	NSView *view = [[NSView alloc] initWithFrame:contentView.frame];
-	[view addSubview:contentView];
-	self.window.contentView = view;
+	self.window.contentView = contentView;
 
 	[NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
 		context.duration = (animate ? 0.25 : 0);

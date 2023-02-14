@@ -76,7 +76,6 @@
 		538499112885FF21004ED6A1 /* FMDB.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 538499102885FF21004ED6A1 /* FMDB.framework */; };
 		5386706C28BFE16300FB15EB /* MediaPlayerControlsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 5386706928BFE16300FB15EB /* MediaPlayerControlsView.m */; };
 		5386706E28BFE16300FB15EB /* MediaPlayerControlsView.h in Headers */ = {isa = PBXBuildFile; fileRef = 5386706B28BFE16300FB15EB /* MediaPlayerControlsView.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		538B92D4299AC2F2001BD5A6 /* dependencies.resolved in Resources */ = {isa = PBXBuildFile; fileRef = 538B91E6299AC2F1001BD5A6 /* dependencies.resolved */; };
 		538B92D5299AC2F2001BD5A6 /* libtheoraenc.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 538B91E8299AC2F1001BD5A6 /* libtheoraenc.1.dylib */; };
 		538B92D6299AC2F2001BD5A6 /* libvpx.7.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 538B91E9299AC2F1001BD5A6 /* libvpx.7.dylib */; };
 		538B92D7299AC2F2001BD5A6 /* libavformat.59.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 538B91EA299AC2F1001BD5A6 /* libavformat.59.dylib */; };
@@ -1597,7 +1596,6 @@
 			files = (
 				533005DE28F784B600E59E1D /* ZENMediaPlayerControlsView.xib in Resources */,
 				531673692909C1F7003FB35A /* ZENMediaPlayerCTIView.xib in Resources */,
-				538B92D4299AC2F2001BD5A6 /* dependencies.resolved in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -46,27 +46,40 @@ def is_framework_child_path(src_path):
 	return k_framework_separator in path
 
 ##
-def find_parent_framework_path(src_path):
-	framework_path = None
+def find_framework_parent_path(src_path):
 	path = src_path
 	while k_framework_separator in path:
 		if not is_framework_path(path):
 			path = os.path.dirname(path)
-	if is_framework_path(path):
-		framework_path = path
-		try:
-			framework_lib_paths = set()
-			for root_path, dir_names, file_names in os.walk(framework_path):
-				dylib_names = [f for f in file_names if f.startswith('lib') and f.endswith('.dylib')]
-				dylib_paths = [os.path.realpath(os.path.join(root_path, f)) for f in dylib_names]
-				framework_lib_paths.update(set(dylib_paths))
-			if len(framework_lib_paths) > 1:
-				raise ValueError(f'Too many .dylibs in framework: {framework_lib_paths}')
-			framework_path = next(iter(framework_lib_paths))
-			print(f'EXTRACT_FRAMEWORK_DYLIB found: {framework_path}')
-		except Exception as e:
-			print(f'WARNING: Failed to extract framework dylib for {framework_path}: {e}')
-	return framework_path
+	return path
+
+##
+def find_framework_dylib_path(src_path):
+	dylib_path = None
+	framework_path = find_framework_parent_path(src_path)
+	if is_framework_path(framework_path):
+		# For the dylibs we're searching for inside of Python.framework, the file named like
+		# libpython3.11.dylib ends up being a symlink to a binary file just called 'Python'
+		# This map holds realpath (follow symlinks) -> os.walk path (may be a symlink)
+		path_map = dict()
+		for root_path, dir_names, file_names in os.walk(framework_path):
+			dylib_names = [f for f in file_names if f.startswith('lib') and f.endswith('.dylib')]
+			for dylib_name in dylib_names:
+				dylib_path = os.path.join(root_path, dylib_name)
+				dylib_key = os.path.realpath(dylib_path)
+				existing = path_map.get(dylib_key, None)
+				# Here we save the shortest path, so we end up with:
+				#   Python.framework/Versions/3.11/lib/libpython3.11.dylib
+				# Instead of:
+				#   Python.framework/Versions/3.11/lib/python3.11/config-3.11-darwin/libpython3.11.dylib
+				if not existing or len(dylib_path) < len(existing):
+					path_map[dylib_key] = dylib_path
+		if len(path_map) > 1:
+			raise RuntimeError(f'Too many .dylibs in framework: {path_map}')
+		_, dylib_path = path_map.popitem()
+		print(f'Framework {framework_path} dylib found:')
+		print(f'  {dylib_path}')
+	return dylib_path
 
 ##
 def run_cmd(cmd, validate_stderr=None):
@@ -122,22 +135,17 @@ def validate_install_name_tool_stderr(lines):
 	return True
 
 ##
-def make_dylib_stamp_name(path):
-	stamp_name = os.path.split(path)[1]
-	if is_framework_child_path(path):
-		framework_path = find_parent_framework_path(path)
-		if os.path.isdir(framework_path):
-			parent_path = os.path.dirname(framework_path)
-			stamp_name = path[len(parent_path)+1:]
-			print(f'Corrected framework dylib stamp to: {stamp_name}')
-		else:
-			stamp_name = os.path.split(framework_path)[1]
-			print(f'EXTRACT_FRAMEWORK_DYLIB corrected: {stamp_name}')
-	return stamp_name
+def find_dylib_actual_name(dylib_path):
+	if is_framework_child_path(dylib_path):
+		dylib_path = find_framework_dylib_path(dylib_path)
+		if os.path.isdir(dylib_path):
+			raise RuntimeError(f'Unhandled framework dir: {dylib_path}')
+		dylib_path = os.path.split(dylib_path)[1]
+	return os.path.split(dylib_path)[1]
 
 ##
 def stamp_dylib_id(path):
-	stamp_name = make_dylib_stamp_name(path)
+	stamp_name = find_dylib_actual_name(path)
 	cmd = [
 		'install_name_tool',
 		'-id',
@@ -148,7 +156,7 @@ def stamp_dylib_id(path):
 
 ##
 def stamp_dylib_change(path, dependency_path):
-	stamp_name = make_dylib_stamp_name(dependency_path)
+	stamp_name = find_dylib_actual_name(dependency_path)
 	cmd = [
 		'install_name_tool',
 		'-change',
@@ -162,29 +170,13 @@ def stamp_dylib_change(path, dependency_path):
 def copy_dylib(src_path, dest_path):
 
 	if is_framework_child_path(src_path):
+		dylib_path = find_framework_dylib_path(src_path)
 
-		framework_src_path = find_parent_framework_path(src_path)
-
-		if os.path.isdir(framework_src_path):
-
-			framework_name = os.path.basename(framework_src_path)
-
-			dest_dir = os.path.dirname(dest_path)
-			framework_dest_path = os.path.join(dest_dir, framework_name)
-
-			print(f'Copying framework {framework_src_path} to {framework_dest_path}')
-			if os.path.exists(framework_dest_path):
-				print('Destination framework already exists!')
-				exit(1)
-			shutil.copytree(framework_src_path, framework_dest_path, symlinks=True)
-
-			relative_path = src_path[len(framework_src_path)+1:]
-			dest_path = os.path.join(dest_dir, framework_name, relative_path)
-
-			return dest_path
+		if os.path.isdir(dylib_path):
+			raise RuntimeError(f'Unhandled framework dir: {dylib_path}')
 
 		else:
-			src_path = framework_src_path
+			src_path = dylib_path
 			src_dylib_name = os.path.split(src_path)[1]
 			dest_dir = os.path.dirname(dest_path)
 			dest_path = os.path.join(dest_dir, src_dylib_name)			
@@ -400,7 +392,7 @@ while len(dylibs_to_process):
 	src_dylib_path = dylibs_to_process.pop()
 
 	# Maintain the filename requested with this dependency
-	dest_dylib_name = os.path.split(src_dylib_path)[1]
+	dest_dylib_name = find_dylib_actual_name(src_dylib_path)
 
 	src_dylib_path = os.path.realpath(src_dylib_path)
 

@@ -28,8 +28,6 @@ if sum([getattr(args, arg) for arg in exclusive_args]) > 1:
 k_framework_extension = '.framework'
 k_framework_separator = f'{k_framework_extension}{os.sep}'
 
-EXTRACT_FRAMEWORK_DYLIB = True
-
 ##
 def remove_trailing_separator(src_path):
 	path = src_path
@@ -56,17 +54,18 @@ def find_parent_framework_path(src_path):
 			path = os.path.dirname(path)
 	if is_framework_path(path):
 		framework_path = path
-		if EXTRACT_FRAMEWORK_DYLIB:
-			try:
-				framework_lib_path = os.path.join(framework_path, 'Versions', 'Current', 'lib')
-				filenames = os.listdir(framework_lib_path)
-				filenames = [f for f in filenames if f.startswith('lib') and f.endswith('.dylib')]
-				if len(filenames) > 1:
-					raise ValueError(f'Too many .dylibs in framework: {filenames}')
-				framework_path = os.path.join(framework_lib_path, filenames[0])
-				print(f'EXTRACT_FRAMEWORK_DYLIB found: {framework_path}')
-			except Exception as e:
-				print(f'WARNING: Failed to extract framework dylib for {framework_path}: {e}')
+		try:
+			framework_lib_paths = set()
+			for root_path, dir_names, file_names in os.walk(framework_path):
+				dylib_names = [f for f in file_names if f.startswith('lib') and f.endswith('.dylib')]
+				dylib_paths = [os.path.realpath(os.path.join(root_path, f)) for f in dylib_names]
+				framework_lib_paths.update(set(dylib_paths))
+			if len(framework_lib_paths) > 1:
+				raise ValueError(f'Too many .dylibs in framework: {framework_lib_paths}')
+			framework_path = next(iter(framework_lib_paths))
+			print(f'EXTRACT_FRAMEWORK_DYLIB found: {framework_path}')
+		except Exception as e:
+			print(f'WARNING: Failed to extract framework dylib for {framework_path}: {e}')
 	return framework_path
 
 ##

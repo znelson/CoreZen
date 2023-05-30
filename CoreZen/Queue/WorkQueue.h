@@ -45,8 +45,7 @@ typedef void (^ZENWorkQueueCancelBlock)(ZENCancelToken *canceled);
 
 // Returns a WorkQueueToken if the block was queued to run
 // This token can be used to atomically flag the work as canceled
-// The WorkQueueToken
-// Return value indicates if `block` will be called
+// The WorkQueueToken return value indicates if `block` will be called
 // (Block will not be called if the queue has been terminated)
 - (ZENWorkQueueToken *)async:(ZENWorkQueueCancelBlock)block;
 

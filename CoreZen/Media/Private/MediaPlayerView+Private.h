@@ -7,12 +7,12 @@
 
 #import <CoreZen/MediaPlayerView.h>
 
-@protocol ZENMediaPlayerRenderController;
+@class ZENMPVRenderController;
 
 @interface ZENMediaPlayerView ()
 
 @property (nonatomic, weak) ZENMediaPlayer *player;
-@property (nonatomic, strong, readonly) NSObject<ZENMediaPlayerRenderController> *renderController;
+@property (nonatomic, strong, readonly) ZENMPVRenderController *renderController;
 
 // Destroy view render context and clear player
 // Does not call [ZENMediaPlayer detachPlayer], so this can be called from -detachPlayer

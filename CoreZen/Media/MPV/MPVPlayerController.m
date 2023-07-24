@@ -144,7 +144,7 @@ static void zen_mpv_wakeup(void *ctx);
 	pthread_mutex_unlock(&_playerMutex);
 }
 	
-- (void *)playerHandle {
+- (mpv_handle *)playerHandle {
 	return _mpvHandle;
 }
 

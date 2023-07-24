@@ -6,30 +6,27 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <CoreZen/MediaInfoController.h>
+#import <CoreZen/Identifiable.h>
 
+@class ZENLibAVRenderController;
 @class ZENMediaFile;
+struct AVFormatContext;
+struct AVCodec;
+struct AVStream;
 
-@interface ZENLibAVInfoController : NSObject <ZENMediaInfoController>
+@interface ZENLibAVInfoController : NSObject <ZENIdentifiable>
 
 @property (nonatomic, weak, readonly) ZENMediaFile *mediaFile;
 
 - (instancetype)initWithMediaFile:(ZENMediaFile *)mediaFile;
 
-// ZENMediaInfoController protocol
-
-// (AVFormatContext *)formatContextHandle;
-- (void *)formatContextHandle;
-
-// (const AVCodec *)videoCodecHandle;
-- (const void *)videoCodecHandle;
-
-// (const AVStream *)videoStreamHandle;
-- (const void *)videoStreamHandle;
+- (struct AVFormatContext *)formatContextHandle;
+- (const struct AVCodec *)videoCodecHandle;
+- (const struct AVStream *)videoStreamHandle;
 
 - (void)terminate;
 
-- (NSObject<ZENFrameRenderController> *)frameRenderController;
+- (ZENLibAVRenderController *)frameRenderController;
 
 - (NSUInteger)durationMicroseconds;
 - (double)durationSeconds;

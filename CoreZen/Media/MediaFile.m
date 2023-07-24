@@ -7,7 +7,8 @@
 
 #import "MediaFile+Private.h"
 #import "LibAVInfoController.h"
-#import "FrameRenderer.h"
+#import "LibAVRenderController.h"
+#import "FrameRenderer+Private.h"
 #import "ObjectCache.h"
 
 ZENObjectCache* ZENGetWeakMediaFileCache(void) {
@@ -82,7 +83,7 @@ ZENObjectCache* ZENGetWeakMediaFileCache(void) {
 }
 
 - (ZENFrameRenderer *)frameRenderer {
-	NSObject<ZENFrameRenderController> *controller = self.mediaInfoController.frameRenderController;
+	ZENLibAVRenderController *controller = self.mediaInfoController.frameRenderController;
 	ZENFrameRenderer *frameRenderer = [[ZENFrameRenderer alloc] initWithController:controller mediaFile:self];
 	return frameRenderer;
 }

@@ -6,17 +6,15 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <CoreZen/MediaPlayerRenderController.h>
 
 @class ZENMediaPlayerView;
 
-@interface ZENMPVRenderController : NSObject <ZENMediaPlayerRenderController>
+@interface ZENMPVRenderController : NSObject
 
 - (instancetype)initWithPlayerView:(ZENMediaPlayerView *)playerView;
 
 @property (nonatomic, weak, readonly) ZENMediaPlayerView *playerView;
 
-// ZENMediaPlayerRenderController protocol
 - (void)createRenderContext;
 - (void)destroyRenderContext;
 

@@ -48,7 +48,7 @@ void ZENLogAVFindBestStreamError(NSString *filePath, int returnCode, enum AVMedi
 
 @property (nonatomic, weak) ZENMediaFile *mediaFile;
 
-@property (nonatomic, strong) ZENLibAVRenderController *renderer;
+@property (nonatomic, strong) ZENLibAVRenderController *frameRenderController;
 
 - (void)avInit:(NSString *)filePath;
 
@@ -112,32 +112,32 @@ void ZENLogAVFindBestStreamError(NSString *filePath, int returnCode, enum AVMedi
 	return self;
 }
 
-- (void *)formatContextHandle {
+- (AVFormatContext *)formatContextHandle {
 	return _formatContext;
 }
 
-- (const void *)videoCodecHandle {
+- (const AVCodec *)videoCodecHandle {
 	return _videoCodec;
 }
 
-- (const void *)videoStreamHandle {
+- (const AVStream *)videoStreamHandle {
 	return _videoStream;
 }
 
 - (void)terminate {
-	if (self.renderer) {
-		[self.renderer terminate];
+	if (self.frameRenderController) {
+		[self.frameRenderController terminate];
 	}
 	if (_formatContext) {
 		avformat_close_input(&_formatContext);
 	}
 }
 
-- (NSObject<ZENFrameRenderController> *)frameRenderController {
-	if (!self.renderer) {
-		self.renderer = [[ZENLibAVRenderController alloc] initWithInfoController:self];
+- (ZENLibAVRenderController *)frameRenderController {
+	if (!self.frameRenderController) {
+		self.frameRenderController = [[ZENLibAVRenderController alloc] initWithInfoController:self];
 	}
-	return self.renderer;
+	return self.frameRenderController;
 }
 
 - (NSUInteger)durationMicroseconds {

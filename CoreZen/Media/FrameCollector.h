@@ -6,7 +6,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <CoreZen/FrameRendererTypes.h>
+#import <CoreZen/FrameRenderer.h>
 
 @interface ZENFrameCollector : NSObject
 

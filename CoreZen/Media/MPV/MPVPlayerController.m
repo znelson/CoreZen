@@ -36,8 +36,6 @@ static void zen_mpv_wakeup(void *ctx);
 	dispatch_queue_t _eventQueue;
 }
 
-@property (nonatomic, strong, readonly) NSThread *mpvEventThread;
-
 - (void)destroyHandle;
 - (void)mpvHandleEvents;
 

@@ -5,8 +5,8 @@
 //  Created by Zach Nelson on 3/15/22.
 //
 
-#include <CoreZen/Identifiable.h>
-#include <Foundation/Foundation.h>
+#import <CoreZen/Identifiable.h>
+#import <Foundation/Foundation.h>
 
 @interface ZENDataTransferObject : NSObject <ZENIdentifiable>
 

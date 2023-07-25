@@ -1,0 +1,42 @@
+@startuml
+
+class ZENMediaFile
+{
+	+ NSURL fileURL
+	- ZENLibAVInfoController mediaInfoController
+}
+
+class ZENFrameRenderer
+{
+	+ ZENMediaFile mediaFile
+	- ZENLibAVRenderController frameRenderController
+}
+
+package LibAV
+{
+	class ZENLibAVInfoController
+	{
+		+ AVFormatContext formatContext
+		+ AVCodec videoCodec
+		+ AVStream videoStream
+		- AVCodec audioCodec
+		- AVStream audioStream
+		- ZENLibAVRenderController frameRenderController
+	}
+
+	class ZENLibAVRenderController
+	{
+		- AVCodecContext codecContext
+		- ZENLibAVInfoController infoController
+	}
+}
+
+ZENMediaFile *-- ZENLibAVInfoController
+
+ZENFrameRenderer o-- ZENLibAVRenderController
+ZENFrameRenderer o-- ZENMediaFile
+
+ZENLibAVInfoController *-right- ZENLibAVRenderController
+ZENLibAVRenderController o.left. ZENLibAVInfoController
+
+@enduml

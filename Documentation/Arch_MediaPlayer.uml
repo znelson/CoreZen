@@ -1,0 +1,58 @@
+@startuml
+
+package Apple
+{
+	abstract NSOpenGLView
+}
+
+class ZENMediaPlayerView
+{
+	+ ZENMediaPlayer player
+	- ZENMPVRenderController renderController
+}
+
+class ZENMediaPlayer
+{
+	+ ZENMediaPlayerView playerView
+	+ ZENMPVPlayerController playerController
+	+ NSURL fileURL
+}
+
+package MPV
+{
+	class ZENMPVPlayerController
+	{
+		+ ZENMediaPlayer player
+		+ mpv_handle playerHandle
+		- pthread_mutex_t playerMutex
+		- pthread_cond_t playerCondition
+		- dispatch_queue_t eventQueue
+	}
+
+	class ZENMPVRenderController
+	{
+		+ ZENMediaPlayerView playerView
+		- mpv_render_context mpvRenderContext
+		- mpv_opengl_fbo mpvFBO
+		- mpv_render_param mpvRenderParams
+		- mpv_render_param mpvSkipRenderParams
+		- pthread_mutex_t renderMutex
+		- pthread_cond_t renderCondition
+		- dispatch_queue_t renderQueue
+	}
+}
+
+NSOpenGLView <|-- ZENMediaPlayerView
+
+
+ZENMediaPlayer *-right- ZENMediaPlayerView
+ZENMediaPlayer *-- ZENMPVPlayerController
+
+ZENMediaPlayerView o.left. ZENMediaPlayer
+ZENMediaPlayerView *-- ZENMPVRenderController
+
+ZENMPVPlayerController o.. ZENMediaPlayer
+
+ZENMPVRenderController o.. ZENMediaPlayerView
+
+@enduml

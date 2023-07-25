@@ -7,7 +7,6 @@
 
 #import "LibAVInfoController.h"
 #import "LibAVRenderController.h"
-#import "MediaFile.h"
 
 #import <stdatomic.h>
 
@@ -46,9 +45,7 @@ void ZENLogAVFindBestStreamError(NSString *filePath, int returnCode, enum AVMedi
 	const AVStream *_audioStream;
 }
 
-@property (nonatomic, weak) ZENMediaFile *mediaFile;
-
-@property (nonatomic, strong) ZENLibAVRenderController *renderer;
+@property (nonatomic, strong) ZENLibAVRenderController *renderController;
 
 - (void)avInit:(NSString *)filePath;
 
@@ -58,12 +55,12 @@ void ZENLogAVFindBestStreamError(NSString *filePath, int returnCode, enum AVMedi
 
 @synthesize identifier=_identifier;
 
-- (void)avInit:(NSString *)filePath {
+- (void)avInit:(NSString *)mediaPath {
 	_formatContext = avformat_alloc_context();
 	
 	// avformat_open_input() documentation:
 	// Returns 0 on success, a negative AVERROR on failure.
-	int result = avformat_open_input(&_formatContext, filePath.fileSystemRepresentation, NULL, NULL);
+	int result = avformat_open_input(&_formatContext, mediaPath.fileSystemRepresentation, NULL, NULL);
 	if (result == 0) {
 
 		// avformat_find_stream_info() documentation:
@@ -78,66 +75,63 @@ void ZENLogAVFindBestStreamError(NSString *filePath, int returnCode, enum AVMedi
 				
 				_videoStream = _formatContext->streams[videoStreamIndex];
 			} else {
-				ZENLogAVFindBestStreamError(filePath, videoStreamIndex, AVMEDIA_TYPE_VIDEO);
+				ZENLogAVFindBestStreamError(mediaPath, videoStreamIndex, AVMEDIA_TYPE_VIDEO);
 			}
 			
 			const int audioStreamIndex = av_find_best_stream(_formatContext, AVMEDIA_TYPE_AUDIO, -1, -1, &_audioCodec, 0);
 			if (audioStreamIndex > -1) {
 				_audioStream = _formatContext->streams[audioStreamIndex];
 			} else {
-				ZENLogAVFindBestStreamError(filePath, audioStreamIndex, AVMEDIA_TYPE_AUDIO);
+				ZENLogAVFindBestStreamError(mediaPath, audioStreamIndex, AVMEDIA_TYPE_AUDIO);
 			}
 		} else {
-			NSLog(@"avformat_find_stream_info(%@) failed, result: %d", filePath, result);
+			NSLog(@"avformat_find_stream_info(%@) failed, result: %d", mediaPath, result);
 		}
 	} else {
 		// avformat_open_input() documentation:
 		// Note that a user-supplied AVFormatContext will be freed on failure.
 		_formatContext = NULL;
-		NSLog(@"avformat_open_input(%@) failed, result: %d", filePath, result);
+		NSLog(@"avformat_open_input(%@) failed, result: %d", mediaPath, result);
 	}
 }
 
-- (instancetype)initWithMediaFile:(ZENMediaFile *)mediaFile {
+- (instancetype)initWithMediaPath:(NSString *)mediaPath {
 	self = [super init];
 	if (self) {
-		_mediaFile = mediaFile;
-		
 		static atomic_uint_fast64_t nextIdentifier = 0;
 		_identifier = atomic_fetch_add(&nextIdentifier, 1);
 		
-		NSString *filePath = mediaFile.fileURL.path;
-		[self avInit:filePath];
+		[self avInit:mediaPath];
 	}
 	return self;
 }
 
-- (void *)formatContextHandle {
+- (AVFormatContext *)formatContextHandle {
 	return _formatContext;
 }
 
-- (const void *)videoCodecHandle {
+- (const AVCodec *)videoCodecHandle {
 	return _videoCodec;
 }
 
-- (const void *)videoStreamHandle {
+- (const AVStream *)videoStreamHandle {
 	return _videoStream;
 }
 
 - (void)terminate {
-	if (self.renderer) {
-		[self.renderer terminate];
+	if (self.renderController) {
+		[self.renderController terminate];
 	}
 	if (_formatContext) {
 		avformat_close_input(&_formatContext);
 	}
 }
 
-- (NSObject<ZENFrameRenderController> *)frameRenderController {
-	if (!self.renderer) {
-		self.renderer = [[ZENLibAVRenderController alloc] initWithInfoController:self];
+- (ZENLibAVRenderController *)frameRenderController {
+	if (!self.renderController) {
+		self.renderController = [[ZENLibAVRenderController alloc] initWithInfoController:self];
 	}
-	return self.renderer;
+	return self.renderController;
 }
 
 - (NSUInteger)durationMicroseconds {

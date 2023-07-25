@@ -7,7 +7,6 @@
 
 #import "LibAVRenderController.h"
 #import "LibAVInfoController.h"
-#import "FrameRenderer.h"
 #import "WorkQueue.h"
 
 @import Cocoa;
@@ -48,7 +47,8 @@
 
 @implementation ZENLibAVRenderController
 
-- (void)avInitWithCodec:(const AVCodec *)codec stream:(const AVStream *)stream {
+- (void)avInitWithCodec:(const AVCodec *)codec
+				 stream:(const AVStream *)stream {
 	_codecContext = avcodec_alloc_context3(codec);
 	avcodec_parameters_to_context(_codecContext, stream->codecpar);
 	
@@ -229,13 +229,13 @@
 	return image;
 }
 
-- (ZENCancelToken *)renderFrame:(ZENRenderedFrame *)renderedFrame
-						   size:(NSSize)size
-					 completion:(ZENRenderFrameResultsBlock)completion {
+- (ZENWorkQueueToken *)renderFrame:(ZENRenderedFrame *)renderedFrame
+							  size:(NSSize)size
+						completion:(ZENRenderFrameResultsBlock)completion {
 	
-	return [self.workQueue async:^(ZENCancelToken *canceled) {
+	return [self.workQueue async:^(ZENWorkQueueToken *canceled) {
 		if (!canceled.canceled) {
-			NSObject<ZENMediaInfoController> *infoController = self.infoController;
+			ZENLibAVInfoController *infoController = self.infoController;
 			
 			double durationSeconds = infoController.durationSeconds;
 			

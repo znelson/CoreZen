@@ -7,10 +7,10 @@
 
 #import <CoreZen/MediaFile.h>
 
-@protocol ZENMediaInfoController;
+@class ZENLibAVInfoController;
 
 @interface ZENMediaFile ()
 
-@property (nonatomic, strong, readonly) NSObject<ZENMediaInfoController> *mediaInfoController;
+@property (nonatomic, strong, readonly) ZENLibAVInfoController *mediaInfoController;
 
 @end

@@ -7,12 +7,12 @@
 
 #import <CoreZen/MediaPlayer.h>
 
-@protocol ZENMediaPlayerController;
+@class ZENMPVPlayerController;
 
 @interface ZENMediaPlayer ()
 
 @property (nonatomic, strong) ZENMediaPlayerView *playerView;
-@property (nonatomic, strong, readonly) NSObject<ZENMediaPlayerController> *playerController;
+@property (nonatomic, strong, readonly) ZENMPVPlayerController *playerController;
 
 @property (nonatomic, strong) NSURL *fileURL;
 @property (nonatomic) BOOL paused;

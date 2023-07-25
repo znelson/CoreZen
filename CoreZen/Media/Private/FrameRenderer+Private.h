@@ -7,8 +7,10 @@
 
 #import <CoreZen/FrameRenderer.h>
 
+@class ZENLibAVRenderController;
+
 @interface ZENFrameRenderer ()
 
-@property (nonatomic, strong, readonly) NSObject<ZENFrameRenderController> *frameRenderController;
+@property (nonatomic, strong, readonly) ZENLibAVRenderController *frameRenderController;
 
 @end

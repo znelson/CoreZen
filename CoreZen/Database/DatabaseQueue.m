@@ -119,7 +119,7 @@
 }
 
 - (void)transactionAsync:(ZENDatabaseBlock)updateBlock {
-	[self.workQueue async:^(ZENCancelToken *canceled) {
+	[self.workQueue async:^(ZENWorkQueueToken *canceled) {
 		if (!canceled.canceled) {
 			@autoreleasepool {
 				FMDatabase *database = self.threadDatabase;
@@ -143,7 +143,7 @@
 }
 
 - (void)fetchAsync:(ZENDatabaseBlock)fetchBlock {
-	[self.workQueue async:^(ZENCancelToken *canceled) {
+	[self.workQueue async:^(ZENWorkQueueToken *canceled) {
 		if (!canceled.canceled) {
 			@autoreleasepool {
 				FMDatabase *database = self.threadDatabase;
@@ -163,7 +163,7 @@
 }
 
 - (void)vacuumAsync {
-	[self.workQueue async:^(ZENCancelToken *canceled) {
+	[self.workQueue async:^(ZENWorkQueueToken *canceled) {
 		@autoreleasepool {
 			FMDatabase *database = self.threadDatabase;
 			[database executeUpdate:@"VACUUM;"];

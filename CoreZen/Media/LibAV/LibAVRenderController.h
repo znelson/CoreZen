@@ -6,21 +6,19 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <CoreZen/FrameRenderController.h>
+#import <CoreZen/FrameRenderer.h>
 
-@class ZENMediaFile;
 @class ZENLibAVInfoController;
+@class ZENWorkQueueToken;
 
-@interface ZENLibAVRenderController : NSObject <ZENFrameRenderController>
+@interface ZENLibAVRenderController : NSObject
 
 - (instancetype)initWithInfoController:(ZENLibAVInfoController *)infoController;
 
-// ZENFrameRenderController protocol
-
 - (void)terminate;
 
-- (ZENCancelToken *)renderFrame:(ZENRenderedFrame *)renderedFrame
-						   size:(NSSize)size
-					 completion:(ZENRenderFrameResultsBlock)completion;
+- (ZENWorkQueueToken *)renderFrame:(ZENRenderedFrame *)renderedFrame
+							  size:(NSSize)size
+						completion:(ZENRenderFrameResultsBlock)completion;
 
 @end

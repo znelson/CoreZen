@@ -137,7 +137,7 @@ static void* ObserverContext = &ObserverContext;
 	
 	if (url) {
 		ZENMediaFile *mediaFile = [ZENMediaFile mediaFileWithURL:url];
-		self.frameRenderer = mediaFile.frameRenderer;
+		self.frameRenderer = [ZENFrameRenderer frameRendererWithMediaFile:mediaFile];
 		
 		NSUInteger width = 320;
 		

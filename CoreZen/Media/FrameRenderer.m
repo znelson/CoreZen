@@ -6,29 +6,40 @@
 //
 
 #import "FrameRenderer+Private.h"
-#import "FrameRenderController.h"
 #import "FrameCollector.h"
+#import "LibAVInfoController.h"
+#import "LibAVRenderController.h"
+#import "MediaFile+Private.h"
 #import "WorkQueue+Private.h"
 
 @implementation ZENRenderedFrame
 @end
 
+@interface ZENFrameRenderer ()
+
+- (instancetype)initWithMediaFile:(ZENMediaFile *)mediaFile;
+
+@end
+
 @implementation ZENFrameRenderer
 
-- (instancetype)initWithController:(NSObject<ZENFrameRenderController> *)controller
-						 mediaFile:(ZENMediaFile *)mediaFile {
+- (instancetype)initWithMediaFile:(ZENMediaFile *)mediaFile {
 	self = [super init];
 	if (self) {
-		_frameRenderController = controller;
+		_frameRenderController = mediaFile.mediaInfoController.frameRenderController;
 		_mediaFile = mediaFile;
 	}
 	return self;
 }
 
-- (ZENCancelToken *)renderFrameAtSeconds:(double)seconds
-								   width:(NSUInteger)width
-								  height:(NSUInteger)height
-							  completion:(ZENRenderFrameResultsBlock)completion {
++ (instancetype)frameRendererWithMediaFile:(ZENMediaFile *)mediaFile {
+	return [[ZENFrameRenderer alloc] initWithMediaFile:mediaFile];
+}
+
+- (ZENWorkQueueToken *)renderFrameAtSeconds:(double)seconds
+									  width:(NSUInteger)width
+									 height:(NSUInteger)height
+								 completion:(ZENRenderFrameResultsBlock)completion {
 	
 	ZENRenderedFrame *frame = [ZENRenderedFrame new];
 	frame.requestedSeconds = seconds;
@@ -36,10 +47,10 @@
 	return [self.frameRenderController renderFrame:frame size:NSMakeSize(width, height) completion:completion];
 }
 
-- (ZENCancelToken *)renderFrameAtPercentage:(double)percentage
-									  width:(NSUInteger)width
-									 height:(NSUInteger)height
-								 completion:(ZENRenderFrameResultsBlock)completion {
+- (ZENWorkQueueToken *)renderFrameAtPercentage:(double)percentage
+										 width:(NSUInteger)width
+										height:(NSUInteger)height
+									completion:(ZENRenderFrameResultsBlock)completion {
 	
 	ZENRenderedFrame *frame = [ZENRenderedFrame new];
 	frame.requestedPercentage = percentage;
@@ -47,11 +58,11 @@
 	return [self.frameRenderController renderFrame:frame size:NSMakeSize(width, height) completion:completion];
 }
 
-- (ZENCancelToken *)renderFrames:(NSUInteger)count
-						   width:(NSUInteger)width
-						  height:(NSUInteger)height
-					  completion:(ZENRenderFramesResultsBlock)completion {
-	ZENCancelToken *result = nil;
+- (ZENWorkQueueToken *)renderFrames:(NSUInteger)count
+							  width:(NSUInteger)width
+							 height:(NSUInteger)height
+						 completion:(ZENRenderFramesResultsBlock)completion {
+	ZENWorkQueueToken *result = nil;
 	if (count >= 2) {
 		ZENFrameCollector *collector = [ZENFrameCollector frameCollectorWithCount:count completion:completion];
 		NSMutableArray<ZENWorkQueueToken *> *tokens = [NSMutableArray new];
@@ -60,7 +71,7 @@
 		for (NSUInteger index = 0; index < count; ++index) {
 			double percentage = index / denominator;
 			
-			ZENCancelToken *token = [self renderFrameAtPercentage:percentage
+			ZENWorkQueueToken *token = [self renderFrameAtPercentage:percentage
 															width:width
 														   height:height
 													   completion:^(ZENRenderedFrame *frame) {

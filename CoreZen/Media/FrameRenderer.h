@@ -6,8 +6,13 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <CoreZen/FrameRendererTypes.h>
-#import <CoreZen/WorkQueueTypes.h>
+
+@class ZENRenderedFrame;
+@class ZENWorkQueueToken;
+
+// Completion block types
+typedef void (^ZENRenderFrameResultsBlock)(ZENRenderedFrame *frame);
+typedef void (^ZENRenderFramesResultsBlock)(NSArray<ZENRenderedFrame *> *frames);
 
 // Rendered frame result
 @interface ZENRenderedFrame : NSObject
@@ -35,22 +40,21 @@
 
 @property (nonatomic, strong, readonly) ZENMediaFile *mediaFile;
 
-- (instancetype)initWithController:(NSObject<ZENFrameRenderController> *)controller
-						 mediaFile:(ZENMediaFile *)mediaFile;
++ (instancetype)frameRendererWithMediaFile:(ZENMediaFile *)mediaFile;
 
-- (ZENCancelToken *)renderFrameAtSeconds:(double)seconds
-								   width:(NSUInteger)width
-								  height:(NSUInteger)height
-							  completion:(ZENRenderFrameResultsBlock)completion;
-
-- (ZENCancelToken *)renderFrameAtPercentage:(double)percentage
+- (ZENWorkQueueToken *)renderFrameAtSeconds:(double)seconds
 									  width:(NSUInteger)width
 									 height:(NSUInteger)height
 								 completion:(ZENRenderFrameResultsBlock)completion;
 
-- (ZENCancelToken *)renderFrames:(NSUInteger)count
-						   width:(NSUInteger)width
-						  height:(NSUInteger)height
-					  completion:(ZENRenderFramesResultsBlock)completion;
+- (ZENWorkQueueToken *)renderFrameAtPercentage:(double)percentage
+										 width:(NSUInteger)width
+										height:(NSUInteger)height
+									completion:(ZENRenderFrameResultsBlock)completion;
+
+- (ZENWorkQueueToken *)renderFrames:(NSUInteger)count
+							  width:(NSUInteger)width
+							 height:(NSUInteger)height
+						 completion:(ZENRenderFramesResultsBlock)completion;
 
 @end

@@ -5,11 +5,11 @@
 //  Created by Zach Nelson on 7/25/22.
 //
 
+#import "MPVPlayerController.h"
 #import "MPVRenderController.h"
 #import "MPVFunctions.h"
 #import "MediaPlayer+Private.h"
 #import "MediaPlayerView+Private.h"
-#import "MediaPlayerController.h"
 
 @import Darwin.POSIX.pthread;
 @import OpenGL.GL;

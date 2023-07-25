@@ -8,8 +8,6 @@
 #import <Foundation/Foundation.h>
 #import <CoreZen/Identifiable.h>
 
-@class ZENFrameRenderer;
-
 @interface ZENMediaFile : NSObject <ZENIdentifiable>
 
 @property (nonatomic, strong, readonly) NSURL *fileURL;
@@ -22,8 +20,6 @@
 
 // Call before application terminates to terminate all ZENMediaFile instances
 + (void)terminateAllMediaFiles;
-
-- (ZENFrameRenderer *)frameRenderer;
 
 - (NSUInteger)durationMicroseconds;
 

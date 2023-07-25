@@ -9,16 +9,13 @@
 #import <CoreZen/Identifiable.h>
 
 @class ZENLibAVRenderController;
-@class ZENMediaFile;
 struct AVFormatContext;
 struct AVCodec;
 struct AVStream;
 
 @interface ZENLibAVInfoController : NSObject <ZENIdentifiable>
 
-@property (nonatomic, weak, readonly) ZENMediaFile *mediaFile;
-
-- (instancetype)initWithMediaFile:(ZENMediaFile *)mediaFile;
+- (instancetype)initWithMediaPath:(NSString *)mediaPath;
 
 - (struct AVFormatContext *)formatContextHandle;
 - (const struct AVCodec *)videoCodecHandle;

@@ -7,7 +7,6 @@
 
 #import "LibAVRenderController.h"
 #import "LibAVInfoController.h"
-#import "FrameRenderer.h"
 #import "WorkQueue.h"
 
 @import Cocoa;

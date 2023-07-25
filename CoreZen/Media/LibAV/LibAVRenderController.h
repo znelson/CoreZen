@@ -8,7 +8,6 @@
 #import <Foundation/Foundation.h>
 #import <CoreZen/FrameRenderer.h>
 
-@class ZENMediaFile;
 @class ZENLibAVInfoController;
 @class ZENWorkQueueToken;
 

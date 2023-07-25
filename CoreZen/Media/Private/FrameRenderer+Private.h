@@ -13,7 +13,4 @@
 
 @property (nonatomic, strong, readonly) ZENLibAVRenderController *frameRenderController;
 
-- (instancetype)initWithController:(ZENLibAVRenderController *)controller
-						 mediaFile:(ZENMediaFile *)mediaFile;
-
 @end

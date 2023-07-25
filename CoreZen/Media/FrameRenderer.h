@@ -40,6 +40,8 @@ typedef void (^ZENRenderFramesResultsBlock)(NSArray<ZENRenderedFrame *> *frames)
 
 @property (nonatomic, strong, readonly) ZENMediaFile *mediaFile;
 
++ (instancetype)frameRendererWithMediaFile:(ZENMediaFile *)mediaFile;
+
 - (ZENWorkQueueToken *)renderFrameAtSeconds:(double)seconds
 									  width:(NSUInteger)width
 									 height:(NSUInteger)height

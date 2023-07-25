@@ -7,22 +7,33 @@
 
 #import "FrameRenderer+Private.h"
 #import "FrameCollector.h"
+#import "LibAVInfoController.h"
 #import "LibAVRenderController.h"
+#import "MediaFile+Private.h"
 #import "WorkQueue+Private.h"
 
 @implementation ZENRenderedFrame
 @end
 
+@interface ZENFrameRenderer ()
+
+- (instancetype)initWithMediaFile:(ZENMediaFile *)mediaFile;
+
+@end
+
 @implementation ZENFrameRenderer
 
-- (instancetype)initWithController:(ZENLibAVRenderController *)controller
-						 mediaFile:(ZENMediaFile *)mediaFile {
+- (instancetype)initWithMediaFile:(ZENMediaFile *)mediaFile {
 	self = [super init];
 	if (self) {
-		_frameRenderController = controller;
+		_frameRenderController = mediaFile.mediaInfoController.frameRenderController;
 		_mediaFile = mediaFile;
 	}
 	return self;
+}
+
++ (instancetype)frameRendererWithMediaFile:(ZENMediaFile *)mediaFile {
+	return [[ZENFrameRenderer alloc] initWithMediaFile:mediaFile];
 }
 
 - (ZENWorkQueueToken *)renderFrameAtSeconds:(double)seconds

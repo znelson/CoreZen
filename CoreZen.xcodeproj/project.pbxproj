@@ -47,7 +47,6 @@
 		532CA235291B1E96008FA673 /* LibAVRenderController.m in Sources */ = {isa = PBXBuildFile; fileRef = 532CA233291B1E96008FA673 /* LibAVRenderController.m */; };
 		532CA23A291D8050008FA673 /* MediaPlayerPeekView.h in Headers */ = {isa = PBXBuildFile; fileRef = 532CA238291D8050008FA673 /* MediaPlayerPeekView.h */; };
 		532CA23B291D8050008FA673 /* MediaPlayerPeekView.m in Sources */ = {isa = PBXBuildFile; fileRef = 532CA239291D8050008FA673 /* MediaPlayerPeekView.m */; };
-		532CA23D291D8152008FA673 /* FrameRendererTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 532CA23C291D8152008FA673 /* FrameRendererTypes.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		532CA240291ED1F9008FA673 /* MediaPlayerSliderCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 532CA23E291ED1F9008FA673 /* MediaPlayerSliderCell.h */; };
 		532CA241291ED1F9008FA673 /* MediaPlayerSliderCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 532CA23F291ED1F9008FA673 /* MediaPlayerSliderCell.m */; };
 		533005DE28F784B600E59E1D /* ZENMediaPlayerControlsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 533005DD28F784B600E59E1D /* ZENMediaPlayerControlsView.xib */; };
@@ -360,7 +359,6 @@
 		532CA233291B1E96008FA673 /* LibAVRenderController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LibAVRenderController.m; sourceTree = "<group>"; };
 		532CA238291D8050008FA673 /* MediaPlayerPeekView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MediaPlayerPeekView.h; sourceTree = "<group>"; };
 		532CA239291D8050008FA673 /* MediaPlayerPeekView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MediaPlayerPeekView.m; sourceTree = "<group>"; };
-		532CA23C291D8152008FA673 /* FrameRendererTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FrameRendererTypes.h; path = CoreZen/Media/FrameRendererTypes.h; sourceTree = SOURCE_ROOT; };
 		532CA23E291ED1F9008FA673 /* MediaPlayerSliderCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MediaPlayerSliderCell.h; sourceTree = "<group>"; };
 		532CA23F291ED1F9008FA673 /* MediaPlayerSliderCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MediaPlayerSliderCell.m; sourceTree = "<group>"; };
 		533005DD28F784B600E59E1D /* ZENMediaPlayerControlsView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ZENMediaPlayerControlsView.xib; sourceTree = "<group>"; };
@@ -868,7 +866,6 @@
 				5350F8C12886194200F8CA68 /* MediaFile.m */,
 				53964F11288CC101007B53EC /* MediaPlayer.h */,
 				53964F12288CC101007B53EC /* MediaPlayer.m */,
-				532CA23C291D8152008FA673 /* FrameRendererTypes.h */,
 				532CA221291B090E008FA673 /* FrameRenderer.h */,
 				532CA222291B090E008FA673 /* FrameRenderer.m */,
 				534A7A772924068B0033A538 /* FrameCollector.h */,
@@ -1298,7 +1295,6 @@
 				534A7A792924068B0033A538 /* FrameCollector.h in Headers */,
 				532CA223291B090E008FA673 /* FrameRenderer.h in Headers */,
 				5331FE612922AD8700C15950 /* WorkQueue.h in Headers */,
-				532CA23D291D8152008FA673 /* FrameRendererTypes.h in Headers */,
 				5316736C2909CC66003FB35A /* ArchivedView.h in Headers */,
 				532CA234291B1E96008FA673 /* LibAVRenderController.h in Headers */,
 				532CA231291B1C8B008FA673 /* FrameRenderer+Private.h in Headers */,

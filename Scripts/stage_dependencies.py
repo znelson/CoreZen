@@ -452,15 +452,18 @@ for arch in active_archs:
 
             for line in output:
 
+                # line is like:
+                #   @loader_path/../../../../opt/libsamplerate/lib/libsamplerate.0.dylib (compatibility version 3.0.0, current version 3.2.0)
+
                 dependency_path = line.split(' (compatibility version')[0]
                 dependency_dylib_name = os.path.split(dependency_path)[1]
-
-                if dependency_path.startswith('@'):
-                    dependency_path = locate_dependency(dependency_dylib_name, arch_search_paths)
 
                 print(f'  Dependency {dependency_path}')
                 # print(f'  Stamping -change for {dependency_dylib_name} into {dest_dylib_name}')
                 stamp_dylib_change(dest_dylib_path, dependency_path)
+
+                if dependency_path.startswith('@'):
+                    dependency_path = locate_dependency(dependency_dylib_name, arch_search_paths)
                 dylibs_to_process.add(dependency_path)
 
     for header_library in header_libraries:

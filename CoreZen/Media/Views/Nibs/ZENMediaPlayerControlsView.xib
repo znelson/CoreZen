@@ -24,11 +24,12 @@
         <customView translatesAutoresizingMaskIntoConstraints="NO" id="c22-O7-iKe" userLabel="Controls View">
             <rect key="frame" x="0.0" y="0.0" width="400" height="40"/>
             <subviews>
-                <stackView distribution="equalCentering" orientation="horizontal" alignment="centerY" horizontalStackHuggingPriority="250" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="SPb-8x-Orp">
+                <stackView orientation="horizontal" alignment="centerY" spacing="20" horizontalStackHuggingPriority="250" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="SPb-8x-Orp">
                     <rect key="frame" x="0.0" y="0.0" width="400" height="40"/>
-                    <subviews>
-                        <button horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" verticalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="hDm-X6-H9i" userLabel="Prev 4 Button">
-                            <rect key="frame" x="6" y="14.5" width="24" height="13"/>
+                    <edgeInsets key="edgeInsets" left="6" right="6" top="6" bottom="6"/>
+                    <middleViews>
+                        <button horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" verticalCompressionResistancePriority="751" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="hDm-X6-H9i" userLabel="Prev 4 Button">
+                            <rect key="frame" x="39" y="14.5" width="24" height="13"/>
                             <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="backward.end.alt.fill" catalog="system" imagePosition="only" alignment="center" imageScaling="proportionallyUpOrDown" inset="2" id="OCN-qw-iBV">
                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                 <font key="font" metaFont="system"/>
@@ -37,8 +38,8 @@
                                 <action selector="buttonClicked:" target="-2" id="Zt7-A9-8tv"/>
                             </connections>
                         </button>
-                        <button horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" verticalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="r3e-Ak-IQJ" userLabel="Prev 3 Button">
-                            <rect key="frame" x="56" y="14.5" width="15" height="13"/>
+                        <button horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" verticalCompressionResistancePriority="751" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="r3e-Ak-IQJ" userLabel="Prev 3 Button">
+                            <rect key="frame" x="83" y="14.5" width="15" height="13"/>
                             <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="backward.end.fill" catalog="system" imagePosition="only" alignment="center" imageScaling="proportionallyUpOrDown" inset="2" id="X17-P9-ocS">
                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                 <font key="font" metaFont="system"/>
@@ -47,8 +48,8 @@
                                 <action selector="buttonClicked:" target="-2" id="AEt-kL-ftJ"/>
                             </connections>
                         </button>
-                        <button horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" verticalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="DBT-1j-Rag" userLabel="Prev 2 Button">
-                            <rect key="frame" x="100" y="14.5" width="19" height="12"/>
+                        <button horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" verticalCompressionResistancePriority="751" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="DBT-1j-Rag" userLabel="Prev 2 Button">
+                            <rect key="frame" x="118" y="14.5" width="19" height="12"/>
                             <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="backward.fill" catalog="system" imagePosition="only" alignment="center" imageScaling="proportionallyUpOrDown" inset="2" id="SfG-yu-Xlh">
                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                 <font key="font" metaFont="system"/>
@@ -57,8 +58,8 @@
                                 <action selector="buttonClicked:" target="-2" id="zYR-d7-ov9"/>
                             </connections>
                         </button>
-                        <button horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" verticalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="Iyl-8N-bJr" userLabel="Prev 1 Button">
-                            <rect key="frame" x="146" y="14.5" width="17" height="13"/>
+                        <button horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" verticalCompressionResistancePriority="751" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Iyl-8N-bJr" userLabel="Prev 1 Button">
+                            <rect key="frame" x="157" y="14.5" width="17" height="13"/>
                             <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="backward.frame.fill" catalog="system" imagePosition="only" alignment="center" imageScaling="proportionallyUpOrDown" inset="2" id="MYK-yq-8eC">
                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                 <font key="font" metaFont="system"/>
@@ -67,7 +68,7 @@
                                 <action selector="buttonClicked:" target="-2" id="Fva-Px-c8a"/>
                             </connections>
                         </button>
-                        <button horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" verticalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="JBF-pN-A4v" userLabel="Play Pause Button">
+                        <button horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" verticalCompressionResistancePriority="751" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="JBF-pN-A4v" userLabel="Play Pause Button">
                             <rect key="frame" x="194" y="14" width="12.5" height="13"/>
                             <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="play.fill" catalog="system" imagePosition="only" alignment="center" imageScaling="proportionallyUpOrDown" inset="2" id="3ns-p9-ARz">
                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -77,8 +78,8 @@
                                 <action selector="buttonClicked:" target="-2" id="2yl-Al-iJa"/>
                             </connections>
                         </button>
-                        <button horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" verticalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="eQP-XC-aWC" userLabel="Next 1 Button">
-                            <rect key="frame" x="237" y="14.5" width="17" height="13"/>
+                        <button horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" verticalCompressionResistancePriority="751" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="eQP-XC-aWC" userLabel="Next 1 Button">
+                            <rect key="frame" x="226" y="14.5" width="17" height="13"/>
                             <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="forward.frame.fill" catalog="system" imagePosition="only" alignment="center" imageScaling="proportionallyUpOrDown" inset="2" id="GoK-rZ-81e">
                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                 <font key="font" metaFont="system"/>
@@ -87,8 +88,8 @@
                                 <action selector="buttonClicked:" target="-2" id="bI0-88-vlZ"/>
                             </connections>
                         </button>
-                        <button horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" verticalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="TGo-Zt-uqX" userLabel="Next 2 Button">
-                            <rect key="frame" x="282" y="14.5" width="19" height="12"/>
+                        <button horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" verticalCompressionResistancePriority="751" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="TGo-Zt-uqX" userLabel="Next 2 Button">
+                            <rect key="frame" x="263" y="14.5" width="19" height="12"/>
                             <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="forward.fill" catalog="system" imagePosition="only" alignment="center" imageScaling="proportionallyUpOrDown" inset="2" id="Odi-FP-YX0">
                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                 <font key="font" metaFont="system"/>
@@ -97,8 +98,8 @@
                                 <action selector="buttonClicked:" target="-2" id="yDP-Tm-OUT"/>
                             </connections>
                         </button>
-                        <button horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" verticalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="Af5-eW-HbI" userLabel="Next 3 Button">
-                            <rect key="frame" x="329" y="14.5" width="15" height="13"/>
+                        <button horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" verticalCompressionResistancePriority="751" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Af5-eW-HbI" userLabel="Next 3 Button">
+                            <rect key="frame" x="302" y="14.5" width="15" height="13"/>
                             <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="forward.end.fill" catalog="system" imagePosition="only" alignment="center" imageScaling="proportionallyUpOrDown" inset="2" id="GNJ-eR-dGK">
                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                 <font key="font" metaFont="system"/>
@@ -107,8 +108,8 @@
                                 <action selector="buttonClicked:" target="-2" id="4lJ-t1-POE"/>
                             </connections>
                         </button>
-                        <button horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" verticalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="833-1e-32F" userLabel="Next 4 Button">
-                            <rect key="frame" x="370" y="14.5" width="24" height="13"/>
+                        <button horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" verticalCompressionResistancePriority="751" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="833-1e-32F" userLabel="Next 4 Button">
+                            <rect key="frame" x="337" y="14.5" width="24" height="13"/>
                             <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="forward.end.alt.fill" catalog="system" imagePosition="only" alignment="center" imageScaling="proportionallyUpOrDown" inset="2" id="l9A-Sa-dt1">
                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                 <font key="font" metaFont="system"/>
@@ -117,8 +118,7 @@
                                 <action selector="buttonClicked:" target="-2" id="udd-hb-mha"/>
                             </connections>
                         </button>
-                    </subviews>
-                    <edgeInsets key="edgeInsets" left="6" right="6" top="6" bottom="6"/>
+                    </middleViews>
                     <visibilityPriorities>
                         <integer value="1000"/>
                         <integer value="1000"/>

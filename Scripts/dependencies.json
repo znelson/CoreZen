@@ -17,5 +17,5 @@
 		"arm": ["/opt/homebrew", "/opt/homebrew/opt/libarchive"],
 		"x86": ["/usr/local", "/usr/local/opt/libarchive"]
 	},
-	"download_url": "https://0a915b6a-a05f-4da5-aaad-17b6419a38d6.s3.amazonaws.com/CoreZen/Dependencies_2023-08-01.tar.gz"
+	"download_url": "https://0a915b6a-a05f-4da5-aaad-17b6419a38d6.s3.amazonaws.com/CoreZen/Dependencies_2023-10-05.tar.gz"
 }

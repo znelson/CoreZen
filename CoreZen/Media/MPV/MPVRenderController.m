@@ -32,7 +32,6 @@ static void zen_mpv_render_context_update(void *ctx);
 	mpv_render_param _mpvSkipRenderParams[2];
 	
 	BOOL _didRenderFrame;
-	BOOL _forceRenderFrame;
 	BOOL _terminated;
 	
 	pthread_mutex_t _renderMutex;
@@ -57,7 +56,6 @@ static void zen_mpv_render_context_update(void *ctx);
 	if (self) {
 		_playerView = playerView;
 		_didRenderFrame = NO;
-		_forceRenderFrame = NO;
 		_terminated = NO;
 		
 		zen_mpv_init_pthread_mutex_cond(&_renderMutex, &_renderCondition);
@@ -145,13 +143,6 @@ static void zen_mpv_render_context_update(void *ctx);
 
 - (BOOL)readyToRenderFrame {
 	if (_mpvRenderContext) {
-		pthread_mutex_lock(&_renderMutex);
-		BOOL forceRenderFrame = _forceRenderFrame;
-		pthread_mutex_unlock(&_renderMutex);
-		
-		if (forceRenderFrame) {
-			return YES;
-		}
 		uint64_t flags = mpv_render_context_update(_mpvRenderContext);
 		return (flags & MPV_RENDER_UPDATE_FRAME);
 	}

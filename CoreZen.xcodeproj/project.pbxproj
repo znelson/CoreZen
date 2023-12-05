@@ -952,15 +952,15 @@
 		53ECAD5B2B1FD4CB00B6AADD /* include */ = {
 			isa = PBXGroup;
 			children = (
-				53ECAD5C2B1FD4CB00B6AADD /* libpostproc */,
-				53ECAD602B1FD4CB00B6AADD /* libavfilter */,
-				53ECAD662B1FD4CB00B6AADD /* libavutil */,
-				53ECADC32B1FD4CB00B6AADD /* libavdevice */,
-				53ECADC72B1FD4CB00B6AADD /* libavformat */,
-				53ECADCC2B1FD4CB00B6AADD /* libswscale */,
 				53ECADD02B1FD4CB00B6AADD /* libavcodec */,
-				53ECADEA2B1FD4CB00B6AADD /* mpv */,
+				53ECADC32B1FD4CB00B6AADD /* libavdevice */,
+				53ECAD602B1FD4CB00B6AADD /* libavfilter */,
+				53ECADC72B1FD4CB00B6AADD /* libavformat */,
+				53ECAD662B1FD4CB00B6AADD /* libavutil */,
+				53ECAD5C2B1FD4CB00B6AADD /* libpostproc */,
 				53ECADEF2B1FD4CB00B6AADD /* libswresample */,
+				53ECADCC2B1FD4CB00B6AADD /* libswscale */,
+				53ECADEA2B1FD4CB00B6AADD /* mpv */,
 			);
 			path = include;
 			sourceTree = "<group>";

@@ -1,21 +1,32 @@
 {
-	"dependencies": {
-		"libmpv": 2
-	},
-	"headers": [
-		"libmpv",
-		"libavutil",
-		"libavcodec",
-		"libavformat",
-		"libavdevice",
-		"libavfilter",
-		"libswscale",
-		"libswresample",
-		"libpostproc"
-	],
-	"search_paths": {
-		"arm": ["/opt/homebrew", "/opt/homebrew/opt/libarchive"],
-		"x86": ["/usr/local", "/usr/local/opt/libarchive"]
-	},
-	"download_url": "https://0a915b6a-a05f-4da5-aaad-17b6419a38d6.s3.amazonaws.com/CoreZen/Dependencies_2024-01-12.tar.gz"
+    "dependencies":
+    {
+        "libmpv": 2
+    },
+    "headers":
+    [
+        "libmpv",
+        "libavutil",
+        "libavcodec",
+        "libavformat",
+        "libavdevice",
+        "libavfilter",
+        "libswscale",
+        "libswresample",
+        "libpostproc"
+    ],
+    "search_paths":
+    {
+        "arm":
+        [
+            "/opt/homebrew",
+            "/opt/homebrew/opt/libarchive"
+        ],
+        "x86":
+        [
+            "/usr/local",
+            "/usr/local/opt/libarchive"
+        ]
+    },
+    "download_url": "https://0a915b6a-a05f-4da5-aaad-17b6419a38d6.s3.amazonaws.com/CoreZen/Dependencies_2024-09-25.tar.gz"
 }

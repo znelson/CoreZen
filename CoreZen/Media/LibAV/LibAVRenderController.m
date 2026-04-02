@@ -169,13 +169,7 @@
 		rgbFrame->height = scaledY;
 		rgbFrame->format = AV_PIX_FMT_RGBA;
 		
-		int bufferSize = av_image_get_buffer_size(rgbFrame->format, rgbFrame->width, rgbFrame->height, 1);
-		
-		uint8_t *rgbBuffer = av_malloc(bufferSize);
-		
-		int result = av_image_fill_arrays(rgbFrame->data, rgbFrame->linesize, rgbBuffer, rgbFrame->format, rgbFrame->width, rgbFrame->height, 1);
-		
-		av_free(rgbBuffer);
+		int result = av_frame_get_buffer(rgbFrame, 1);
 		
 		if (result >= 0) {
 			// Cast to get around rules about adding `const` more than one level deep: https://stackoverflow.com/a/5055789

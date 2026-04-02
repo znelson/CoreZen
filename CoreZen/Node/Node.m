@@ -121,6 +121,12 @@
 	}
 }
 
+- (id)copyWithZone:(NSZone *)zone {
+	ZENNode *copy = [[self.class allocWithZone:zone] initWithName:self.name size:self.size];
+	[copy copyChildren:self];
+	return copy;
+}
+
 - (void)copyChildren:(ZENNode *)node {
 	for (ZENNode *child in node.children) {
 		[self addChildNode:[child copy]];

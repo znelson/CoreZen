@@ -136,7 +136,10 @@ void ZENLogAVFindBestStreamError(NSString *filePath, int returnCode, enum AVMedi
 
 - (NSUInteger)durationMicroseconds {
 	NSAssert(AV_TIME_BASE == 1000000, @"Expected libav AV_TIME_BASE 1000000 for microseconds, instead = %d", AV_TIME_BASE);
-	return _formatContext->duration;
+	if (!_formatContext || _formatContext->duration < 0) {
+		return 0;
+	}
+	return (NSUInteger)_formatContext->duration;
 }
 
 - (double)durationSeconds {

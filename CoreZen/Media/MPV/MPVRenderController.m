@@ -106,7 +106,12 @@ static void zen_mpv_render_context_update(void *ctx);
 	
 	[self.playerView lockViewContext];
 	
-	__unused int error = mpv_render_context_create(&_mpvRenderContext, self.mpvHandleFromPlayerView, renderParams);
+	int error = mpv_render_context_create(&_mpvRenderContext, self.mpvHandleFromPlayerView, renderParams);
+	if (error < 0) {
+		NSLog(@"ERROR: mpv_render_context_create failed: %d", error);
+		[self.playerView unlockViewContext];
+		return;
+	}
 	
 	mpv_render_context_set_update_callback(_mpvRenderContext, zen_mpv_render_context_update, selfAsVoid);
 	

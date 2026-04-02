@@ -151,6 +151,12 @@
 		0D8B0E7E4B2D6D25D9EE6309 /* libavutil.60.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 37C6CE60E6FAE7A41E5758F2 /* libavutil.60.dylib */; };
 		A648515826063B25A687BEE2 /* libmpv.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 14B85B4A23B3B9E64D362517 /* libmpv.2.dylib */; };
 		7BBED1C0448E642D02061408 /* libswscale.9.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AF2CEA40DF73E47475E7F86E /* libswscale.9.dylib */; };
+		CC00000228860A0000000001 /* NodeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CC00000128860A0000000001 /* NodeTests.m */; };
+		CC00000228860A0000000002 /* QueueTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CC00000128860A0000000002 /* QueueTests.m */; };
+		CC00000228860A0000000003 /* DomainTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CC00000128860A0000000003 /* DomainTests.m */; };
+		CC00000228860A0000000004 /* TestDTO.m in Sources */ = {isa = PBXBuildFile; fileRef = CC00000128860A0000000005 /* TestDTO.m */; };
+		CC00000228860A0000000005 /* TestTable.m in Sources */ = {isa = PBXBuildFile; fileRef = CC00000128860A0000000007 /* TestTable.m */; };
+		CC00000228860A0000000006 /* TestDomainObject.m in Sources */ = {isa = PBXBuildFile; fileRef = CC00000128860A0000000009 /* TestDomainObject.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -515,6 +521,15 @@
 		9215CC53E9C2CED004BBB718 /* render.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = render.h; sourceTree = "<group>"; };
 		79D0AF2EFC89B99015EE993D /* render_gl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = render_gl.h; sourceTree = "<group>"; };
 		53170EA3BE67D827F0B5181C /* stream_cb.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stream_cb.h; sourceTree = "<group>"; };
+		CC00000128860A0000000001 /* NodeTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NodeTests.m; sourceTree = "<group>"; };
+		CC00000128860A0000000002 /* QueueTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = QueueTests.m; sourceTree = "<group>"; };
+		CC00000128860A0000000003 /* DomainTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DomainTests.m; sourceTree = "<group>"; };
+		CC00000128860A0000000004 /* TestDTO.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestDTO.h; sourceTree = "<group>"; };
+		CC00000128860A0000000005 /* TestDTO.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestDTO.m; sourceTree = "<group>"; };
+		CC00000128860A0000000006 /* TestTable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestTable.h; sourceTree = "<group>"; };
+		CC00000128860A0000000007 /* TestTable.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestTable.m; sourceTree = "<group>"; };
+		CC00000128860A0000000008 /* TestDomainObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestDomainObject.h; sourceTree = "<group>"; };
+		CC00000128860A0000000009 /* TestDomainObject.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestDomainObject.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -586,9 +601,12 @@
 			children = (
 				5350F8B52886079F00F8CA68 /* Classes */,
 				5309C3B82885A1DC00BC0AAE /* CoreZenTests.m */,
-				5350F8A32886020500F8CA68 /* DatabaseTests.m */,
-				5350F8B32886074F00F8CA68 /* ObjectCacheTests.m */,
 				5350F8B62886080500F8CA68 /* CategoryTests.m */,
+				5350F8A32886020500F8CA68 /* DatabaseTests.m */,
+				CC00000128860A0000000003 /* DomainTests.m */,
+				CC00000128860A0000000001 /* NodeTests.m */,
+				5350F8B32886074F00F8CA68 /* ObjectCacheTests.m */,
+				CC00000128860A0000000002 /* QueueTests.m */,
 			);
 			path = CoreZenTests;
 			sourceTree = "<group>";
@@ -726,8 +744,14 @@
 		5350F8B52886079F00F8CA68 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				CC00000128860A0000000008 /* TestDomainObject.h */,
+				CC00000128860A0000000009 /* TestDomainObject.m */,
+				CC00000128860A0000000004 /* TestDTO.h */,
+				CC00000128860A0000000005 /* TestDTO.m */,
 				538E052C2885FB5400CE9DE7 /* TestIdentifiable.h */,
 				538E052D2885FB5400CE9DE7 /* TestIdentifiable.m */,
+				CC00000128860A0000000006 /* TestTable.h */,
+				CC00000128860A0000000007 /* TestTable.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -1284,10 +1308,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				5309C3B92885A1DC00BC0AAE /* CoreZenTests.m in Sources */,
-				5350F8A42886020500F8CA68 /* DatabaseTests.m in Sources */,
-				538E052E2885FB5400CE9DE7 /* TestIdentifiable.m in Sources */,
 				5350F8B72886080500F8CA68 /* CategoryTests.m in Sources */,
+				5350F8A42886020500F8CA68 /* DatabaseTests.m in Sources */,
+				CC00000228860A0000000003 /* DomainTests.m in Sources */,
+				CC00000228860A0000000001 /* NodeTests.m in Sources */,
 				5350F8B42886074F00F8CA68 /* ObjectCacheTests.m in Sources */,
+				CC00000228860A0000000002 /* QueueTests.m in Sources */,
+				CC00000228860A0000000004 /* TestDTO.m in Sources */,
+				CC00000228860A0000000006 /* TestDomainObject.m in Sources */,
+				538E052E2885FB5400CE9DE7 /* TestIdentifiable.m in Sources */,
+				CC00000228860A0000000005 /* TestTable.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

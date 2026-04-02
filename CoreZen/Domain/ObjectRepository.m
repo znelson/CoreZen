@@ -202,10 +202,11 @@
 		ZENObjectRepositoryNotificationObjectKey: domainObject
 	};
 	
-	[self.cache cacheObject:domainObject];
 	[self.queue transactionAsync:^(FMDatabase *database) {
-		[self.table insertDTO:domainObject.basicDTO database:database];
-		ZENDeliverNotificationOnMainThread(ZENObjectRepositoryObjectAddedNotification, self, notificationData);
+		if ([self.table insertDTO:domainObject.basicDTO database:database]) {
+			[self.cache cacheObject:domainObject];
+			ZENDeliverNotificationOnMainThread(ZENObjectRepositoryObjectAddedNotification, self, notificationData);
+		}
 		ZENCallAsyncContinueBlockOnThreadPool(completion);
 	}];
 }
@@ -263,10 +264,11 @@
 		ZENObjectRepositoryNotificationObjectKey: domainObject
 	};
 
-	[self.cache removeObject:domainObject.identifier];
 	[self.queue transactionAsync:^(FMDatabase *database) {
-		[self.table deleteByIdentifier:domainObject.identifier database:database];
-		ZENDeliverNotificationOnMainThread(ZENObjectRepositoryObjectDeletedNotification, self, notificationData);
+		if ([self.table deleteByIdentifier:domainObject.identifier database:database]) {
+			[self.cache removeObject:domainObject.identifier];
+			ZENDeliverNotificationOnMainThread(ZENObjectRepositoryObjectDeletedNotification, self, notificationData);
+		}
 		ZENCallAsyncContinueBlockOnThreadPool(completion);
 	}];
 }

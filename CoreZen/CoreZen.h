@@ -25,11 +25,12 @@ FOUNDATION_EXPORT const unsigned char CoreZenVersionString[];
 #import <CoreZen/NSView+CoreZen.h>
 
 #pragma mark - Database
+#import <CoreZen/Database.h>
+#import <CoreZen/ResultSet.h>
 #import <CoreZen/DatabaseQueue.h>
 #import <CoreZen/DatabaseSchema.h>
 #import <CoreZen/DatabaseTable.h>
 #import <CoreZen/DataTransferObject.h>
-@import FMDB;
 
 #pragma mark - Domain
 #import <CoreZen/DomainCommon.h>

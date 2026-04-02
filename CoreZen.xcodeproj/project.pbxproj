@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AA0000020000000000000001 /* Database.h in Headers */ = {isa = PBXBuildFile; fileRef = AA0000010000000000000001 /* Database.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		AA0000020000000000000002 /* Database.m in Sources */ = {isa = PBXBuildFile; fileRef = AA0000010000000000000002 /* Database.m */; };
+		AA0000020000000000000003 /* Database+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = AA0000010000000000000003 /* Database+Private.h */; };
+		AA0000020000000000000004 /* ResultSet.h in Headers */ = {isa = PBXBuildFile; fileRef = AA0000010000000000000004 /* ResultSet.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		AA0000020000000000000005 /* ResultSet.m in Sources */ = {isa = PBXBuildFile; fileRef = AA0000010000000000000005 /* ResultSet.m */; };
+		AA0000020000000000000006 /* ResultSet+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = AA0000010000000000000006 /* ResultSet+Private.h */; };
 		5309C3AE2885A1DC00BC0AAE /* CoreZen.docc in Sources */ = {isa = PBXBuildFile; fileRef = 5309C3AD2885A1DC00BC0AAE /* CoreZen.docc */; };
 		5309C3B42885A1DC00BC0AAE /* CoreZen.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5309C3A92885A1DC00BC0AAE /* CoreZen.framework */; };
 		5309C3B92885A1DC00BC0AAE /* CoreZenTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5309C3B82885A1DC00BC0AAE /* CoreZenTests.m */; };
@@ -220,6 +226,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		AA0000010000000000000001 /* Database.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Database.h; sourceTree = "<group>"; };
+		AA0000010000000000000002 /* Database.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Database.m; sourceTree = "<group>"; };
+		AA0000010000000000000003 /* Database+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Database+Private.h"; sourceTree = "<group>"; };
+		AA0000010000000000000004 /* ResultSet.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ResultSet.h; sourceTree = "<group>"; };
+		AA0000010000000000000005 /* ResultSet.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ResultSet.m; sourceTree = "<group>"; };
+		AA0000010000000000000006 /* ResultSet+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ResultSet+Private.h"; sourceTree = "<group>"; };
 		5309C3A92885A1DC00BC0AAE /* CoreZen.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = CoreZen.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5309C3AC2885A1DC00BC0AAE /* CoreZen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CoreZen.h; sourceTree = "<group>"; };
 		5309C3AD2885A1DC00BC0AAE /* CoreZen.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = CoreZen.docc; sourceTree = "<group>"; };
@@ -629,6 +641,9 @@
 		5309C4112885B66000BC0AAE /* Database */ = {
 			isa = PBXGroup;
 			children = (
+				AA0000010000000000000001 /* Database.h */,
+				AA0000010000000000000002 /* Database.m */,
+				AA0000010000000000000003 /* Database+Private.h */,
 				5309C4122885C86500BC0AAE /* DatabaseQueue.h */,
 				5309C4132885C86500BC0AAE /* DatabaseQueue.m */,
 				5309C4232885CDA500BC0AAE /* DatabaseSchema.h */,
@@ -636,6 +651,9 @@
 				5309C4272885D19400BC0AAE /* DatabaseTable.h */,
 				5309C41F2885CB1400BC0AAE /* DataTransferObject.h */,
 				5309C4202885CB1400BC0AAE /* DataTransferObject.m */,
+				AA0000010000000000000004 /* ResultSet.h */,
+				AA0000010000000000000005 /* ResultSet.m */,
+				AA0000010000000000000006 /* ResultSet+Private.h */,
 			);
 			path = Database;
 			sourceTree = "<group>";
@@ -1081,8 +1099,12 @@
 				5309C3F92885A86000BC0AAE /* Identifiable.h in Headers */,
 				5309C3F12885A74A00BC0AAE /* ObjectIdentifier.h in Headers */,
 				5309C3EC2885A43100BC0AAE /* PreferenceViewController.h in Headers */,
+				AA0000020000000000000001 /* Database.h in Headers */,
+				AA0000020000000000000003 /* Database+Private.h in Headers */,
 				5309C4252885CDA500BC0AAE /* DatabaseSchema.h in Headers */,
 				5309C4292885D19400BC0AAE /* DatabaseTable.h in Headers */,
+				AA0000020000000000000004 /* ResultSet.h in Headers */,
+				AA0000020000000000000006 /* ResultSet+Private.h in Headers */,
 				5350F8C22886194200F8CA68 /* MediaFile.h in Headers */,
 				5309C3E82885A39C00BC0AAE /* PreferencesWindowController.h in Headers */,
 				538E05072885DD1D00CE9DE7 /* DomainCallbacks.h in Headers */,
@@ -1228,7 +1250,9 @@
 				532CA22B291B0CFB008FA673 /* LibAVInfoController.m in Sources */,
 				5396533A288F4DF9007B53EC /* MPVFunctions.m in Sources */,
 				532CA224291B090E008FA673 /* FrameRenderer.m in Sources */,
+				AA0000020000000000000002 /* Database.m in Sources */,
 				5309C4262885CDA500BC0AAE /* DatabaseSchema.m in Sources */,
+				AA0000020000000000000005 /* ResultSet.m in Sources */,
 				5309C3AE2885A1DC00BC0AAE /* CoreZen.docc in Sources */,
 				538E05142885ED2200CE9DE7 /* ObjectRepository.m in Sources */,
 				5350FB0728889E7400F8CA68 /* Node.m in Sources */,

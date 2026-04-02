@@ -9,9 +9,9 @@
 #import "ObjectCache.h"
 #import "DatabaseTable.h"
 #import "DatabaseQueue.h"
+#import "Database.h"
+#import "ResultSet.h"
 #import "DomainCommon.h"
-
-@import FMDB;
 
 @interface ZENObjectRepository ()
 
@@ -21,14 +21,12 @@
 @property (nonatomic, strong, readonly) ZENObjectCache *cache;
 @property (nonatomic, weak, readonly) id<ZENDataModel> dataModel;
 
-// Runs asynchronously on a thread pool.
-
 // Runs synchronously. To be called on database queue.
-- (id<ZENIdentifiable>)createObjectFromRow:(FMResultSet *)row;
+- (id<ZENIdentifiable>)createObjectFromRow:(ZENResultSet *)row;
 
 // Runs synchronously. To be called on database queue.
 - (id<ZENIdentifiable>)fetchObjectByIdentifier:(ZENIdentifier)identifier
-									  database:(FMDatabase *)database;
+									  database:(ZENDatabase *)database;
 
 @end
 
@@ -54,7 +52,7 @@
 
 #pragma mark - [private] Create
 
-- (id<ZENIdentifiable>)createObjectFromRow:(FMResultSet *)row {
+- (id<ZENIdentifiable>)createObjectFromRow:(ZENResultSet *)row {
 	ZENDataTransferObject *dto = [self.table dtoFromRow:row];
 	id<ZENIdentifiable> object = [[(Class)self.embryo alloc] initWithDTO:dto];
 	return object;
@@ -63,9 +61,9 @@
 #pragma mark - [private] Fetch
 
 - (id<ZENIdentifiable>)fetchObjectByIdentifier:(ZENIdentifier)identifier
-									  database:(FMDatabase *)database {
+									  database:(ZENDatabase *)database {
 
-	FMResultSet *rs = [self.table rowByIdentifier:identifier database:database];
+	ZENResultSet *rs = [self.table rowByIdentifier:identifier database:database];
 	id<ZENIdentifiable> object = nil;
 	if ([rs next]) {
 		object = [self createObjectFromRow:rs];
@@ -77,7 +75,7 @@
 #pragma mark - Count
 
 - (void)countAllObjects:(ZENAsyncCountCompletionBlock)countBlock {
-	[self.queue fetchAsync:^(FMDatabase *database) {
+	[self.queue fetchAsync:^(ZENDatabase *database) {
 		NSUInteger count = [self.table countAllRows:database];
 		ZENCallAsyncCountCompletionBlockOnThreadPool(countBlock, count);
 	}];
@@ -92,7 +90,7 @@
 
 - (void)sumAllVideoDuration:(ZENAsyncCountCompletionBlock)countBlock {
 	if ([self.table respondsToSelector:@selector(sumAllVideoDuration:)]) {
-		[self.queue fetchAsync:^(FMDatabase *database) {
+		[self.queue fetchAsync:^(ZENDatabase *database) {
 			NSUInteger count = [self.table sumAllVideoDuration:database];
 			ZENCallAsyncCountCompletionBlockOnThreadPool(countBlock, count);
 		}];
@@ -121,7 +119,7 @@
 	}
 	
 	// Bounce to the database queue to fetch this object
-	[self.queue fetchAsync:^(FMDatabase *database) {
+	[self.queue fetchAsync:^(ZENDatabase *database) {
 		
 		// Check again if this object has shown up in the cache since we looked earlier
 		id<ZENIdentifiable> object = [self.cache cachedObject:identifier];
@@ -159,9 +157,9 @@
 - (void)fetchAllObjects:(ZENFetchResultsBlock)resultsBlock {
 	// We can't rely on the cache for early return like in objectByIdentifier: because we don't know
 	// the full list of the object identifiers without a query.
-	[self.queue fetchAsync:^(FMDatabase *database) {
+	[self.queue fetchAsync:^(ZENDatabase *database) {
 		NSMutableArray *objects = [NSMutableArray array];
-		FMResultSet *rs = [self.table allRows:database];
+		ZENResultSet *rs = [self.table allRows:database];
 		while ([rs next]) {
 			// Check if an object with this identifier is in the cache
 			// TODO: Consider batching all identifiers together to a single cache call
@@ -202,7 +200,7 @@
 		ZENObjectRepositoryNotificationObjectKey: domainObject
 	};
 	
-	[self.queue transactionAsync:^(FMDatabase *database) {
+	[self.queue transactionAsync:^(ZENDatabase *database) {
 		if ([self.table insertDTO:domainObject.basicDTO database:database]) {
 			[self.cache cacheObject:domainObject];
 			ZENDeliverNotificationOnMainThread(ZENObjectRepositoryObjectAddedNotification, self, notificationData);
@@ -241,7 +239,7 @@
 		ZENObjectRepositoryNotificationObjectKey: domainObject
 	};
 	
-	[self.queue transactionAsync:^(FMDatabase *database) {
+	[self.queue transactionAsync:^(ZENDatabase *database) {
 		[self.table updateDTO:domainObject.basicDTO database:database];
 		ZENDeliverNotificationOnMainThread(ZENObjectRepositoryObjectUpdatedNotification, self, notificationData);
 		ZENCallAsyncContinueBlockOnThreadPool(completion);
@@ -264,7 +262,7 @@
 		ZENObjectRepositoryNotificationObjectKey: domainObject
 	};
 
-	[self.queue transactionAsync:^(FMDatabase *database) {
+	[self.queue transactionAsync:^(ZENDatabase *database) {
 		if ([self.table deleteByIdentifier:domainObject.identifier database:database]) {
 			[self.cache removeObject:domainObject.identifier];
 			ZENDeliverNotificationOnMainThread(ZENObjectRepositoryObjectDeletedNotification, self, notificationData);

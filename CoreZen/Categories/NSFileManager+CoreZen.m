@@ -15,7 +15,7 @@
 									create:(BOOL)create
 									 error:(NSError **)outError {
 	// Search for the directory
-	NSURL *url = [NSFileManager.defaultManager URLForDirectory:searchPathDirectory inDomain:domain appropriateForURL:nil create:create error:outError];
+	NSURL *url = [self URLForDirectory:searchPathDirectory inDomain:domain appropriateForURL:nil create:create error:outError];
 	if (!url) {
 		return nil;
 	}

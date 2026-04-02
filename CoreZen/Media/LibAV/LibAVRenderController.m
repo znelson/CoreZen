@@ -239,11 +239,10 @@
 			
 			double durationSeconds = infoController.durationSeconds;
 			
-			// Calling code fills in either .requestedSeconds or .requestedPercentage; fill in the other
-			if (renderedFrame.requestedSeconds > renderedFrame.requestedPercentage) {
+			if (renderedFrame.requestType == ZENFrameRequestTypeSeconds) {
 				// seconds -> percentage
 				renderedFrame.requestedPercentage = renderedFrame.requestedSeconds / durationSeconds;
-			} else if (renderedFrame.requestedPercentage > renderedFrame.requestedSeconds) {
+			} else {
 				// percentage -> seconds
 				renderedFrame.requestedSeconds = durationSeconds * renderedFrame.requestedPercentage;
 			}

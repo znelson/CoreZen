@@ -42,6 +42,7 @@
 								 completion:(ZENRenderFrameResultsBlock)completion {
 	
 	ZENRenderedFrame *frame = [ZENRenderedFrame new];
+	frame.requestType = ZENFrameRequestTypeSeconds;
 	frame.requestedSeconds = seconds;
 	
 	return [self.frameRenderController renderFrame:frame size:NSMakeSize(width, height) completion:completion];
@@ -53,6 +54,7 @@
 									completion:(ZENRenderFrameResultsBlock)completion {
 	
 	ZENRenderedFrame *frame = [ZENRenderedFrame new];
+	frame.requestType = ZENFrameRequestTypePercentage;
 	frame.requestedPercentage = percentage;
 	
 	return [self.frameRenderController renderFrame:frame size:NSMakeSize(width, height) completion:completion];

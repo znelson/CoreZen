@@ -134,6 +134,10 @@
 		// and we only ever create and cache objects on this queue. If there was a race, only one instance
 		// can win and cache the object. The other instance would have a cache hit just before here.
 		object = [self fetchObjectByIdentifier:identifier database:database];
+		if (!object) {
+			ZENCallFetchResultsBlockOnThreadPool(resultsBlock, @[]);
+			return;
+		}
 		[self.cache cacheObject:object];
 		
 		// Async initialize object

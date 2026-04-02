@@ -17,7 +17,7 @@
 - (void)setupCommon;
 
 // rootView should be connected to the nib custom view in Interface Builder
-@property (nonatomic, weak) IBOutlet NSView *rootView;
+@property (nonatomic, strong) IBOutlet NSView *rootView;
 
 @end
 
@@ -25,6 +25,6 @@
 
 - (void)setupCommon;
 
-@property (nonatomic, weak) IBOutlet NSView *rootView;
+@property (nonatomic, strong) IBOutlet NSView *rootView;
 
 @end

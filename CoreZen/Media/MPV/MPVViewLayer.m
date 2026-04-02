@@ -52,6 +52,7 @@
 	CGLSetParameter(context, kCGLCPSwapInterval, &sync);
 	
 	CGLSetCurrentContext(context);
+	CGLRetainContext(context);
 	return context;
 }
 

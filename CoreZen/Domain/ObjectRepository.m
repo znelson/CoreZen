@@ -104,7 +104,7 @@
 - (void)sumAllVideoDurationForUI:(ZENAsyncCountCompletionBlock)countBlock {
 	// Bounce to main thread
 	[self sumAllVideoDuration:^(NSUInteger count) {
-		ZENCallAsyncCountCompletionBlockOnMainThread(countBlock, 0);
+		ZENCallAsyncCountCompletionBlockOnMainThread(countBlock, count);
 	}];
 }
 

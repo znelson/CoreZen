@@ -17,7 +17,9 @@
 	if ([self getResourceValue:outVolumeName forKey:NSURLVolumeLocalizedNameKey error:outError] &&
 		[self getResourceValue:outVolumeURL forKey:NSURLVolumeURLKey error:outError] &&
 		[self getResourceValue:&volumeUUID forKey:NSURLVolumeUUIDStringKey error:outError]) {
-		*outVolumeUUID = [[NSUUID alloc] initWithUUIDString:volumeUUID];
+		if (outVolumeUUID) {
+			*outVolumeUUID = [[NSUUID alloc] initWithUUIDString:volumeUUID];
+		}
 		return YES;
 	}
 	return NO;

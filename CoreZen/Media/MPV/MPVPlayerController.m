@@ -88,7 +88,9 @@ static void zen_mpv_wakeup(void *ctx);
 		// Initialize MPV handle
 		mpv_initialize(_mpvHandle);
 		
-		_version = zen_mpv_to_nsstring(mpv_get_property_string(_mpvHandle, kMPVProperty_mpv_version));
+		char *version = mpv_get_property_string(_mpvHandle, kMPVProperty_mpv_version);
+		_version = zen_mpv_to_nsstring(version);
+		mpv_free(version);
 		
 		// Disable subtitles
 		zen_mpv_set_string_property(_mpvHandle, kMPVProperty_sid, kMPVPropertyKey_no);

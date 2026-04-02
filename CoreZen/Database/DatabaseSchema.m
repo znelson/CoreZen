@@ -51,12 +51,9 @@
 }
 
 - (NSArray *)tableNames {
-	static NSMutableArray *tableNames = nil;
-	if (!tableNames) {
-		tableNames = [NSMutableArray array];
-		for (Class<ZENDatabaseTable> tableClass in self.tableClasses) {
-			[tableNames addObject:[tableClass tableName]];
-		}
+	NSMutableArray *tableNames = [NSMutableArray array];
+	for (Class<ZENDatabaseTable> tableClass in self.tableClasses) {
+		[tableNames addObject:[tableClass tableName]];
 	}
 	return tableNames;
 }

@@ -50,7 +50,7 @@ jobs:
 
       - name: Carthage Dependencies
         run: |
-          carthage update --platform mac
+          carthage bootstrap --use-xcframeworks --platform mac
 
       - name: Build
         run: |

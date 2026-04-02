@@ -11,7 +11,7 @@ Written by [Zach Nelson](https://github.com/znelson). See the [LICENSE file](htt
 ### FMDB.framework Dependency
 `CoreZen` links against and bundles [FMDB.framework](https://github.com/ccgus/fmdb). The Xcode project is set up to find FMDB installed using [Carthage](https://github.com/Carthage/Carthage#quick-start).
 
-_**Installation:**_ Run `carthage update --platform mac` to build Carthage/Build/Mac/FMDB.framework. The `CoreZen` Xcode project will find it from there.
+_**Installation:**_ Run `carthage bootstrap --use-xcframeworks --platform mac` to build Carthage/Build/FMDB.xcframework. The `CoreZen` Xcode project will find it from there.
 
 ### mpv and libav Dependencies
 `CoreZen` links against and bundles dynamic libraries for [libmpv](https://github.com/mpv-player/mpv/blob/master/DOCS/man/libmpv.rst) and [libav](https://github.com/libav/libav#readme). The Xcode project is set up to find headers and libraries installed using [Homebrew](https://brew.sh).

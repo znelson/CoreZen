@@ -216,7 +216,7 @@
 	size_t width = frame->width;
 	size_t height = frame->height;
 	
-	CGContextRef bitmapContext = CGBitmapContextCreate(frameData, width, height, 8, width * 4, colorSpace, kCGImageAlphaPremultipliedLast);
+	CGContextRef bitmapContext = CGBitmapContextCreate(frameData, width, height, 8, width * 4, colorSpace, (CGBitmapInfo)kCGImageAlphaPremultipliedLast);
 	
 	CGImageRef bitmap = CGBitmapContextCreateImage(bitmapContext);
 	

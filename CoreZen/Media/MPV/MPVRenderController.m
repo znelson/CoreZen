@@ -214,7 +214,7 @@ static void zen_mpv_render_context_update(void *ctx);
 @end
 
 static void zen_mpv_render_context_update(void *ctx) {
-	__unsafe_unretained ZENMPVRenderController *controller = (__bridge ZENMPVRenderController *)ctx;
+	ZENMPVRenderController *controller = (__bridge ZENMPVRenderController *)ctx;
 	dispatch_async(controller->_renderQueue, ^{
 		[controller renderFrameOnRenderQueue];
 	});

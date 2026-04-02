@@ -363,7 +363,7 @@ static void zen_mpv_wakeup(void *ctx);
 @end
 
 static void zen_mpv_wakeup(void *ctx) {
-	__unsafe_unretained ZENMPVPlayerController *controller = (__bridge ZENMPVPlayerController *)ctx;
+	ZENMPVPlayerController *controller = (__bridge ZENMPVPlayerController *)ctx;
 	dispatch_async(controller->_eventQueue, ^{
 		[controller mpvHandleEvents];
 	});

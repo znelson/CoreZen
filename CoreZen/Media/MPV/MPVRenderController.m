@@ -190,7 +190,9 @@ static void zen_mpv_render_context_update(void *ctx);
 		pthread_mutex_unlock(&self->_renderMutex);
 	});
 	
-	pthread_cond_wait(&_renderCondition, &_renderMutex);
+	while (!_didRenderFrame && !_terminated) {
+		pthread_cond_wait(&_renderCondition, &_renderMutex);
+	}
 	
 	BOOL terminated = _terminated;
 	BOOL didRenderFrame = _didRenderFrame;

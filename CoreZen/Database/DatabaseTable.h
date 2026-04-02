@@ -44,7 +44,7 @@
 - (ZENResultSet *)allRows:(ZENDatabase *)database;
 
 - (ZENResultSet *)rowByIdentifier:(ZENIdentifier)identifier
-						database:(ZENDatabase *)database;
+						 database:(ZENDatabase *)database;
 
 #pragma mark - Count
 

@@ -12,7 +12,7 @@
 
 @property (nonatomic, strong, readonly) NSURL *fileURL;
 
-+ (instancetype)mediaFileWithURL:(NSURL*)url;
++ (instancetype)mediaFileWithURL:(NSURL *)url;
 
 // Terminate frame renderer (and frame render controller) if one was created,
 // then terminate media file format context

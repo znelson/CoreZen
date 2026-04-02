@@ -29,10 +29,10 @@ void ZENCallAsyncContinueBlockOnMainThread(ZENAsyncContinueBlock continueBlock);
 // ========================================
 
 // Call a ZENAsyncCompletionBlock on a thread pool
-void ZENCallAsyncCompletionBlockOnThreadPool(ZENAsyncCompletionBlock completionBlock, NSError* error);
+void ZENCallAsyncCompletionBlockOnThreadPool(ZENAsyncCompletionBlock completionBlock, NSError *error);
 
 // Call a ZENAsyncCompletionBlock on the main thread
-void ZENCallAsyncCompletionBlockOnMainThread(ZENAsyncCompletionBlock completionBlock, NSError* error);
+void ZENCallAsyncCompletionBlockOnMainThread(ZENAsyncCompletionBlock completionBlock, NSError *error);
 
 // ========================================
 // ZENFetchResultsBlock
@@ -63,4 +63,4 @@ void ZENCallAsyncCountCompletionBlockOnMainThread(ZENAsyncCountCompletionBlock c
 // ========================================
 
 // Deliver a notification on the main thread
-void ZENDeliverNotificationOnMainThread(NSString* notification, id sender, NSDictionary *userData);
+void ZENDeliverNotificationOnMainThread(NSString *notification, id sender, NSDictionary *userData);

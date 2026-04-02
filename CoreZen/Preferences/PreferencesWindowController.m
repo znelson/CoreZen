@@ -161,7 +161,6 @@
 	NSToolbar *toolbar = [[NSToolbar alloc] initWithIdentifier:@"ZENPreferencesWindowController"];
 	toolbar.allowsUserCustomization = NO;
 	toolbar.autosavesConfiguration = YES;
-	toolbar.showsBaselineSeparator = YES;
 	toolbar.delegate = self;
 	toolbar.selectedItemIdentifier = self.activeViewController.preferenceIdentifier;
 	

@@ -165,7 +165,6 @@ static void zen_mpv_render_context_update(void *ctx);
 	
 	mpv_render_context_render(_mpvRenderContext, _mpvRenderParams);
 	
-	glClear(GL_COLOR_BUFFER_BIT);
 	glFlush();
 	
 	[self.playerView unlockViewContext];

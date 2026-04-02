@@ -22,7 +22,7 @@
 	ZENMPVViewLayer *viewLayer = [ZENMPVViewLayer new];
 	viewLayer.playerView = self;
 	
-	_renderController = [[ZENMPVRenderController new] initWithPlayerView:self];
+	_renderController = [[ZENMPVRenderController alloc] initWithPlayerView:self];
 	
 	NSOpenGLPixelFormatAttribute pixelFormatAttrs[] = {
 		NSOpenGLPFAAllowOfflineRenderers,

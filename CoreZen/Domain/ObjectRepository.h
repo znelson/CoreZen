@@ -107,8 +107,8 @@ typedef enum : NSUInteger {
 @end
 
 
-extern NSString *ZENObjectRepositoryNotificationObjectKey;
+extern NSString * const ZENObjectRepositoryNotificationObjectKey;
 
-extern NSString *ZENObjectRepositoryObjectAddedNotification;
-extern NSString *ZENObjectRepositoryObjectUpdatedNotification;
-extern NSString *ZENObjectRepositoryObjectDeletedNotification;
+extern NSString * const ZENObjectRepositoryObjectAddedNotification;
+extern NSString * const ZENObjectRepositoryObjectUpdatedNotification;
+extern NSString * const ZENObjectRepositoryObjectDeletedNotification;

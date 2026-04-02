@@ -298,7 +298,7 @@
 
 @end
 
-NSString *ZENObjectRepositoryNotificationObjectKey = @"ZENObjectRepositoryNotificationObject";
-NSString *ZENObjectRepositoryObjectAddedNotification = @"ZENObjectRepositoryObjectAddedNotification";
-NSString *ZENObjectRepositoryObjectUpdatedNotification = @"ZENObjectRepositoryObjectUpdatedNotification";
-NSString *ZENObjectRepositoryObjectDeletedNotification = @"ZENObjectRepositoryObjectDeletedNotification";
+NSString * const ZENObjectRepositoryNotificationObjectKey = @"ZENObjectRepositoryNotificationObject";
+NSString * const ZENObjectRepositoryObjectAddedNotification = @"ZENObjectRepositoryObjectAddedNotification";
+NSString * const ZENObjectRepositoryObjectUpdatedNotification = @"ZENObjectRepositoryObjectUpdatedNotification";
+NSString * const ZENObjectRepositoryObjectDeletedNotification = @"ZENObjectRepositoryObjectDeletedNotification";

@@ -40,8 +40,8 @@ static void* ObserverContext = &ObserverContext;
 	return @"ZENMediaPlayerCTIView";
 }
 
-- (void)initCommon {
-	[super initCommon];
+- (void)setupCommon {
+	[super setupCommon];
 	
 	self.scrubbing = NO;
 	self.previewing = NO;

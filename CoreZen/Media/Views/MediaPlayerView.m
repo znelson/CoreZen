@@ -12,13 +12,13 @@
 
 @interface ZENMediaPlayerView ()
 
-- (void)initCommon;
+- (void)setupCommon;
 
 @end
 
 @implementation ZENMediaPlayerView
 
-- (void)initCommon {
+- (void)setupCommon {
 	ZENMPVViewLayer *viewLayer = [ZENMPVViewLayer new];
 	viewLayer.playerView = self;
 	
@@ -46,7 +46,7 @@
 - (instancetype)initWithFrame:(NSRect)frameRect pixelFormat:(NSOpenGLPixelFormat *)format {
 	self = [super initWithFrame:frameRect pixelFormat:format];
 	if (self) {
-		[self initCommon];
+		[self setupCommon];
 	}
 	return self;
 }
@@ -54,7 +54,7 @@
 - (instancetype)initWithCoder:(NSCoder *)coder {
 	self = [super initWithCoder:coder];
 	if (self) {
-		[self initCommon];
+		[self setupCommon];
 	}
 	return self;
 }

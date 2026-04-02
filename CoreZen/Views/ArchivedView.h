@@ -14,7 +14,7 @@
 
 // Common init path for both -initWithFrame and -initWithCoder - derived
 // view may override, just be sure to call this super impl first
-- (void)initCommon;
+- (void)setupCommon;
 
 // rootView should be connected to the nib custom view in Interface Builder
 @property (nonatomic, weak) IBOutlet NSView *rootView;
@@ -23,7 +23,7 @@
 
 @interface ZENArchivedView : NSView <ZENArchivedView>
 
-- (void)initCommon;
+- (void)setupCommon;
 
 @property (nonatomic, weak) IBOutlet NSView *rootView;
 

@@ -9,13 +9,13 @@
 
 @interface ZENMediaPlayerPeekView ()
 
-- (void)initCommon;
+- (void)setupCommon;
 
 @end
 
 @implementation ZENMediaPlayerPeekView
 
-- (void)initCommon {
+- (void)setupCommon {
 	self.wantsLayer = YES;
 	self.layer.cornerRadius = 4;
 	self.layer.masksToBounds = YES;
@@ -33,7 +33,7 @@
 - (instancetype)initWithFrame:(NSRect)frameRect {
 	self = [super initWithFrame:frameRect];
 	if (self) {
-		[self initCommon];
+		[self setupCommon];
 	}
 	return self;
 }
@@ -41,7 +41,7 @@
 - (instancetype)initWithCoder:(NSCoder *)coder {
 	self = [super initWithCoder:coder];
 	if (self) {
-		[self initCommon];
+		[self setupCommon];
 	}
 	return self;
 }

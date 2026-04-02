@@ -16,7 +16,7 @@
 	@throw [NSException exceptionWithName:NSInternalInconsistencyException reason:errorReason userInfo:nil];
 }
 
-- (void)initCommon {
+- (void)setupCommon {
 	NSBundle *bundle = [NSBundle bundleForClass:self.class];
 	NSNib *nib = [[NSNib alloc] initWithNibNamed:self.archivedViewName bundle:bundle];
 	if ([nib instantiateWithOwner:self topLevelObjects:nil]) {
@@ -30,7 +30,7 @@
 - (instancetype)initWithFrame:(NSRect)frameRect {
 	self = [super initWithFrame:frameRect];
 	if (self) {
-		[self initCommon];
+		[self setupCommon];
 	}
 	return self;
 }
@@ -38,7 +38,7 @@
 - (instancetype)initWithCoder:(NSCoder *)coder {
 	self = [super initWithCoder:coder];
 	if (self) {
-		[self initCommon];
+		[self setupCommon];
 	}
 	return self;
 }

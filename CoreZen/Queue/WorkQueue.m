@@ -95,7 +95,7 @@ typedef BOOL (^ZENWorkQueueTokenBlock)(void);
 @property (nonatomic, strong, readonly) dispatch_queue_t queue;
 @property (nonatomic, strong, readonly) ZENWorkQueueToken *terminateToken;
 
-- (void)initCommon:(NSString *)label;
+- (void)setupCommon:(NSString *)label;
 
 - (instancetype)initWithLabel:(NSString *)label;
 
@@ -106,7 +106,7 @@ typedef BOOL (^ZENWorkQueueTokenBlock)(void);
 
 @implementation ZENWorkQueue
 
-- (void)initCommon:(NSString *)label {
+- (void)setupCommon:(NSString *)label {
 	_label = label;
 	_terminateToken = [ZENWorkQueueToken new];
 }
@@ -114,7 +114,7 @@ typedef BOOL (^ZENWorkQueueTokenBlock)(void);
 - (instancetype)initWithLabel:(NSString *)label {
 	self = [super init];
 	if (self) {
-		[self initCommon:label];
+		[self setupCommon:label];
 		_queue = dispatch_queue_create(label.UTF8String, DISPATCH_QUEUE_SERIAL);
 	}
 	return self;
@@ -124,7 +124,7 @@ typedef BOOL (^ZENWorkQueueTokenBlock)(void);
 						  qos:(dispatch_qos_class_t)qos {
 	self = [super init];
 	if (self) {
-		[self initCommon:label];
+		[self setupCommon:label];
 		dispatch_queue_attr_t attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, qos, 0);
 		_queue = dispatch_queue_create(label.UTF8String, attr);
 	}

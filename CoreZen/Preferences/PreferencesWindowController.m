@@ -113,6 +113,7 @@
 									   NSWidth(frameRectForContentRect),
 									   NSHeight(frameRectForContentRect));
 
+	self.activeViewController = viewController;
 	self.window.title = viewController.preferenceDisplayName;
 
 	NSView *contentView = viewController.view;
@@ -124,9 +125,7 @@
 		context.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
 		[self.window.animator setFrame:newWindowFrame display:YES];
 		[contentView.animator setAlphaValue:1.0];
-	} completionHandler:^{
-		self.activeViewController = viewController;
-	}];
+	} completionHandler:nil];
 }
 
 - (NSViewController<ZENPreferenceViewController> *)viewControllerWithIdentifier:(NSString *)identifier {

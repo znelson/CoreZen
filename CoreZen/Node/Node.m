@@ -71,7 +71,7 @@
 - (NSUInteger)countChildrenAndDescendants {
 	__block NSUInteger count = 0;
 	[self enumerateDepthFirstUsingBlock:^(ZENNode *node, NSUInteger index, BOOL *stop) {
-		count = index;
+		++count;
 	}];
 	return count;
 }

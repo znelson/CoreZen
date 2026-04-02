@@ -153,8 +153,9 @@ static void* ObserverContext = &ObserverContext;
 		
 		NSUInteger width = 320;
 		
+		__weak ZENMediaPlayerCTIView *weakSelf = self;
 		[self.frameRenderer renderFrames:101 width:width height:width completion:^(NSArray<ZENRenderedFrame *> *frames) {
-			self.previewFrames = frames;
+			weakSelf.previewFrames = frames;
 			
 			NSLog(@"Rendered %lu frames", frames.count);
 		}];

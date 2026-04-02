@@ -224,7 +224,7 @@
 - (void) asyncInitAndAdd:(ZENDomainObject *)domainObject
 			uiCompletion:(ZENAsyncContinueBlock)completion {
 	[self asyncInitAndAdd:domainObject completion:^{
-			ZENCallAsyncContinueBlockOnThreadPool(completion);
+			ZENCallAsyncContinueBlockOnMainThread(completion);
 	}];
 }
 

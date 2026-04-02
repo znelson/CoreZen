@@ -60,22 +60,15 @@ rm -v ../Dependencies/dependencies.x86.resolved
 
 Upload archive to AWS. Remember to set read permissions to "world".
 
-10. Update libraries in Xcode
+10. Update Xcode project
 
-Under `CoreZen > Dependencies > lib`, select and delete all libraries. Choose the "Remove References" option.
+```commandline
+./update_project.py
+```
 
-From Finder, drag everything from `../Dependencies/lib` into Xcode under `CoreZen > Dependencies > lib`. Do not check the boxes to add the libraries to CoreZen or CoreZenTests automatically.
+This updates `project.pbxproj` to match the current contents of `Dependencies/lib` and
+`Dependencies/include`. It replaces all library file references, header references,
+Copy Files entries, and Link Binary with Libraries entries.
 
-Under `CoreZen > Build Phases > Link Binary with Libraries`, add the following by dragging from the left sidebar:
-* libavcodec
-* libavformat
-* libmpv
-* libswscale
-
-Under `CoreZen > Build Phases > Copy Files`, add everything under `Dependencies > lib` by clicking the `+` button at the bottom.
-
-11. Update headers in Xcode
-
-Under `CoreZen > Dependencies > include`, select and delete all folders of headers. Choose the "Remove References" option.
-
-From Finder, drag everything from `../Dependencies/include` into Xcode under `CoreZen > Dependencies > include`.
+Libraries listed under `linked_libraries` in `dependencies.json` are added to
+Link Binary with Libraries. Use `--dry-run` to preview changes without writing.

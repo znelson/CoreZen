@@ -49,6 +49,10 @@
 
 - (void)avInitWithCodec:(const AVCodec *)codec
 				 stream:(const AVStream *)stream {
+	if (!codec || !stream) {
+		NSLog(@"avInitWithCodec: codec or stream is NULL");
+		return;
+	}
 	_codecContext = avcodec_alloc_context3(codec);
 	avcodec_parameters_to_context(_codecContext, stream->codecpar);
 	

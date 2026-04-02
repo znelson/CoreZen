@@ -635,7 +635,7 @@
 		535FA7942CA44B16003481B6 /* render.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = render.h; sourceTree = "<group>"; };
 		535FA7952CA44B16003481B6 /* render_gl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = render_gl.h; sourceTree = "<group>"; };
 		535FA7962CA44B16003481B6 /* stream_cb.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stream_cb.h; sourceTree = "<group>"; };
-		538499102885FF21004ED6A1 /* FMDB.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FMDB.framework; path = Carthage/Build/Mac/FMDB.framework; sourceTree = "<group>"; };
+		538499102885FF21004ED6A1 /* FMDB.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = FMDB.xcframework; path = Carthage/Build/FMDB.xcframework; sourceTree = "<group>"; };
 		5386706928BFE16300FB15EB /* MediaPlayerControlsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MediaPlayerControlsView.m; sourceTree = "<group>"; };
 		5386706B28BFE16300FB15EB /* MediaPlayerControlsView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MediaPlayerControlsView.h; sourceTree = "<group>"; };
 		538E05012885DCED00CE9DE7 /* DomainObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DomainObject.h; sourceTree = "<group>"; };
@@ -666,7 +666,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				538499112885FF21004ED6A1 /* FMDB.framework in Frameworks */,
+				538499112885FF21004ED6A1 /* FMDB.xcframework in Frameworks */,
 				535FA8292CA44C11003481B6 /* libavformat.61.dylib in Frameworks */,
 				535FA82A2CA44C2A003481B6 /* libavutil.59.dylib in Frameworks */,
 				535FA82B2CA44C39003481B6 /* libavcodec.61.dylib in Frameworks */,
@@ -799,7 +799,7 @@
 		5309C4162885C9A800BC0AAE /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				538499102885FF21004ED6A1 /* FMDB.framework */,
+				538499102885FF21004ED6A1 /* FMDB.xcframework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -1623,7 +1623,7 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/Mac",
+					"$(PROJECT_DIR)/Carthage/Build",
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = GL_SILENCE_DEPRECATION;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1662,7 +1662,7 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/Mac",
+					"$(PROJECT_DIR)/Carthage/Build",
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = GL_SILENCE_DEPRECATION;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1695,7 +1695,7 @@
 				DEVELOPMENT_TEAM = 5N7Y5W34VF;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/Mac",
+					"$(PROJECT_DIR)/Carthage/Build",
 				);
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
@@ -1717,7 +1717,7 @@
 				DEVELOPMENT_TEAM = 5N7Y5W34VF;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/Mac",
+					"$(PROJECT_DIR)/Carthage/Build",
 				);
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 13.0;

@@ -280,12 +280,18 @@ if args.download:
 
     proc = subprocess.Popen(['wget', '-nv', '-O', download_path, download_url])
     proc.communicate()
+    if proc.returncode != 0:
+        print(f'ERROR: Download failed (exit code {proc.returncode})')
+        exit(1)
 
     print('Extracting...')
     print(f'Root: {root_path}')
 
     proc = subprocess.Popen(['tar', '-xvzf', download_path, '-C', root_path])
     proc.communicate()
+    if proc.returncode != 0:
+        print(f'ERROR: Extraction failed (exit code {proc.returncode})')
+        exit(1)
     exit()
 
 if args.compress:

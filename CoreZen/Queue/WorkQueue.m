@@ -81,7 +81,7 @@ typedef BOOL (^ZENWorkQueueTokenBlock)(void);
 }
 
 - (BOOL)activate {
-	BOOL result = (self.tokens.count > 0);
+	BOOL result = NO;
 	for (ZENWorkQueueToken *token in self.tokens.reverseObjectEnumerator) {
 		result |= [token activate];
 	}

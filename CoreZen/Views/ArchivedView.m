@@ -17,7 +17,7 @@
 }
 
 - (void)initCommon {
-	NSBundle *bundle = [NSBundle bundleForClass:ZENArchivedView.class];
+	NSBundle *bundle = [NSBundle bundleForClass:self.class];
 	NSNib *nib = [[NSNib alloc] initWithNibNamed:self.archivedViewName bundle:bundle];
 	if ([nib instantiateWithOwner:self topLevelObjects:nil]) {
 		NSView *nibView = self.rootView;

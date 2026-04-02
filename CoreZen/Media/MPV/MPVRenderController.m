@@ -32,6 +32,7 @@ static void zen_mpv_render_context_update(void *ctx);
 	mpv_render_param _mpvSkipRenderParams[2];
 	
 	BOOL _didRenderFrame;
+	BOOL _signaled;
 	BOOL _terminated;
 	
 	pthread_mutex_t _renderMutex;
@@ -186,16 +187,18 @@ static void zen_mpv_render_context_update(void *ctx);
 	pthread_mutex_lock(&_renderMutex);
 	
 	_didRenderFrame = NO;
+	_signaled = NO;
 	
 	dispatch_async(dispatch_get_main_queue(), ^{
 		[self.playerView.layer display];
 		
 		pthread_mutex_lock(&self->_renderMutex);
+		self->_signaled = YES;
 		pthread_cond_signal(&self->_renderCondition);
 		pthread_mutex_unlock(&self->_renderMutex);
 	});
 	
-	while (!_didRenderFrame && !_terminated) {
+	while (!_signaled && !_terminated) {
 		pthread_cond_wait(&_renderCondition, &_renderMutex);
 	}
 	

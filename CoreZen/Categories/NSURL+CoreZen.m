@@ -47,9 +47,11 @@
 		if ([volumeURL getResourceValue:&uuid forKey:NSURLVolumeUUIDStringKey error:&error] &&
 			[uuid isEqual:volumeUUIDString]) {
 			
-			[volumeURL getResourceValue:outVolumeName forKey:NSURLVolumeLocalizedNameKey error:&error];
-			[volumeURL getResourceValue:outVolumeURL forKey:NSURLVolumeURLKey error:&error];
-			return YES;
+			if ([volumeURL getResourceValue:outVolumeName forKey:NSURLVolumeLocalizedNameKey error:&error] &&
+				[volumeURL getResourceValue:outVolumeURL forKey:NSURLVolumeURLKey error:&error]) {
+				return YES;
+			}
+			return NO;
 		}
 	}
 	return NO;

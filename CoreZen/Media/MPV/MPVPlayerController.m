@@ -76,6 +76,10 @@ static void zen_mpv_wakeup(void *ctx);
 		
 		// Create MPV handle (initialization happens after configuration)
 		_mpvHandle = mpv_create();
+		if (!_mpvHandle) {
+			NSLog(@"ERROR: mpv_create() failed");
+			return nil;
+		}
 		
 		_clientName = zen_mpv_to_nsstring(mpv_client_name(_mpvHandle));
 		

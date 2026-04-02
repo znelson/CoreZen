@@ -16,6 +16,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Check Formatting
+        run: |
+          brew install clang-format
+          Scripts/format.sh --check
+
       - name: Prepare Keychain For Signing
         env:
           SECRET_MACOS_CERTIFICATE_B64: ${{ secrets.MACOS_CERTIFICATE }}

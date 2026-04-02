@@ -45,11 +45,11 @@ typedef enum : NSUInteger {
 
 // Runs asynchronously. Result callback block happens on a thread pool.
 - (void)fetchObjectByIdentifier:(ZENIdentifier)identifier
-				completion:(ZENFetchResultsBlock)resultsBlock;
+					 completion:(ZENFetchResultsBlock)resultsBlock;
 
 // Same as above, but uiCompletion block happens on the main thread.
 - (void)fetchObjectByIdentifier:(ZENIdentifier)identifier
-			  uiCompletion:(ZENFetchResultsBlock)resultsBlock;
+				   uiCompletion:(ZENFetchResultsBlock)resultsBlock;
 
 // Runs asynchronously. Result callback block happens on a thread pool.
 - (void)fetchAllObjects:(ZENFetchResultsBlock)resultsBlock;
@@ -69,12 +69,12 @@ typedef enum : NSUInteger {
 
 // Helper method to call DomainObject +asyncInit: on object before
 // adding to repository.
-- (void) asyncInitAndAdd:(ZENDomainObject *)domainObject
-			  completion:(ZENAsyncContinueBlock)completion;
+- (void)asyncInitAndAdd:(ZENDomainObject *)domainObject
+			 completion:(ZENAsyncContinueBlock)completion;
 
 // Same as above, but uiCompletion block happens on the main thread.
-- (void) asyncInitAndAdd:(ZENDomainObject *)domainObject
-			uiCompletion:(ZENAsyncContinueBlock)completion;
+- (void)asyncInitAndAdd:(ZENDomainObject *)domainObject
+		   uiCompletion:(ZENAsyncContinueBlock)completion;
 
 #pragma mark - Update
 
@@ -107,8 +107,8 @@ typedef enum : NSUInteger {
 @end
 
 
-extern NSString * const ZENObjectRepositoryNotificationObjectKey;
+extern NSString *const ZENObjectRepositoryNotificationObjectKey;
 
-extern NSString * const ZENObjectRepositoryObjectAddedNotification;
-extern NSString * const ZENObjectRepositoryObjectUpdatedNotification;
-extern NSString * const ZENObjectRepositoryObjectDeletedNotification;
+extern NSString *const ZENObjectRepositoryObjectAddedNotification;
+extern NSString *const ZENObjectRepositoryObjectUpdatedNotification;
+extern NSString *const ZENObjectRepositoryObjectDeletedNotification;

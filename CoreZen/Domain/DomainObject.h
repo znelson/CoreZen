@@ -13,7 +13,7 @@
 @protocol ZENDataModel
 @end
 
-@protocol ZENDomainObject<NSObject, ZENIdentifiable>
+@protocol ZENDomainObject <NSObject, ZENIdentifiable>
 
 - (instancetype)initWithDTO:(ZENDataTransferObject *)dto;
 
@@ -23,7 +23,7 @@
 
 @end
 
-@interface ZENDomainObject : NSObject<ZENDomainObject>
+@interface ZENDomainObject : NSObject <ZENDomainObject>
 
 @property (nonatomic, strong, readonly) ZENDataTransferObject *basicDTO;
 

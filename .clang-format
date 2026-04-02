@@ -1,0 +1,53 @@
+---
+BasedOnStyle: LLVM
+
+# Tabs, matching existing Xcode configuration
+UseTab: Always
+IndentWidth: 4
+TabWidth: 4
+ContinuationIndentWidth: 4
+ObjCBlockIndentWidth: 4
+
+# No column limit — avoids reformatting existing long lines.
+# Tighten to 120 once the codebase is cleaned up, if desired.
+ColumnLimit: 0
+
+# K&R brace style
+BreakBeforeBraces: Attach
+
+# int *x, NSString *name
+PointerAlignment: Right
+
+# Case labels indented inside switch
+IndentCaseLabels: true
+
+# Imports and includes
+SortIncludes: Never
+
+# Objective-C
+ObjCSpaceAfterProperty: true
+ObjCSpaceBeforeProtocolList: true
+
+# Spacing
+SpaceAfterCStyleCast: false
+SpaceBeforeParens: ControlStatements
+SpacesInContainerLiterals: false
+
+# Alignment
+AlignAfterOpenBracket: Align
+AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: false
+AlignOperands: true
+AlignTrailingComments: true
+
+# Short constructs — keep blocks and control flow multi-line
+AllowShortBlocksOnASingleLine: Empty
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+
+# Line breaks
+BreakBeforeBinaryOperators: None
+KeepEmptyLinesAtTheStartOfBlocks: false
+MaxEmptyLinesToKeep: 2

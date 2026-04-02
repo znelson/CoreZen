@@ -105,7 +105,10 @@
 			database = [FMDatabase databaseWithPath:self.databaseKey];
 		}
 		
-		[database open];
+		if (![database open]) {
+			NSLog(@"ERROR: Failed to open database at %@", self.databaseURL);
+			return nil;
+		}
 		[database executeUpdate:@"PRAGMA synchronous = 1;"];
 		[database setShouldCacheStatements:YES];
 		

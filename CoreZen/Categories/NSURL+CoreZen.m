@@ -55,8 +55,8 @@
 
 - (NSString *)zen_relativePathToURL:(NSURL *)url {
 	
-	NSString *fullPath = [url absoluteString];
-	NSString *basePath = [self absoluteString];
+	NSString *fullPath = [url path];
+	NSString *basePath = [self path];
 	if ([fullPath hasPrefix:basePath]) {
 		NSString *relativePath = [fullPath substringFromIndex:basePath.length];
 		return relativePath;
@@ -66,7 +66,7 @@
 
 - (NSUInteger)zen_fileSize {
 	NSError *error;
-	NSDictionary *attributes = [NSFileManager.defaultManager attributesOfItemAtPath:self.absoluteString error:&error];
+	NSDictionary *attributes = [NSFileManager.defaultManager attributesOfItemAtPath:self.path error:&error];
 	if (attributes) {
 		return attributes.fileSize;
 	}

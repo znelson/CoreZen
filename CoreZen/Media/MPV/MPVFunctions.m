@@ -72,5 +72,7 @@ void *zen_mpv_get_opengl_proc_address(void *ctx, const char *name) {
 	CFBundleRef bundle = CFBundleGetBundleWithIdentifier(bundleName);
 	CFStringRef functionName = CFStringCreateWithCString(kCFAllocatorDefault, name, kCFStringEncodingASCII);
 	void *function = CFBundleGetFunctionPointerForName(bundle, functionName);
+	CFRelease(functionName);
+	CFRelease(bundleName);
 	return function;
 }

@@ -7,9 +7,9 @@
 
 #import "DatabaseSchema.h"
 #import "DatabaseTable.h"
+#import "Database+Private.h"
+#import "ResultSet.h"
 #import "ObjectIdentifier.h"
-
-@import FMDB;
 
 @interface ZENDatabaseSchema ()
 
@@ -19,8 +19,8 @@
 
 - (NSArray *)tableNames;
 
-- (BOOL)updateDatabaseSchema:(FMDatabase *)database;
-- (void)initializeIdentifiers:(FMDatabase *)database;
+- (BOOL)updateDatabaseSchema:(ZENDatabase *)database;
+- (void)initializeIdentifiers:(ZENDatabase *)database;
 
 @end
 
@@ -38,7 +38,7 @@
 	return [[ZENDatabaseSchema alloc] initWithTableClasses:tables];
 }
 
-- (void)initializeDatabase:(FMDatabase *)database {
+- (void)initializeDatabase:(ZENDatabase *)database {
 	// Update the database schema to the latest version
 	[database beginTransaction];
 	if ([self updateDatabaseSchema:database]) {
@@ -58,9 +58,9 @@
 	return tableNames;
 }
 
-- (BOOL)updateDatabaseSchema:(FMDatabase *)database {
+- (BOOL)updateDatabaseSchema:(ZENDatabase *)database {
 	NSUInteger startingVersion = 0;
-	FMResultSet *rs = [database executeQuery:@"PRAGMA user_version"];
+	ZENResultSet *rs = [database executeQuery:@"PRAGMA user_version"];
 	if ([rs next]) {
 		startingVersion = [rs unsignedLongLongIntForColumnIndex:0];
 	}
@@ -89,10 +89,10 @@
 	return versionChanged;
 }
 
-- (void)initializeIdentifiers:(FMDatabase *)database {
+- (void)initializeIdentifiers:(ZENDatabase *)database {
 	for (NSString *tableName in self.tableNames) {
 		NSString *statement = [NSString stringWithFormat:@"SELECT identifier FROM %@ ORDER BY identifier DESC LIMIT 1;", tableName];
-		FMResultSet *rs = [database executeQuery:statement];
+		ZENResultSet *rs = [database executeQuery:statement];
 		if ([rs next]) {
 			ZENIdentifier largestIdentifier = [rs longLongIntForColumnIndex:0];
 			NSLog(@"Setting largest identifier to %lli (from %@)", largestIdentifier, tableName);

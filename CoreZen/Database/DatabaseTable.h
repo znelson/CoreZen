@@ -7,8 +7,8 @@
 
 #import <Foundation/Foundation.h>
 
-@class FMDatabase;
-@class FMResultSet;
+@class ZENDatabase;
+@class ZENResultSet;
 @class ZENDataTransferObject;
 
 #import <CoreZen/Identifier.h>
@@ -19,41 +19,41 @@
 
 + (NSString *)tableName;
 
-+ (BOOL)updateSchema:(FMDatabase *)database
++ (BOOL)updateSchema:(ZENDatabase *)database
 			 version:(NSUInteger)version;
 
 #pragma mark - Create
 
 - (BOOL)insertDTO:(ZENDataTransferObject *)dto
-		 database:(FMDatabase *)database;
+		 database:(ZENDatabase *)database;
 
 #pragma mark - Update
 
 - (BOOL)updateDTO:(ZENDataTransferObject *)dto
-		 database:(FMDatabase *)database;
+		 database:(ZENDatabase *)database;
 
 #pragma mark - Delete
 
 - (BOOL)deleteByIdentifier:(ZENIdentifier)identifier
-				  database:(FMDatabase *)database;
+				  database:(ZENDatabase *)database;
 
 #pragma mark - Read
 
-- (ZENDataTransferObject *)dtoFromRow:(FMResultSet *)row;
+- (ZENDataTransferObject *)dtoFromRow:(ZENResultSet *)row;
 
-- (FMResultSet *)allRows:(FMDatabase *)database;
+- (ZENResultSet *)allRows:(ZENDatabase *)database;
 
-- (FMResultSet *)rowByIdentifier:(ZENIdentifier)identifier
-						database:(FMDatabase *)database;
+- (ZENResultSet *)rowByIdentifier:(ZENIdentifier)identifier
+						database:(ZENDatabase *)database;
 
 #pragma mark - Count
 
-- (NSUInteger)countAllRows:(FMDatabase *)database;
+- (NSUInteger)countAllRows:(ZENDatabase *)database;
 
 #pragma mark - [optional] Count
 
 @optional
 
-- (NSUInteger)sumAllVideoDuration:(FMDatabase *)database;
+- (NSUInteger)sumAllVideoDuration:(ZENDatabase *)database;
 
 @end

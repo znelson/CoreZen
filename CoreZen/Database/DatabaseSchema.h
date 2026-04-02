@@ -7,12 +7,12 @@
 
 #import <Foundation/Foundation.h>
 
-@class FMDatabase;
+@class ZENDatabase;
 
 @interface ZENDatabaseSchema : NSObject
 
 + (instancetype)schemaWithTableClasses:(NSArray *)tables;
 
-- (void)initializeDatabase:(FMDatabase *)database;
+- (void)initializeDatabase:(ZENDatabase *)database;
 
 @end

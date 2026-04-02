@@ -7,9 +7,9 @@
 
 #import <Foundation/Foundation.h>
 
-@class FMDatabase;
+@class ZENDatabase;
 
-typedef void (^ZENDatabaseBlock)(FMDatabase *database);
+typedef void (^ZENDatabaseBlock)(ZENDatabase *database);
 
 @interface ZENDatabaseQueue : NSObject
 

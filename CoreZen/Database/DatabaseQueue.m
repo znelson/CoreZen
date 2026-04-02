@@ -6,6 +6,7 @@
 //
 
 #import "DatabaseQueue.h"
+#import "Database+Private.h"
 #import "WorkQueue.h"
 
 #import <stdatomic.h>
@@ -17,7 +18,7 @@
 - (void)internalInit:(NSString *)queueLabel;
 - (instancetype)initInMemory;
 - (instancetype)initWithURL:(NSURL *)URL;
-- (FMDatabase *)threadDatabase;
+- (ZENDatabase *)threadDatabase;
 
 @property (nonatomic, strong, readonly) NSURL *databaseURL;
 @property (nonatomic, copy, readonly) NSString *databaseKey;
@@ -80,7 +81,7 @@
 	[self.workQueue terminate:^{
 		if (updateBlock) {
 			@autoreleasepool {
-				FMDatabase *database = self.threadDatabase;
+				ZENDatabase *database = self.threadDatabase;
 				updateBlock(database);
 			}
 		}
@@ -88,27 +89,30 @@
 	}];
 }
 
-- (FMDatabase *)threadDatabase {
-	// Make an instance of FMDatabase for the thread, store it in the thread dictionary.
+- (ZENDatabase *)threadDatabase {
+	// Make an instance of ZENDatabase for the thread, store it in the thread dictionary.
 	// FMDB wants a different database instance per thread, and serial queue may run on different threads.
 	// (Serial queue is guaranteed to be serial, not necessary on a single thread.)
 	
 	NSMutableDictionary *threadDictionary = NSThread.currentThread.threadDictionary;
-	FMDatabase *database = [threadDictionary objectForKey:self.databaseKey];
+	ZENDatabase *database = [threadDictionary objectForKey:self.databaseKey];
 	
 	if (database == nil) {
 		NSLog(@"Creating database for thread %@ at %@", [NSThread currentThread], self.databaseURL);
 		
+		FMDatabase *fmdb;
 		if (self.databaseURL) {
-			database = [FMDatabase databaseWithURL:self.databaseURL];
+			fmdb = [FMDatabase databaseWithURL:self.databaseURL];
 		} else {
-			database = [FMDatabase databaseWithPath:self.databaseKey];
+			fmdb = [FMDatabase databaseWithPath:self.databaseKey];
 		}
 		
-		if (![database open]) {
+		if (![fmdb open]) {
 			NSLog(@"ERROR: Failed to open database at %@", self.databaseURL);
 			return nil;
 		}
+		
+		database = [ZENDatabase databaseWithFMDatabase:fmdb];
 		[database executeUpdate:@"PRAGMA synchronous = 1;"];
 		[database setShouldCacheStatements:YES];
 		
@@ -125,7 +129,7 @@
 	[self.workQueue async:^(ZENWorkQueueToken *canceled) {
 		if (!canceled.canceled) {
 			@autoreleasepool {
-				FMDatabase *database = self.threadDatabase;
+				ZENDatabase *database = self.threadDatabase;
 				[database beginTransaction];
 				updateBlock(database);
 				[database commit];
@@ -137,7 +141,7 @@
 - (void)transactionSync:(ZENDatabaseBlock)updateBlock {
 	[self.workQueue sync:^{
 		@autoreleasepool {
-			FMDatabase *database = self.threadDatabase;
+			ZENDatabase *database = self.threadDatabase;
 			[database beginTransaction];
 			updateBlock(database);
 			[database commit];
@@ -149,7 +153,7 @@
 	[self.workQueue async:^(ZENWorkQueueToken *canceled) {
 		if (!canceled.canceled) {
 			@autoreleasepool {
-				FMDatabase *database = self.threadDatabase;
+				ZENDatabase *database = self.threadDatabase;
 				fetchBlock(database);
 			}
 		}
@@ -159,7 +163,7 @@
 - (void)fetchSync:(ZENDatabaseBlock)fetchBlock {
 	[self.workQueue sync:^{
 		@autoreleasepool {
-			FMDatabase *database = self.threadDatabase;
+			ZENDatabase *database = self.threadDatabase;
 			fetchBlock(database);
 		}
 	}];
@@ -169,7 +173,7 @@
 	[self.workQueue async:^(ZENWorkQueueToken *canceled) {
 		if (!canceled.canceled) {
 			@autoreleasepool {
-				FMDatabase *database = self.threadDatabase;
+				ZENDatabase *database = self.threadDatabase;
 				[database executeUpdate:@"VACUUM;"];
 			}
 		}

@@ -20,7 +20,7 @@
 - (FMDatabase *)threadDatabase;
 
 @property (nonatomic, strong, readonly) NSURL *databaseURL;
-@property (nonatomic, strong, readonly) NSString *databaseKey;
+@property (nonatomic, copy, readonly) NSString *databaseKey;
 @property (nonatomic, strong, readonly) ZENWorkQueue *workQueue;
 
 @end;

@@ -77,7 +77,7 @@
 }
 
 - (NSArray *)children {
-	return self.mutableChildren;
+	return [self.mutableChildren copy];
 }
 
 - (NSUInteger)childCount {

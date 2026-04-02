@@ -14,6 +14,11 @@
 typedef void (^ZENRenderFrameResultsBlock)(ZENRenderedFrame *frame);
 typedef void (^ZENRenderFramesResultsBlock)(NSArray<ZENRenderedFrame *> *frames);
 
+typedef NS_ENUM(NSInteger, ZENFrameRequestType) {
+	ZENFrameRequestTypeSeconds,
+	ZENFrameRequestTypePercentage
+};
+
 // Rendered frame result
 @interface ZENRenderedFrame : NSObject
 
@@ -21,6 +26,7 @@ typedef void (^ZENRenderFramesResultsBlock)(NSArray<ZENRenderedFrame *> *frames)
 @property (nonatomic, strong) NSImage *image;
 
 // The requested position of the frame
+@property (nonatomic) ZENFrameRequestType requestType;
 @property (nonatomic) int64_t requestedTimestamp;
 @property (nonatomic) double requestedSeconds;
 @property (nonatomic) double requestedPercentage;

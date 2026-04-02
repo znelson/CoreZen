@@ -17,6 +17,9 @@
 #pragma clang diagnostic pop
 
 NSString *zen_mpv_to_nsstring(const char *str) {
+	if (!str) {
+		return nil;
+	}
 	return [NSString stringWithCString:str encoding:NSASCIIStringEncoding];
 }
 
@@ -72,5 +75,7 @@ void *zen_mpv_get_opengl_proc_address(void *ctx, const char *name) {
 	CFBundleRef bundle = CFBundleGetBundleWithIdentifier(bundleName);
 	CFStringRef functionName = CFStringCreateWithCString(kCFAllocatorDefault, name, kCFStringEncodingASCII);
 	void *function = CFBundleGetFunctionPointerForName(bundle, functionName);
+	CFRelease(functionName);
+	CFRelease(bundleName);
 	return function;
 }

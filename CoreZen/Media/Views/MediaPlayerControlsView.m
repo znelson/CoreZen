@@ -63,7 +63,18 @@ static const double kSeekForwardLargeSeconds = 15.0;
 	}
 }
 
+- (void)removePlayerObservers {
+	if (self.player) {
+		[self.player removeObserver:self forKeyPath:@"paused" context:ObserverContext];
+	}
+}
+
+- (void)dealloc {
+	[self removePlayerObservers];
+}
+
 - (void)attachPlayer:(ZENMediaPlayer *)player {
+	[self removePlayerObservers];
 	self.player = player;
 	
 	if (player) {

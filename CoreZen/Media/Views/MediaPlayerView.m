@@ -12,17 +12,17 @@
 
 @interface ZENMediaPlayerView ()
 
-- (void)initCommon;
+- (void)setupCommon;
 
 @end
 
 @implementation ZENMediaPlayerView
 
-- (void)initCommon {
+- (void)setupCommon {
 	ZENMPVViewLayer *viewLayer = [ZENMPVViewLayer new];
 	viewLayer.playerView = self;
 	
-	_renderController = [[ZENMPVRenderController new] initWithPlayerView:self];
+	_renderController = [[ZENMPVRenderController alloc] initWithPlayerView:self];
 	
 	NSOpenGLPixelFormatAttribute pixelFormatAttrs[] = {
 		NSOpenGLPFAAllowOfflineRenderers,
@@ -46,7 +46,7 @@
 - (instancetype)initWithFrame:(NSRect)frameRect pixelFormat:(NSOpenGLPixelFormat *)format {
 	self = [super initWithFrame:frameRect pixelFormat:format];
 	if (self) {
-		[self initCommon];
+		[self setupCommon];
 	}
 	return self;
 }
@@ -54,7 +54,7 @@
 - (instancetype)initWithCoder:(NSCoder *)coder {
 	self = [super initWithCoder:coder];
 	if (self) {
-		[self initCommon];
+		[self setupCommon];
 	}
 	return self;
 }

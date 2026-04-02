@@ -14,7 +14,6 @@
 @property (nonatomic) NSInteger size;
 
 - (void)enumerateDepthFirstHelper:(ZENNodeEnumerateBlock)block index:(NSUInteger *)index stop:(BOOL *)stop;
-- (void)enumerateBreadthFirstHelper:(ZENNodeEnumerateBlock)block index:(NSUInteger *)index stop:(BOOL *)stop;
 
 - (instancetype)initZEN:(NSString *)name
 				   size:(NSInteger)size;
@@ -72,13 +71,13 @@
 - (NSUInteger)countChildrenAndDescendants {
 	__block NSUInteger count = 0;
 	[self enumerateDepthFirstUsingBlock:^(ZENNode *node, NSUInteger index, BOOL *stop) {
-		count = index;
+		++count;
 	}];
 	return count;
 }
 
 - (NSArray *)children {
-	return self.mutableChildren;
+	return [self.mutableChildren copy];
 }
 
 - (NSUInteger)childCount {
@@ -120,6 +119,12 @@
 			[node descendantWasRemoved:child];
 		}];
 	}
+}
+
+- (id)copyWithZone:(NSZone *)zone {
+	ZENNode *copy = [[self.class allocWithZone:zone] initWithName:self.name size:self.size];
+	[copy copyChildren:self];
+	return copy;
 }
 
 - (void)copyChildren:(ZENNode *)node {
@@ -211,30 +216,19 @@
 	[self enumerateDepthFirstHelper:block index:&index stop:&stop];
 }
 
-- (void)enumerateBreadthFirstHelper:(ZENNodeEnumerateBlock)block
-							  index:(NSUInteger *)index
-							   stop:(BOOL *)stop {
-	for (ZENNode *node in self.children) {
-		block(node, *index, stop);
-		++(*index);
-		if (*stop) {
-			break;
-		}
-	}
-	if (!*stop) {
-		for (ZENNode *node in self.children) {
-			[node enumerateBreadthFirstHelper:block index:index stop:stop];
-			if (*stop) {
-				break;
-			}
-		}
-	}
-}
-
 - (void)enumerateBreadthFirstUsingBlock:(ZENNodeEnumerateBlock)block {
 	NSUInteger index = 0;
 	BOOL stop = NO;
-	[self enumerateBreadthFirstHelper:block index:&index stop:&stop];
+	NSMutableArray<ZENNode *> *queue = [NSMutableArray arrayWithArray:self.children];
+	while (queue.count > 0 && !stop) {
+		ZENNode *node = queue.firstObject;
+		[queue removeObjectAtIndex:0];
+		block(node, index, &stop);
+		++index;
+		if (!stop) {
+			[queue addObjectsFromArray:node.children];
+		}
+	}
 }
 
 @end

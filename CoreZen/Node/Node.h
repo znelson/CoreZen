@@ -10,7 +10,7 @@
 @class ZENNode;
 typedef void (^ZENNodeEnumerateBlock)(id node, NSUInteger index, BOOL *stop);
 
-@interface ZENNode : NSObject
+@interface ZENNode : NSObject <NSCopying>
 
 @property (nonatomic, readonly, strong) NSUUID *nodeID;
 

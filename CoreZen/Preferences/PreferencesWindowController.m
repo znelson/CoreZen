@@ -58,7 +58,6 @@
 	if (self) {
 		[self center];
 		self.frameAutosaveName = @"ZENPreferencesWindow";
-		[self setFrameFromString:@"ZENPreferencesWindow"];
 	}
 	return self;
 }
@@ -113,6 +112,7 @@
 									   NSWidth(frameRectForContentRect),
 									   NSHeight(frameRectForContentRect));
 
+	self.activeViewController = viewController;
 	self.window.title = viewController.preferenceDisplayName;
 
 	NSView *contentView = viewController.view;
@@ -124,9 +124,7 @@
 		context.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
 		[self.window.animator setFrame:newWindowFrame display:YES];
 		[contentView.animator setAlphaValue:1.0];
-	} completionHandler:^{
-		self.activeViewController = viewController;
-	}];
+	} completionHandler:nil];
 }
 
 - (NSViewController<ZENPreferenceViewController> *)viewControllerWithIdentifier:(NSString *)identifier {
@@ -148,6 +146,7 @@
 #pragma mark - Public API
 
 - (void)setPreferenceViewControllers:(NSArray *)viewControllers {
+	[self.viewControllers removeAllObjects];
 	for (NSViewController<ZENPreferenceViewController> *viewController in viewControllers) {
 		NSAssert([viewController conformsToProtocol:@protocol(ZENPreferenceViewController)], @"ERROR: The viewController [%@] must conform to protocol <ZENPreferenceViewController>", [viewController class]);
 		[self.viewControllers addObject:viewController];
@@ -162,7 +161,6 @@
 	NSToolbar *toolbar = [[NSToolbar alloc] initWithIdentifier:@"ZENPreferencesWindowController"];
 	toolbar.allowsUserCustomization = NO;
 	toolbar.autosavesConfiguration = YES;
-	toolbar.showsBaselineSeparator = YES;
 	toolbar.delegate = self;
 	toolbar.selectedItemIdentifier = self.activeViewController.preferenceIdentifier;
 	

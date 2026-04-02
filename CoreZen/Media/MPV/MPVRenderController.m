@@ -32,6 +32,7 @@ static void zen_mpv_render_context_update(void *ctx);
 	mpv_render_param _mpvSkipRenderParams[2];
 	
 	BOOL _didRenderFrame;
+	BOOL _signaled;
 	BOOL _terminated;
 	
 	pthread_mutex_t _renderMutex;
@@ -106,7 +107,12 @@ static void zen_mpv_render_context_update(void *ctx);
 	
 	[self.playerView lockViewContext];
 	
-	__unused int error = mpv_render_context_create(&_mpvRenderContext, self.mpvHandleFromPlayerView, renderParams);
+	int error = mpv_render_context_create(&_mpvRenderContext, self.mpvHandleFromPlayerView, renderParams);
+	if (error < 0) {
+		NSLog(@"ERROR: mpv_render_context_create failed: %d", error);
+		[self.playerView unlockViewContext];
+		return;
+	}
 	
 	mpv_render_context_set_update_callback(_mpvRenderContext, zen_mpv_render_context_update, selfAsVoid);
 	
@@ -165,7 +171,6 @@ static void zen_mpv_render_context_update(void *ctx);
 	
 	mpv_render_context_render(_mpvRenderContext, _mpvRenderParams);
 	
-	glClear(GL_COLOR_BUFFER_BIT);
 	glFlush();
 	
 	[self.playerView unlockViewContext];
@@ -182,16 +187,20 @@ static void zen_mpv_render_context_update(void *ctx);
 	pthread_mutex_lock(&_renderMutex);
 	
 	_didRenderFrame = NO;
+	_signaled = NO;
 	
 	dispatch_async(dispatch_get_main_queue(), ^{
 		[self.playerView.layer display];
 		
 		pthread_mutex_lock(&self->_renderMutex);
+		self->_signaled = YES;
 		pthread_cond_signal(&self->_renderCondition);
 		pthread_mutex_unlock(&self->_renderMutex);
 	});
 	
-	pthread_cond_wait(&_renderCondition, &_renderMutex);
+	while (!_signaled && !_terminated) {
+		pthread_cond_wait(&_renderCondition, &_renderMutex);
+	}
 	
 	BOOL terminated = _terminated;
 	BOOL didRenderFrame = _didRenderFrame;
@@ -208,7 +217,7 @@ static void zen_mpv_render_context_update(void *ctx);
 @end
 
 static void zen_mpv_render_context_update(void *ctx) {
-	__unsafe_unretained ZENMPVRenderController *controller = (__bridge ZENMPVRenderController *)ctx;
+	ZENMPVRenderController *controller = (__bridge ZENMPVRenderController *)ctx;
 	dispatch_async(controller->_renderQueue, ^{
 		[controller renderFrameOnRenderQueue];
 	});

@@ -17,7 +17,9 @@
 	if ([self getResourceValue:outVolumeName forKey:NSURLVolumeLocalizedNameKey error:outError] &&
 		[self getResourceValue:outVolumeURL forKey:NSURLVolumeURLKey error:outError] &&
 		[self getResourceValue:&volumeUUID forKey:NSURLVolumeUUIDStringKey error:outError]) {
-		*outVolumeUUID = [[NSUUID alloc] initWithUUIDString:volumeUUID];
+		if (outVolumeUUID) {
+			*outVolumeUUID = [[NSUUID alloc] initWithUUIDString:volumeUUID];
+		}
 		return YES;
 	}
 	return NO;
@@ -45,9 +47,11 @@
 		if ([volumeURL getResourceValue:&uuid forKey:NSURLVolumeUUIDStringKey error:&error] &&
 			[uuid isEqual:volumeUUIDString]) {
 			
-			[volumeURL getResourceValue:outVolumeName forKey:NSURLVolumeLocalizedNameKey error:&error];
-			[volumeURL getResourceValue:outVolumeURL forKey:NSURLVolumeURLKey error:&error];
-			return YES;
+			if ([volumeURL getResourceValue:outVolumeName forKey:NSURLVolumeLocalizedNameKey error:&error] &&
+				[volumeURL getResourceValue:outVolumeURL forKey:NSURLVolumeURLKey error:&error]) {
+				return YES;
+			}
+			return NO;
 		}
 	}
 	return NO;
@@ -55,8 +59,8 @@
 
 - (NSString *)zen_relativePathToURL:(NSURL *)url {
 	
-	NSString *fullPath = [url absoluteString];
-	NSString *basePath = [self absoluteString];
+	NSString *fullPath = [url path];
+	NSString *basePath = [self path];
 	if ([fullPath hasPrefix:basePath]) {
 		NSString *relativePath = [fullPath substringFromIndex:basePath.length];
 		return relativePath;
@@ -66,7 +70,7 @@
 
 - (NSUInteger)zen_fileSize {
 	NSError *error;
-	NSDictionary *attributes = [NSFileManager.defaultManager attributesOfItemAtPath:self.absoluteString error:&error];
+	NSDictionary *attributes = [NSFileManager.defaultManager attributesOfItemAtPath:self.path error:&error];
 	if (attributes) {
 		return attributes.fileSize;
 	}

@@ -104,7 +104,7 @@
 - (void)sumAllVideoDurationForUI:(ZENAsyncCountCompletionBlock)countBlock {
 	// Bounce to main thread
 	[self sumAllVideoDuration:^(NSUInteger count) {
-		ZENCallAsyncCountCompletionBlockOnMainThread(countBlock, 0);
+		ZENCallAsyncCountCompletionBlockOnMainThread(countBlock, count);
 	}];
 }
 
@@ -134,6 +134,10 @@
 		// and we only ever create and cache objects on this queue. If there was a race, only one instance
 		// can win and cache the object. The other instance would have a cache hit just before here.
 		object = [self fetchObjectByIdentifier:identifier database:database];
+		if (!object) {
+			ZENCallFetchResultsBlockOnThreadPool(resultsBlock, @[]);
+			return;
+		}
 		[self.cache cacheObject:object];
 		
 		// Async initialize object
@@ -198,10 +202,11 @@
 		ZENObjectRepositoryNotificationObjectKey: domainObject
 	};
 	
-	[self.cache cacheObject:domainObject];
 	[self.queue transactionAsync:^(FMDatabase *database) {
-		[self.table insertDTO:domainObject.basicDTO database:database];
-		ZENDeliverNotificationOnMainThread(ZENObjectRepositoryObjectAddedNotification, self, notificationData);
+		if ([self.table insertDTO:domainObject.basicDTO database:database]) {
+			[self.cache cacheObject:domainObject];
+			ZENDeliverNotificationOnMainThread(ZENObjectRepositoryObjectAddedNotification, self, notificationData);
+		}
 		ZENCallAsyncContinueBlockOnThreadPool(completion);
 	}];
 }
@@ -224,7 +229,7 @@
 - (void) asyncInitAndAdd:(ZENDomainObject *)domainObject
 			uiCompletion:(ZENAsyncContinueBlock)completion {
 	[self asyncInitAndAdd:domainObject completion:^{
-			ZENCallAsyncContinueBlockOnThreadPool(completion);
+			ZENCallAsyncContinueBlockOnMainThread(completion);
 	}];
 }
 
@@ -259,10 +264,11 @@
 		ZENObjectRepositoryNotificationObjectKey: domainObject
 	};
 
-	[self.cache removeObject:domainObject.identifier];
 	[self.queue transactionAsync:^(FMDatabase *database) {
-		[self.table deleteByIdentifier:domainObject.identifier database:database];
-		ZENDeliverNotificationOnMainThread(ZENObjectRepositoryObjectDeletedNotification, self, notificationData);
+		if ([self.table deleteByIdentifier:domainObject.identifier database:database]) {
+			[self.cache removeObject:domainObject.identifier];
+			ZENDeliverNotificationOnMainThread(ZENObjectRepositoryObjectDeletedNotification, self, notificationData);
+		}
 		ZENCallAsyncContinueBlockOnThreadPool(completion);
 	}];
 }
@@ -292,7 +298,7 @@
 
 @end
 
-NSString *ZENObjectRepositoryNotificationObjectKey = @"ZENObjectRepositoryNotificationObject";
-NSString *ZENObjectRepositoryObjectAddedNotification = @"ZENObjectRepositoryObjectAddedNotification";
-NSString *ZENObjectRepositoryObjectUpdatedNotification = @"ZENObjectRepositoryObjectUpdatedNotification";
-NSString *ZENObjectRepositoryObjectDeletedNotification = @"ZENObjectRepositoryObjectDeletedNotification";
+NSString * const ZENObjectRepositoryNotificationObjectKey = @"ZENObjectRepositoryNotificationObject";
+NSString * const ZENObjectRepositoryObjectAddedNotification = @"ZENObjectRepositoryObjectAddedNotification";
+NSString * const ZENObjectRepositoryObjectUpdatedNotification = @"ZENObjectRepositoryObjectUpdatedNotification";
+NSString * const ZENObjectRepositoryObjectDeletedNotification = @"ZENObjectRepositoryObjectDeletedNotification";

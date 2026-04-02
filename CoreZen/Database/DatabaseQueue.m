@@ -20,7 +20,7 @@
 - (FMDatabase *)threadDatabase;
 
 @property (nonatomic, strong, readonly) NSURL *databaseURL;
-@property (nonatomic, strong, readonly) NSString *databaseKey;
+@property (nonatomic, copy, readonly) NSString *databaseKey;
 @property (nonatomic, strong, readonly) ZENWorkQueue *workQueue;
 
 @end;
@@ -105,7 +105,10 @@
 			database = [FMDatabase databaseWithPath:self.databaseKey];
 		}
 		
-		[database open];
+		if (![database open]) {
+			NSLog(@"ERROR: Failed to open database at %@", self.databaseURL);
+			return nil;
+		}
 		[database executeUpdate:@"PRAGMA synchronous = 1;"];
 		[database setShouldCacheStatements:YES];
 		
@@ -164,9 +167,11 @@
 
 - (void)vacuumAsync {
 	[self.workQueue async:^(ZENWorkQueueToken *canceled) {
-		@autoreleasepool {
-			FMDatabase *database = self.threadDatabase;
-			[database executeUpdate:@"VACUUM;"];
+		if (!canceled.canceled) {
+			@autoreleasepool {
+				FMDatabase *database = self.threadDatabase;
+				[database executeUpdate:@"VACUUM;"];
+			}
 		}
 	}];
 }

@@ -49,6 +49,10 @@
 
 - (void)avInitWithCodec:(const AVCodec *)codec
 				 stream:(const AVStream *)stream {
+	if (!codec || !stream) {
+		NSLog(@"avInitWithCodec: codec or stream is NULL");
+		return;
+	}
 	_codecContext = avcodec_alloc_context3(codec);
 	avcodec_parameters_to_context(_codecContext, stream->codecpar);
 	
@@ -156,54 +160,50 @@
 	
 	NSSize sourceSize = NSMakeSize(sourceFrame->width, sourceFrame->height);
 	
-	if (sourceSize.width > 0 && sourceSize.height > 0) {
+	if (sourceSize.width <= 0 || sourceSize.height <= 0) {
+		av_frame_free(&rgbFrame);
+		return NO;
+	}
+	
+	double factorX = maxSize.width / sourceSize.width;
+	double factorY = maxSize.height / sourceSize.height;
+	double scaleFactor = fmin(factorX, factorY);
+	
+	double scaledX = round(sourceSize.width * scaleFactor);
+	double scaledY = round(sourceSize.height * scaleFactor);
+	
+	rgbFrame->width = scaledX;
+	rgbFrame->height = scaledY;
+	rgbFrame->format = AV_PIX_FMT_RGBA;
+	
+	int result = av_frame_get_buffer(rgbFrame, 1);
+	
+	if (result >= 0) {
+		// Cast to get around rules about adding `const` more than one level deep: https://stackoverflow.com/a/5055789
+		const uint8_t * const * frameData = (const uint8_t * const *)sourceFrame->data;
 		
-		double factorX = maxSize.width / sourceSize.width;
-		double factorY = maxSize.height / sourceSize.height;
-		double scaleFactor = fmin(factorX, factorY);
+		// Create scale context
+		struct SwsContext *scaleContext = sws_getContext(_codecContext->width, _codecContext->height, _codecContext->pix_fmt, rgbFrame->width, rgbFrame->height, rgbFrame->format, SWS_BILINEAR, NULL, NULL, NULL);
 		
-		double scaledX = round(sourceSize.width * scaleFactor);
-		double scaledY = round(sourceSize.height * scaleFactor);
+		// Scale and convert colorspace to new frame
+		result = sws_scale(scaleContext, frameData, sourceFrame->linesize, 0, _codecContext->height, rgbFrame->data, rgbFrame->linesize);
 		
-		rgbFrame->width = scaledX;
-		rgbFrame->height = scaledY;
-		rgbFrame->format = AV_PIX_FMT_RGBA;
-		
-		int bufferSize = av_image_get_buffer_size(rgbFrame->format, rgbFrame->width, rgbFrame->height, 1);
-		
-		uint8_t *rgbBuffer = av_malloc(bufferSize);
-		
-		int result = av_image_fill_arrays(rgbFrame->data, rgbFrame->linesize, rgbBuffer, rgbFrame->format, rgbFrame->width, rgbFrame->height, 1);
-		
-		av_free(rgbBuffer);
+		// Clean up scale context
+		sws_freeContext(scaleContext);
 		
 		if (result >= 0) {
-			// Cast to get around rules about adding `const` more than one level deep: https://stackoverflow.com/a/5055789
-			const uint8_t * const * frameData = (const uint8_t * const *)sourceFrame->data;
-			
-			// Create scale context
-			struct SwsContext *scaleContext = sws_getContext(_codecContext->width, _codecContext->height, _codecContext->pix_fmt, rgbFrame->width, rgbFrame->height, rgbFrame->format, SWS_BILINEAR, NULL, NULL, NULL);
-			
-			// Scale and convert colorspace to new frame
-			result = sws_scale(scaleContext, frameData, sourceFrame->linesize, 0, _codecContext->height, rgbFrame->data, rgbFrame->linesize);
-			
-			// Clean up scale context
-			sws_freeContext(scaleContext);
-			
-			if (result >= 0) {
-				frameToFree = sourceFrame;
-				*frame = rgbFrame;
-				success = YES;
+			frameToFree = sourceFrame;
+			*frame = rgbFrame;
+			success = YES;
 
-			} else {
-				NSLog(@"sws_scale failed: %d", result);
-			}
 		} else {
-			NSLog(@"av_image_fill_arrays failed: %d", result);
+			NSLog(@"sws_scale failed: %d", result);
 		}
-		
-		av_frame_free(&frameToFree);
+	} else {
+		NSLog(@"av_frame_get_buffer failed: %d", result);
 	}
+	
+	av_frame_free(&frameToFree);
 	
 	return success;
 }
@@ -216,7 +216,7 @@
 	size_t width = frame->width;
 	size_t height = frame->height;
 	
-	CGContextRef bitmapContext = CGBitmapContextCreate(frameData, width, height, 8, width * 4, colorSpace, kCGImageAlphaPremultipliedLast);
+	CGContextRef bitmapContext = CGBitmapContextCreate(frameData, width, height, 8, width * 4, colorSpace, (CGBitmapInfo)kCGImageAlphaPremultipliedLast);
 	
 	CGImageRef bitmap = CGBitmapContextCreateImage(bitmapContext);
 	
@@ -239,11 +239,10 @@
 			
 			double durationSeconds = infoController.durationSeconds;
 			
-			// Calling code fills in either .requestedSeconds or .requestedPercentage; fill in the other
-			if (renderedFrame.requestedSeconds > renderedFrame.requestedPercentage) {
+			if (renderedFrame.requestType == ZENFrameRequestTypeSeconds) {
 				// seconds -> percentage
 				renderedFrame.requestedPercentage = renderedFrame.requestedSeconds / durationSeconds;
-			} else if (renderedFrame.requestedPercentage > renderedFrame.requestedSeconds) {
+			} else {
 				// percentage -> seconds
 				renderedFrame.requestedSeconds = durationSeconds * renderedFrame.requestedPercentage;
 			}

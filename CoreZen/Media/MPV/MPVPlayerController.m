@@ -76,6 +76,10 @@ static void zen_mpv_wakeup(void *ctx);
 		
 		// Create MPV handle (initialization happens after configuration)
 		_mpvHandle = mpv_create();
+		if (!_mpvHandle) {
+			NSLog(@"ERROR: mpv_create() failed");
+			return nil;
+		}
 		
 		_clientName = zen_mpv_to_nsstring(mpv_client_name(_mpvHandle));
 		
@@ -88,7 +92,9 @@ static void zen_mpv_wakeup(void *ctx);
 		// Initialize MPV handle
 		mpv_initialize(_mpvHandle);
 		
-		_version = zen_mpv_to_nsstring(mpv_get_property_string(_mpvHandle, kMPVProperty_mpv_version));
+		char *version = mpv_get_property_string(_mpvHandle, kMPVProperty_mpv_version);
+		_version = zen_mpv_to_nsstring(version);
+		mpv_free(version);
 		
 		// Disable subtitles
 		zen_mpv_set_string_property(_mpvHandle, kMPVProperty_sid, kMPVPropertyKey_no);
@@ -357,7 +363,7 @@ static void zen_mpv_wakeup(void *ctx);
 @end
 
 static void zen_mpv_wakeup(void *ctx) {
-	__unsafe_unretained ZENMPVPlayerController *controller = (__bridge ZENMPVPlayerController *)ctx;
+	ZENMPVPlayerController *controller = (__bridge ZENMPVPlayerController *)ctx;
 	dispatch_async(controller->_eventQueue, ^{
 		[controller mpvHandleEvents];
 	});

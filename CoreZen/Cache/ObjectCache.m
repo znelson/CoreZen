@@ -18,7 +18,7 @@
 - (instancetype)initWeakObjectCache;
 - (instancetype)initStrongObjectCache;
 
-- (void)initCommon:(NSString *)queueLabel;
+- (void)setupCommon:(NSString *)queueLabel;
 
 @end
 
@@ -28,7 +28,7 @@
 	return [self initWeakObjectCache];
 }
 
-- (void)initCommon:(NSString *)queueLabel {
+- (void)setupCommon:(NSString *)queueLabel {
 	static atomic_uint_fast64_t nextIdentifier = 0;
 	uint64_t cacheID = atomic_fetch_add(&nextIdentifier, 1);
 	
@@ -41,7 +41,7 @@
 	if (self) {
 		_mapTable = [NSMapTable strongToWeakObjectsMapTable];
 		
-		[self initCommon:@"ZENWeakObjectCache"];
+		[self setupCommon:@"ZENWeakObjectCache"];
 	}
 	return self;
 }
@@ -55,7 +55,7 @@
 	if (self) {
 		_mapTable = [NSMapTable strongToStrongObjectsMapTable];
 		
-		[self initCommon:@"ZENStrongObjectCache"];
+		[self setupCommon:@"ZENStrongObjectCache"];
 	}
 	return self;
 }

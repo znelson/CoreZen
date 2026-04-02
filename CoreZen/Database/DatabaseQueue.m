@@ -167,9 +167,11 @@
 
 - (void)vacuumAsync {
 	[self.workQueue async:^(ZENWorkQueueToken *canceled) {
-		@autoreleasepool {
-			FMDatabase *database = self.threadDatabase;
-			[database executeUpdate:@"VACUUM;"];
+		if (!canceled.canceled) {
+			@autoreleasepool {
+				FMDatabase *database = self.threadDatabase;
+				[database executeUpdate:@"VACUUM;"];
+			}
 		}
 	}];
 }

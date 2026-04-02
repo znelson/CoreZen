@@ -76,7 +76,19 @@ static void* ObserverContext = &ObserverContext;
 	}
 }
 
+- (void)removePlayerObservers {
+	if (self.player) {
+		[self.player removeObserver:self forKeyPath:@"positionPercent" context:ObserverContext];
+		[self.player removeObserver:self forKeyPath:@"fileURL" context:ObserverContext];
+	}
+}
+
+- (void)dealloc {
+	[self removePlayerObservers];
+}
+
 - (void)attachPlayer:(ZENMediaPlayer *)player {
+	[self removePlayerObservers];
 	self.player = player;
 	
 	if (player) {

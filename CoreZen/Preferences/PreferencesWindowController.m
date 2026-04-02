@@ -58,7 +58,6 @@
 	if (self) {
 		[self center];
 		self.frameAutosaveName = @"ZENPreferencesWindow";
-		[self setFrameFromString:@"ZENPreferencesWindow"];
 	}
 	return self;
 }

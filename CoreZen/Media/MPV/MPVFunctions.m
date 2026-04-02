@@ -17,6 +17,9 @@
 #pragma clang diagnostic pop
 
 NSString *zen_mpv_to_nsstring(const char *str) {
+	if (!str) {
+		return nil;
+	}
 	return [NSString stringWithCString:str encoding:NSASCIIStringEncoding];
 }
 

@@ -146,6 +146,7 @@
 #pragma mark - Public API
 
 - (void)setPreferenceViewControllers:(NSArray *)viewControllers {
+	[self.viewControllers removeAllObjects];
 	for (NSViewController<ZENPreferenceViewController> *viewController in viewControllers) {
 		NSAssert([viewController conformsToProtocol:@protocol(ZENPreferenceViewController)], @"ERROR: The viewController [%@] must conform to protocol <ZENPreferenceViewController>", [viewController class]);
 		[self.viewControllers addObject:viewController];

@@ -9,7 +9,14 @@
 
 @class ZENMediaPlayer;
 
+// NSOpenGLView is deprecated, but libmpv's render API only offers OpenGL (plus a
+// CPU-only renderer) until mpv ships a Vulkan render API (mpv issue #18343).
+// CoreZen builds with GL_SILENCE_DEPRECATION; this keeps the warning out of apps
+// that import this header without it.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 @interface ZENMediaPlayerView : NSOpenGLView
+#pragma clang diagnostic pop
 
 @property (nonatomic, weak, readonly) ZENMediaPlayer *player;
 

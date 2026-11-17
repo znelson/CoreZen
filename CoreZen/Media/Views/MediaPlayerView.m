@@ -75,11 +75,19 @@
 }
 
 - (void)attachPlayer:(ZENMediaPlayer *)player {
-	if (player) {
-		self.player = player;
-		[player attachPlayerView:self];
-		[self.renderController createRenderContext];
+	if (!player || player == self.player) {
+		return;
 	}
+
+	// The render context belongs to one player's mpv instance, and mpv allows
+	// one render context per instance. Let go of this view's current player,
+	// and take the new player away from any other view it's attached to.
+	[self detachPlayer];
+	[player.playerView detachPlayer];
+
+	self.player = player;
+	[player attachPlayerView:self];
+	[self.renderController createRenderContext];
 }
 
 - (void)detachPlayer {

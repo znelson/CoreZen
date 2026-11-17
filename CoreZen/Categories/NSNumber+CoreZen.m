@@ -7,15 +7,16 @@
 
 #import "NSNumber+CoreZen.h"
 
-@import Security;
+#include <stdlib.h>
 
 @implementation NSNumber (CoreZen)
 
 + (NSInteger)zen_randomInteger {
-	int64_t randomBytes;
-	int result = SecRandomCopyBytes(kSecRandomDefault, 8, &randomBytes);
-	NSCAssert(result == errSecSuccess, @"SecRandomCopyBytes failed with status %d", result);
-	return randomBytes;
+	// arc4random_buf is a cryptographically secure generator that can't fail, so
+	// unlike SecRandomCopyBytes there's no error to check (or miss in Release builds)
+	NSInteger randomInteger;
+	arc4random_buf(&randomInteger, sizeof(randomInteger));
+	return randomInteger;
 }
 
 @end

@@ -27,17 +27,21 @@
 }
 
 - (void)performAsyncInit:(id<ZENDataModel>)model
-			  completion:(ZENAsyncContinueBlock)completion {
+			  completion:(ZENAsyncCompletionBlock)completion {
 	// performAsyncInit is available to override by derived classes
-	completion();
+	completion(nil);
 }
 
 + (void)asyncInit:(NSArray *)objects
 			model:(id<ZENDataModel>)model
-	   completion:(ZENAsyncContinueBlock)completion {
+	   completion:(ZENAsyncCompletionBlock)completion {
 	// Each object leaves the group when its init completes. dispatch_group_notify
 	// waits without tying up a thread while the inits run.
 	dispatch_group_t group = dispatch_group_create();
+
+	// The first error an object reports, guarded by errorLock
+	__block NSError *firstError = nil;
+	NSObject *errorLock = [NSObject new];
 
 	for (id<ZENDomainObject> domainObject in objects) {
 		dispatch_group_enter(group);
@@ -45,20 +49,32 @@
 		// call leaves the group
 		ZENWorkQueueToken *completed = [ZENWorkQueueToken new];
 		ZENCallAsyncContinueBlockOnThreadPool(^{
-			[domainObject performAsyncInit:model completion:^{
-				if ([completed activate]) {
-					dispatch_group_leave(group);
-				} else {
-					NSLog(@"WARNING: %@ called its performAsyncInit: completion more than once", domainObject);
-				}
-			}];
+			[domainObject performAsyncInit:model
+								completion:^(NSError *error) {
+									if ([completed activate]) {
+										if (error) {
+											@synchronized(errorLock) {
+												if (!firstError) {
+													firstError = error;
+												}
+											}
+										}
+										dispatch_group_leave(group);
+									} else {
+										NSLog(@"WARNING: %@ called its performAsyncInit: completion more than once", domainObject);
+									}
+								}];
 		});
 	}
 
 	if (completion) {
 		dispatch_group_notify(group, dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{
 			@autoreleasepool {
-				completion();
+				NSError *error = nil;
+				@synchronized(errorLock) {
+					error = firstError;
+				}
+				completion(error);
 			}
 		});
 	}

@@ -57,7 +57,7 @@ jobs:
 
       - name: Carthage Dependencies
         run: |
-          carthage bootstrap --use-xcframeworks --platform mac
+          XCODE_XCCONFIG_FILE="$PWD/Scripts/carthage.xcconfig" carthage bootstrap --use-xcframeworks --platform mac
 
       - name: Build
         run: |

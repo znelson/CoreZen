@@ -165,6 +165,7 @@
 		B87FBFD38A588272C385E7BC /* MPVFunctionsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AED5F263101D1308D8C370C /* MPVFunctionsTests.m */; };
 		0E03AE27A6C781F30909CE0A /* MediaPlayerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9DE763B7E360E1D3524EB2D3 /* MediaPlayerTests.m */; };
 		A04E46CC8864C0ED866A6437 /* MediaPlayerViewTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FC1C76B108AFBE6B8C8543EC /* MediaPlayerViewTests.m */; };
+		F58AE78C8E9A4406D4723325 /* MediaPlayerCTIViewTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C5B29F0078785EF2C39E97E /* MediaPlayerCTIViewTests.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -550,6 +551,7 @@
 		1AED5F263101D1308D8C370C /* MPVFunctionsTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MPVFunctionsTests.m; sourceTree = "<group>"; };
 		9DE763B7E360E1D3524EB2D3 /* MediaPlayerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MediaPlayerTests.m; sourceTree = "<group>"; };
 		FC1C76B108AFBE6B8C8543EC /* MediaPlayerViewTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MediaPlayerViewTests.m; sourceTree = "<group>"; };
+		8C5B29F0078785EF2C39E97E /* MediaPlayerCTIViewTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MediaPlayerCTIViewTests.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -632,6 +634,7 @@
 				1AED5F263101D1308D8C370C /* MPVFunctionsTests.m */,
 				9DE763B7E360E1D3524EB2D3 /* MediaPlayerTests.m */,
 				FC1C76B108AFBE6B8C8543EC /* MediaPlayerViewTests.m */,
+				8C5B29F0078785EF2C39E97E /* MediaPlayerCTIViewTests.m */,
 			);
 			path = CoreZenTests;
 			sourceTree = "<group>";
@@ -1362,6 +1365,7 @@
 				B87FBFD38A588272C385E7BC /* MPVFunctionsTests.m in Sources */,
 				0E03AE27A6C781F30909CE0A /* MediaPlayerTests.m in Sources */,
 				A04E46CC8864C0ED866A6437 /* MediaPlayerViewTests.m in Sources */,
+				F58AE78C8E9A4406D4723325 /* MediaPlayerCTIViewTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

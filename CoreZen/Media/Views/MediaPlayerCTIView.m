@@ -24,10 +24,17 @@ static void *ObserverContext = &ObserverContext;
 @property (nonatomic) BOOL scrubbing;
 @property (nonatomic) BOOL previewing;
 
+// Main thread only
 @property (nonatomic, strong) ZENFrameRenderer *frameRenderer;
 @property (nonatomic, strong) NSArray *previewFrames;
 
+// Counts updateMediaFile: calls, so work still in flight for an earlier file
+// can tell it's stale. Main thread only.
+@property (nonatomic) NSUInteger mediaFileGeneration;
+
 - (void)updateMediaFile:(NSURL *)url;
+- (void)renderPreviewsWithRenderer:(ZENFrameRenderer *)frameRenderer
+						generation:(NSUInteger)generation;
 
 - (NSImage *)fetchPreview:(double)percentage;
 - (void)updatePeekPreviewAt:(NSPoint)mousePoint;
@@ -85,6 +92,7 @@ static void *ObserverContext = &ObserverContext;
 
 - (void)dealloc {
 	[self removePlayerObservers];
+	[self.frameRenderer.mediaFile terminateMediaFile];
 }
 
 - (void)attachPlayer:(ZENMediaPlayer *)player {
@@ -142,24 +150,53 @@ static void *ObserverContext = &ObserverContext;
 - (void)updateMediaFile:(NSURL *)url {
 	NSLog(@"MediaPlayerCTIView fileURL changed: %@", url);
 
-	if (self.frameRenderer) {
-		[self.frameRenderer.mediaFile terminateMediaFile];
-		self.previewFrames = nil;
+	// Anything still opening or rendering for an earlier file is stale from here on
+	NSUInteger generation = ++self.mediaFileGeneration;
+
+	[self.frameRenderer.mediaFile terminateMediaFile];
+	self.frameRenderer = nil;
+	self.previewFrames = nil;
+
+	if (!url) {
+		return;
 	}
 
-	if (url) {
+	// Opening a media file reads it from disk, so keep that off the main thread
+	__weak ZENMediaPlayerCTIView *weakSelf = self;
+	dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
 		ZENMediaFile *mediaFile = [ZENMediaFile mediaFileWithURL:url];
-		self.frameRenderer = [ZENFrameRenderer frameRendererWithMediaFile:mediaFile];
+		ZENFrameRenderer *frameRenderer = [ZENFrameRenderer frameRendererWithMediaFile:mediaFile];
 
-		NSUInteger width = 320;
+		dispatch_async(dispatch_get_main_queue(), ^{
+			ZENMediaPlayerCTIView *strongSelf = weakSelf;
+			if (strongSelf && strongSelf.mediaFileGeneration == generation) {
+				[strongSelf renderPreviewsWithRenderer:frameRenderer generation:generation];
+			} else {
+				// The view moved on to another file, or went away, while this one opened
+				[mediaFile terminateMediaFile];
+			}
+		});
+	});
+}
 
-		__weak ZENMediaPlayerCTIView *weakSelf = self;
-		[self.frameRenderer renderFrames:101 width:width height:width completion:^(NSArray<ZENRenderedFrame *> *frames) {
-			weakSelf.previewFrames = frames;
+- (void)renderPreviewsWithRenderer:(ZENFrameRenderer *)frameRenderer
+						generation:(NSUInteger)generation {
+	self.frameRenderer = frameRenderer;
 
-			NSLog(@"Rendered %lu frames", frames.count);
-		}];
-	}
+	NSUInteger width = 320;
+
+	__weak ZENMediaPlayerCTIView *weakSelf = self;
+	[frameRenderer renderFrames:101 width:width height:width completion:^(NSArray<ZENRenderedFrame *> *frames) {
+		// Rendering completes on a background queue, but previewFrames is read
+		// on the main thread as the mouse moves
+		dispatch_async(dispatch_get_main_queue(), ^{
+			ZENMediaPlayerCTIView *strongSelf = weakSelf;
+			if (strongSelf.mediaFileGeneration == generation) {
+				strongSelf.previewFrames = frames;
+				NSLog(@"Rendered %lu frames", frames.count);
+			}
+		});
+	}];
 }
 
 - (NSImage *)fetchPreview:(double)percentage {

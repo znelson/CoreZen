@@ -79,9 +79,10 @@ static void zen_mpv_render_context_update(void *ctx);
 }
 
 - (void)dealloc {
-	if (_mpvRenderContext) {
-		[self destroyRenderContext];
-	}
+	[self destroyRenderContext];
+	// Created once in init and kept across render contexts, so a view can be
+	// detached from one player and attached to another
+	zen_mpv_destroy_pthread_mutex_cond(&_renderMutex, &_renderCondition);
 }
 
 - (mpv_handle *)mpvHandleFromPlayerView {
@@ -118,6 +119,11 @@ static void zen_mpv_render_context_update(void *ctx);
 }
 
 - (void)destroyRenderContext {
+	// Nothing to do if the context was never created, or creating it failed
+	if (!_mpvRenderContext) {
+		return;
+	}
+
 	mpv_render_context_set_update_callback(_mpvRenderContext, NULL, NULL);
 
 	NSLog(@"Terminating mpv render queue...");
@@ -133,14 +139,17 @@ static void zen_mpv_render_context_update(void *ctx);
 
 	NSLog(@"Finished terminating mpv render queue");
 
-	zen_mpv_destroy_pthread_mutex_cond(&_renderMutex, &_renderCondition);
-
 	mpv_render_context_free(_mpvRenderContext);
 	_mpvRenderContext = nil;
 }
 
 - (void)createRenderContext {
 	if (!_mpvRenderContext) {
+		// A previous destroyRenderContext left the render queue terminated
+		pthread_mutex_lock(&_renderMutex);
+		_terminated = NO;
+		pthread_mutex_unlock(&_renderMutex);
+
 		[self initRenderContext];
 	}
 }

@@ -32,8 +32,7 @@ void ZENLogAVFindBestStreamError(NSString *filePath, int returnCode, enum AVMedi
 	NSLog(@"avformat_find_stream_info(%@, AVMEDIA_TYPE_VIDEO) failed: %@", filePath, reason);
 }
 
-@interface ZENLibAVInfoController ()
-{
+@interface ZENLibAVInfoController () {
 	AVFormatContext *_formatContext;
 
 	// Video
@@ -53,16 +52,15 @@ void ZENLogAVFindBestStreamError(NSString *filePath, int returnCode, enum AVMedi
 
 @implementation ZENLibAVInfoController
 
-@synthesize identifier=_identifier;
+@synthesize identifier = _identifier;
 
 - (void)avInit:(NSString *)mediaPath {
 	_formatContext = avformat_alloc_context();
-	
+
 	// avformat_open_input() documentation:
 	// Returns 0 on success, a negative AVERROR on failure.
 	int result = avformat_open_input(&_formatContext, mediaPath.fileSystemRepresentation, NULL, NULL);
 	if (result == 0) {
-
 		// avformat_find_stream_info() documentation:
 		// Returns >=0 if OK, AVERROR_xxx on error
 		result = avformat_find_stream_info(_formatContext, NULL);
@@ -72,12 +70,12 @@ void ZENLogAVFindBestStreamError(NSString *filePath, int returnCode, enum AVMedi
 				// av_find_best_stream() documentation:
 				// If av_find_best_stream returns successfully and decoder_ret (&_videoCodec) is not NULL,
 				// then *decoder_ret (_videoCodec) is guaranteed to be set to a valid AVCodec.
-				
+
 				_videoStream = _formatContext->streams[videoStreamIndex];
 			} else {
 				ZENLogAVFindBestStreamError(mediaPath, videoStreamIndex, AVMEDIA_TYPE_VIDEO);
 			}
-			
+
 			const int audioStreamIndex = av_find_best_stream(_formatContext, AVMEDIA_TYPE_AUDIO, -1, -1, &_audioCodec, 0);
 			if (audioStreamIndex > -1) {
 				_audioStream = _formatContext->streams[audioStreamIndex];
@@ -100,7 +98,7 @@ void ZENLogAVFindBestStreamError(NSString *filePath, int returnCode, enum AVMedi
 	if (self) {
 		static atomic_uint_fast64_t nextIdentifier = 0;
 		_identifier = atomic_fetch_add(&nextIdentifier, 1);
-		
+
 		[self avInit:mediaPath];
 	}
 	return self;

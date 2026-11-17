@@ -12,7 +12,7 @@
 
 @interface ObjectCacheTests : XCTestCase
 
-@property (strong, nonatomic) ZENObjectCache* cache;
+@property (strong, nonatomic) ZENObjectCache *cache;
 
 @end
 

@@ -93,7 +93,7 @@
 	if (self) {
 		self.viewControllers = [NSMutableOrderedSet new];
 		self.activeViewController = nil;
-		
+
 		self.window = [ZENPreferencesWindow new];
 		self.window.titlebarAppearsTransparent = NO;
 	}
@@ -157,13 +157,13 @@
 	[self showWindow:self];
 	[self.window makeKeyAndOrderFront:self];
 	[self activateViewController:self.viewControllers.firstObject animate:NO];
-	
+
 	NSToolbar *toolbar = [[NSToolbar alloc] initWithIdentifier:@"ZENPreferencesWindowController"];
 	toolbar.allowsUserCustomization = NO;
 	toolbar.autosavesConfiguration = YES;
 	toolbar.delegate = self;
 	toolbar.selectedItemIdentifier = self.activeViewController.preferenceIdentifier;
-	
+
 	self.window.toolbar = toolbar;
 }
 
@@ -183,28 +183,28 @@
 
 - (NSArray<NSToolbarItemIdentifier> *)toolbarAllowedItemIdentifiers:(NSToolbar *)toolbar {
 	NSMutableArray *identifiers = [NSMutableArray new];
-	
+
 	[self.viewControllers enumerateObjectsUsingBlock:^(NSViewController<ZENPreferenceViewController> *viewController, NSUInteger idx, BOOL *stop) {
 		[identifiers addObject:viewController.preferenceIdentifier];
 	}];
-	
+
 	return identifiers;
 }
 
 - (NSToolbarItem *)toolbar:(NSToolbar *)toolbar itemForItemIdentifier:(NSToolbarItemIdentifier)itemIdentifier willBeInsertedIntoToolbar:(BOOL)flag {
 	NSViewController<ZENPreferenceViewController> *viewController = [self viewControllerWithIdentifier:itemIdentifier];
-	
+
 	NSToolbarItem *toolbarItem = [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
 	toolbarItem.label = viewController.preferenceDisplayName;
 	toolbarItem.paletteLabel = viewController.preferenceDisplayName;
 	toolbarItem.image = viewController.preferenceIcon;
 	toolbarItem.target = self;
 	toolbarItem.action = @selector(toolbarItemAction:);
-	
+
 	if ([viewController respondsToSelector:@selector(preferenceToolTip)]) {
 		toolbarItem.toolTip = viewController.preferenceToolTip;
 	}
-	
+
 	return toolbarItem;
 }
 

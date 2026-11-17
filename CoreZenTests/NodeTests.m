@@ -197,7 +197,8 @@
 	NSMutableArray *names = [NSMutableArray new];
 	[root enumerateChildrenWithBlock:^(ZENNode *node, NSUInteger index, BOOL *stop) {
 		[names addObject:node.name];
-		if (index == 0) *stop = YES;
+		if (index == 0)
+			*stop = YES;
 	}];
 
 	XCTAssertEqual(names.count, 1u);

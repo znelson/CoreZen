@@ -27,11 +27,17 @@ SortIncludes: Never
 # Objective-C
 ObjCSpaceAfterProperty: true
 ObjCSpaceBeforeProtocolList: true
+# Keep [obj method:arg completion:^{ on one line instead of splitting
+# every argument onto its own line when a block is passed
+ObjCBreakBeforeNestedBlockParam: false
 
 # Spacing
 SpaceAfterCStyleCast: false
 SpaceBeforeParens: ControlStatements
 SpacesInContainerLiterals: false
+# Format C initializer lists like blocks: { .a = 1 } on one line, and a
+# closing }; on its own line when the list spans several lines
+Cpp11BracedListStyle: false
 
 # Alignment
 AlignAfterOpenBracket: Align

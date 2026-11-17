@@ -8,7 +8,7 @@
 #import "MediaPlayerControlsView.h"
 #import "MediaPlayer.h"
 
-static void* ObserverContext = &ObserverContext;
+static void *ObserverContext = &ObserverContext;
 
 static const double kSeekBackSmallSeconds = -3.0;
 static const double kSeekBackLargeSeconds = -10.0;
@@ -76,7 +76,7 @@ static const double kSeekForwardLargeSeconds = 15.0;
 - (void)attachPlayer:(ZENMediaPlayer *)player {
 	[self removePlayerObservers];
 	self.player = player;
-	
+
 	if (player) {
 		[player addObserver:self
 				 forKeyPath:@"paused"
@@ -87,7 +87,7 @@ static const double kSeekForwardLargeSeconds = 15.0;
 
 - (void)observeValueForKeyPath:(NSString *)keyPath
 					  ofObject:(id)object
-						change:(NSDictionary<NSKeyValueChangeKey,id> *)change
+						change:(NSDictionary<NSKeyValueChangeKey, id> *)change
 					   context:(void *)context {
 	if (context == ObserverContext) {
 		if (object == self.player) {

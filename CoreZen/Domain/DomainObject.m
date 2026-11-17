@@ -36,8 +36,8 @@
 	   completion:(ZENAsyncContinueBlock)completion {
 	__block NSUInteger initsInFlight = objects.count;
 	__block NSCondition *condition = [NSCondition new];
-	
-	for (ZENDomainObject* domainObject in objects) {
+
+	for (ZENDomainObject *domainObject in objects) {
 		ZENCallAsyncContinueBlockOnThreadPool(^{
 			[domainObject performAsyncInit:model completion:^{
 				[condition lock];
@@ -48,7 +48,7 @@
 			}];
 		});
 	}
-	
+
 	if (completion) {
 		ZENCallAsyncContinueBlockOnThreadPool(^{
 			[condition lock];

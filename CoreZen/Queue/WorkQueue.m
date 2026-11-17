@@ -11,8 +11,7 @@
 
 typedef BOOL (^ZENWorkQueueTokenBlock)(void);
 
-@interface ZENWorkQueueToken ()
-{
+@interface ZENWorkQueueToken () {
 	atomic_bool _token;
 }
 @end
@@ -148,16 +147,16 @@ typedef BOOL (^ZENWorkQueueTokenBlock)(void);
 	if (self.terminateToken.terminated) {
 		return NO;
 	}
-	
+
 	__block BOOL called = NO;
-	
+
 	dispatch_sync(self.queue, ^{
 		if (!self.terminateToken.terminated) {
 			called = YES;
 			block();
 		}
 	});
-	
+
 	return called;
 }
 
@@ -165,15 +164,15 @@ typedef BOOL (^ZENWorkQueueTokenBlock)(void);
 	if (self.terminateToken.terminated) {
 		return nil;
 	}
-	
+
 	ZENWorkQueueToken *cancelToken = [ZENWorkQueueToken new];
-	
+
 	dispatch_async(self.queue, ^{
 		NSArray *tokens = @[self.terminateToken, cancelToken];
 		ZENWorkQueueToken *compositeToken = [[ZENWorkQueueMultiToken alloc] initWithTokens:tokens];
 		block(compositeToken);
 	});
-	
+
 	return cancelToken;
 }
 
@@ -183,7 +182,7 @@ typedef BOOL (^ZENWorkQueueTokenBlock)(void);
 		block();
 		return;
 	}
-	
+
 	dispatch_sync(self.queue, ^{
 		block();
 		NSLog(@"Work queue %@ terminated", self.label);

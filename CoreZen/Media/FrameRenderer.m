@@ -40,11 +40,10 @@
 									  width:(NSUInteger)width
 									 height:(NSUInteger)height
 								 completion:(ZENRenderFrameResultsBlock)completion {
-	
 	ZENRenderedFrame *frame = [ZENRenderedFrame new];
 	frame.requestType = ZENFrameRequestTypeSeconds;
 	frame.requestedSeconds = seconds;
-	
+
 	return [self.frameRenderController renderFrame:frame size:NSMakeSize(width, height) completion:completion];
 }
 
@@ -52,11 +51,10 @@
 										 width:(NSUInteger)width
 										height:(NSUInteger)height
 									completion:(ZENRenderFrameResultsBlock)completion {
-	
 	ZENRenderedFrame *frame = [ZENRenderedFrame new];
 	frame.requestType = ZENFrameRequestTypePercentage;
 	frame.requestedPercentage = percentage;
-	
+
 	return [self.frameRenderController renderFrame:frame size:NSMakeSize(width, height) completion:completion];
 }
 
@@ -69,22 +67,22 @@
 		ZENFrameCollector *collector = [ZENFrameCollector frameCollectorWithCount:count completion:completion];
 		NSMutableArray<ZENWorkQueueToken *> *tokens = [NSMutableArray new];
 		double denominator = count - 1;
-		
+
 		for (NSUInteger index = 0; index < count; ++index) {
 			double percentage = index / denominator;
-			
+
 			ZENWorkQueueToken *token = [self renderFrameAtPercentage:percentage
-															width:width
-														   height:height
-													   completion:^(ZENRenderedFrame *frame) {
-				[collector collect:frame];
-			}];
-			
+															   width:width
+															  height:height
+														  completion:^(ZENRenderedFrame *frame) {
+															  [collector collect:frame];
+														  }];
+
 			[tokens addObject:token];
 		}
-		
+
 		result = [[ZENWorkQueueMultiToken alloc] initWithTokens:tokens];
-		
+
 	} else if (count == 1) {
 		result = [self renderFrameAtPercentage:0.50 width:width height:height completion:^(ZENRenderedFrame *frame) {
 			NSArray *frames = @[frame];

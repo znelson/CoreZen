@@ -21,9 +21,9 @@
 - (void)setupCommon {
 	ZENMPVViewLayer *viewLayer = [ZENMPVViewLayer new];
 	viewLayer.playerView = self;
-	
+
 	_renderController = [[ZENMPVRenderController alloc] initWithPlayerView:self];
-	
+
 	NSOpenGLPixelFormatAttribute pixelFormatAttrs[] = {
 		NSOpenGLPFAAllowOfflineRenderers,
 		NSOpenGLPFAAccelerated,
@@ -32,7 +32,7 @@
 		0
 	};
 	NSOpenGLPixelFormat *pixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:pixelFormatAttrs];
-	
+
 	self.pixelFormat = pixelFormat;
 	self.layer = viewLayer;
 	self.layer.contentsScale = NSScreen.mainScreen.backingScaleFactor;

@@ -77,11 +77,11 @@
 	XCTestExpectation *expectation = [self expectationWithDescription:@"add and fetch"];
 
 	ZENObjectRepository *repo = [[ZENObjectRepository alloc]
-		initWithDataModel:nil
-			   tableClass:[ZENTestTable class]
-			databaseQueue:self.queue
-	   domainObjectEmbryo:[ZENTestDomainObject class]
-				cacheType:ZENObjectRepositoryCacheType_Strong];
+		 initWithDataModel:nil
+				tableClass:[ZENTestTable class]
+			 databaseQueue:self.queue
+		domainObjectEmbryo:[ZENTestDomainObject class]
+				 cacheType:ZENObjectRepositoryCacheType_Strong];
 
 	ZENIdentifier id1 = ZENGetNextObjectIdentifier();
 	ZENTestDTO *dto = [[ZENTestDTO alloc] initWithIdentifier:id1 name:@"RepoTest"];
@@ -103,11 +103,11 @@
 	XCTestExpectation *expectation = [self expectationWithDescription:@"delete"];
 
 	ZENObjectRepository *repo = [[ZENObjectRepository alloc]
-		initWithDataModel:nil
-			   tableClass:[ZENTestTable class]
-			databaseQueue:self.queue
-	   domainObjectEmbryo:[ZENTestDomainObject class]
-				cacheType:ZENObjectRepositoryCacheType_Strong];
+		 initWithDataModel:nil
+				tableClass:[ZENTestTable class]
+			 databaseQueue:self.queue
+		domainObjectEmbryo:[ZENTestDomainObject class]
+				 cacheType:ZENObjectRepositoryCacheType_Strong];
 
 	ZENIdentifier id1 = ZENGetNextObjectIdentifier();
 	ZENTestDTO *dto = [[ZENTestDTO alloc] initWithIdentifier:id1 name:@"ToDelete"];
@@ -129,11 +129,11 @@
 	XCTestExpectation *expectation = [self expectationWithDescription:@"count"];
 
 	ZENObjectRepository *repo = [[ZENObjectRepository alloc]
-		initWithDataModel:nil
-			   tableClass:[ZENTestTable class]
-			databaseQueue:self.queue
-	   domainObjectEmbryo:[ZENTestDomainObject class]
-				cacheType:ZENObjectRepositoryCacheType_Strong];
+		 initWithDataModel:nil
+				tableClass:[ZENTestTable class]
+			 databaseQueue:self.queue
+		domainObjectEmbryo:[ZENTestDomainObject class]
+				 cacheType:ZENObjectRepositoryCacheType_Strong];
 
 	ZENIdentifier id1 = ZENGetNextObjectIdentifier();
 	ZENIdentifier id2 = ZENGetNextObjectIdentifier();
@@ -156,11 +156,11 @@
 	XCTestExpectation *expectation = [self expectationWithDescription:@"fetch all"];
 
 	ZENObjectRepository *repo = [[ZENObjectRepository alloc]
-		initWithDataModel:nil
-			   tableClass:[ZENTestTable class]
-			databaseQueue:self.queue
-	   domainObjectEmbryo:[ZENTestDomainObject class]
-				cacheType:ZENObjectRepositoryCacheType_Strong];
+		 initWithDataModel:nil
+				tableClass:[ZENTestTable class]
+			 databaseQueue:self.queue
+		domainObjectEmbryo:[ZENTestDomainObject class]
+				 cacheType:ZENObjectRepositoryCacheType_Strong];
 
 	ZENIdentifier id1 = ZENGetNextObjectIdentifier();
 	ZENIdentifier id2 = ZENGetNextObjectIdentifier();
@@ -183,11 +183,11 @@
 	XCTestExpectation *expectation = [self expectationWithDescription:@"update"];
 
 	ZENObjectRepository *repo = [[ZENObjectRepository alloc]
-		initWithDataModel:nil
-			   tableClass:[ZENTestTable class]
-			databaseQueue:self.queue
-	   domainObjectEmbryo:[ZENTestDomainObject class]
-				cacheType:ZENObjectRepositoryCacheType_Strong];
+		 initWithDataModel:nil
+				tableClass:[ZENTestTable class]
+			 databaseQueue:self.queue
+		domainObjectEmbryo:[ZENTestDomainObject class]
+				 cacheType:ZENObjectRepositoryCacheType_Strong];
 
 	ZENIdentifier id1 = ZENGetNextObjectIdentifier();
 	ZENTestDTO *dto = [[ZENTestDTO alloc] initWithIdentifier:id1 name:@"Original"];

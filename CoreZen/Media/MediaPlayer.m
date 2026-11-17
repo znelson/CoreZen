@@ -10,7 +10,7 @@
 #import "MPVPlayerController.h"
 #import "ObjectCache.h"
 
-ZENObjectCache* ZENGetWeakMediaPlayerCache(void) {
+ZENObjectCache *ZENGetWeakMediaPlayerCache(void) {
 	static ZENObjectCache *cache = nil;
 	static dispatch_once_t once;
 	dispatch_once(&once, ^{
@@ -27,7 +27,7 @@ ZENObjectCache* ZENGetWeakMediaPlayerCache(void) {
 
 @implementation ZENMediaPlayer
 
-@synthesize identifier=_identifier;
+@synthesize identifier = _identifier;
 
 - (instancetype)init {
 	self = [super init];
@@ -35,7 +35,7 @@ ZENObjectCache* ZENGetWeakMediaPlayerCache(void) {
 		_terminated = NO;
 		_playerController = [[ZENMPVPlayerController alloc] initWithPlayer:self];
 		_identifier = _playerController.identifier;
-		
+
 		ZENObjectCache *cache = ZENGetWeakMediaPlayerCache();
 		[cache cacheObject:self];
 	}
@@ -58,10 +58,10 @@ ZENObjectCache* ZENGetWeakMediaPlayerCache(void) {
 		}
 		[self detachPlayerView];
 		[self.playerController terminate];
-		
+
 		ZENObjectCache *cache = ZENGetWeakMediaPlayerCache();
 		[cache removeObject:self.identifier];
-		
+
 		self.terminated = YES;
 	}
 }

@@ -24,7 +24,7 @@
 	CGColorRef borderColor = CGColorCreateGenericGray(0.7, 0.6);
 	self.layer.borderColor = borderColor;
 	CGColorRelease(borderColor);
-	
+
 	self.imageView.wantsLayer = YES;
 	self.imageView.layer.cornerRadius = 4;
 	self.imageView.layer.masksToBounds = YES;

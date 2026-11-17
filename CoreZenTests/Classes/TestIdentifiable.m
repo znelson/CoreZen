@@ -11,7 +11,7 @@
 
 @implementation ZENTestIdentifiable
 
-@synthesize identifier=_identifier;
+@synthesize identifier = _identifier;
 
 - (instancetype)init {
 	ZENIdentifier identifier = ZENGetNextObjectIdentifier();
@@ -20,7 +20,7 @@
 }
 
 + (instancetype)testIdentifiableWithIdentifier:(ZENIdentifier)identifier {
-	ZENTestIdentifiable* obj = [[ZENTestIdentifiable alloc] initWithIdentifier:identifier];
+	ZENTestIdentifiable *obj = [[ZENTestIdentifiable alloc] initWithIdentifier:identifier];
 	return obj;
 }
 
@@ -33,4 +33,3 @@
 }
 
 @end
-

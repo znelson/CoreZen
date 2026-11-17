@@ -24,8 +24,12 @@
 	return rs;
 }
 
-- (BOOL)next  { return [self.fmResultSet next]; }
-- (void)close { [self.fmResultSet close]; }
+- (BOOL)next {
+	return [self.fmResultSet next];
+}
+- (void)close {
+	[self.fmResultSet close];
+}
 
 #pragma mark - By column index
 

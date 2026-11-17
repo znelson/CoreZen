@@ -20,7 +20,7 @@
 - (void)testRelativePath {
 	NSURL *base = [NSURL fileURLWithPath:@"/Users/CoreZen" isDirectory:YES];
 	NSURL *child = [NSURL fileURLWithPath:@"/Users/CoreZen/Documents/foo.pdf"];
-	
+
 	NSString *relativePath = [base zen_relativePathToURL:child];
 	XCTAssertNotNil(relativePath, @"Should produce a relative path");
 	// Implementation strips base path prefix, leaving the separator
@@ -30,7 +30,7 @@
 - (void)testRelativePathReturnsNilForUnrelatedURLs {
 	NSURL *urlOne = [NSURL fileURLWithPath:@"/Users/Alpha" isDirectory:YES];
 	NSURL *urlTwo = [NSURL fileURLWithPath:@"/Users/Beta/file.txt"];
-	
+
 	NSString *relativePath = [urlOne zen_relativePathToURL:urlTwo];
 	XCTAssertNil(relativePath, @"Unrelated URLs should not produce a relative path");
 }
@@ -41,11 +41,11 @@
 	NSURL *volumeURL;
 	NSUUID *volumeUUID;
 	NSError *error;
-	
+
 	if ([url zen_volumeName:&volumeName volumeURL:&volumeURL volumeUUID:&volumeUUID error:&error]) {
 		NSString *anotherVolumeName;
 		NSURL *anotherVolumeURL;
-		
+
 		if ([NSURL zen_volumeInfoForUUID:volumeUUID volumeName:&anotherVolumeName volumeURL:&anotherVolumeURL]) {
 			XCTAssertEqualObjects(volumeName, anotherVolumeName, @"Volume names should match");
 			XCTAssertEqualObjects(volumeURL, anotherVolumeURL, @"Volume URLs should match");
@@ -95,12 +95,12 @@
 											  create:YES
 											   error:&error];
 	XCTAssertNotNil(url, @"Should return a URL, error: %@", error);
-	
+
 	BOOL isDir = NO;
 	BOOL exists = [fm fileExistsAtPath:url.path isDirectory:&isDir];
 	XCTAssertTrue(exists, @"Directory should exist");
 	XCTAssertTrue(isDir, @"Path should be a directory");
-	
+
 	[fm removeItemAtURL:url error:nil];
 }
 

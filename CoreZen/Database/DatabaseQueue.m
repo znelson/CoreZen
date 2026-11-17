@@ -116,11 +116,11 @@
 		[database executeUpdate:@"PRAGMA synchronous = 1;"];
 		[database setShouldCacheStatements:YES];
 
-		// TODO: Disable for release builds?
-		[database setTraceExecution:YES];
-
 		[threadDictionary setObject:database forKey:self.databaseKey];
 	}
+
+	// Set every time, so a change also reaches databases created before it
+	[database setTraceExecution:self.traceExecution];
 
 	return database;
 }

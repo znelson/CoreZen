@@ -152,6 +152,54 @@
 	[self waitForExpectationsWithTimeout:5.0 handler:nil];
 }
 
+- (void)testRepositorySumColumn {
+	XCTestExpectation *expectation = [self expectationWithDescription:@"sum"];
+
+	ZENObjectRepository *repo = [[ZENObjectRepository alloc]
+		 initWithDataModel:nil
+				tableClass:[ZENTestTable class]
+			 databaseQueue:self.queue
+		domainObjectEmbryo:[ZENTestDomainObject class]
+				 cacheType:ZENObjectRepositoryCacheType_Strong];
+
+	ZENIdentifier id1 = ZENGetNextObjectIdentifier();
+	ZENIdentifier id2 = ZENGetNextObjectIdentifier();
+	ZENTestDTO *dto1 = [[ZENTestDTO alloc] initWithIdentifier:id1 name:@"One"];
+	ZENTestDTO *dto2 = [[ZENTestDTO alloc] initWithIdentifier:id2 name:@"Two"];
+
+	[repo addObject:[[ZENTestDomainObject alloc] initWithDTO:dto1] completion:^{
+		[repo addObject:[[ZENTestDomainObject alloc] initWithDTO:dto2] completion:^{
+			[repo sumColumn:@"identifier"
+				 completion:^(NSUInteger sum) {
+					 XCTAssertEqual(sum, (NSUInteger)(id1 + id2));
+					 [expectation fulfill];
+				 }];
+		}];
+	}];
+
+	[self waitForExpectationsWithTimeout:5.0 handler:nil];
+}
+
+- (void)testRepositorySumColumnOfEmptyTableIsZeroOnMainThread {
+	XCTestExpectation *expectation = [self expectationWithDescription:@"sum"];
+
+	ZENObjectRepository *repo = [[ZENObjectRepository alloc]
+		 initWithDataModel:nil
+				tableClass:[ZENTestTable class]
+			 databaseQueue:self.queue
+		domainObjectEmbryo:[ZENTestDomainObject class]
+				 cacheType:ZENObjectRepositoryCacheType_Strong];
+
+	[repo sumColumn:@"identifier"
+		uiCompletion:^(NSUInteger sum) {
+			XCTAssertEqual(sum, 0u);
+			XCTAssertTrue(NSThread.isMainThread);
+			[expectation fulfill];
+		}];
+
+	[self waitForExpectationsWithTimeout:5.0 handler:nil];
+}
+
 - (void)testRepositoryFetchAllObjects {
 	XCTestExpectation *expectation = [self expectationWithDescription:@"fetch all"];
 

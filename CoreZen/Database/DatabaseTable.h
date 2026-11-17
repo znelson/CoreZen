@@ -50,10 +50,4 @@
 
 - (NSUInteger)countAllRows:(ZENDatabase *)database;
 
-#pragma mark - [optional] Count
-
-@optional
-
-- (NSUInteger)sumAllVideoDuration:(ZENDatabase *)database;
-
 @end

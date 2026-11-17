@@ -145,22 +145,33 @@
 	}];
 }
 
-- (void)sumAllVideoDuration:(ZENAsyncCountCompletionBlock)countBlock {
-	if ([self.table respondsToSelector:@selector(sumAllVideoDuration:)]) {
-		[self.queue fetchAsync:^(ZENDatabase *database) {
-			NSUInteger count = [self.table sumAllVideoDuration:database];
-			ZENCallAsyncCountCompletionBlockOnThreadPool(countBlock, count);
-		}];
-	} else {
-		ZENCallAsyncCountCompletionBlockOnThreadPool(countBlock, 0);
-	}
+#pragma mark - Sum
+
+- (void)sumColumn:(NSString *)columnName
+	   completion:(ZENAsyncCountCompletionBlock)sumBlock {
+	// Identifiers can't be bound as SQL parameters, so they go into the statement
+	Class<ZENDatabaseTable> tableClass = [self.table class];
+	NSString *sql = [NSString stringWithFormat:@"SELECT SUM(%@) FROM %@;", columnName, [tableClass tableName]];
+
+	[self.queue fetchAsync:^(ZENDatabase *database) {
+		NSUInteger sum = 0;
+		ZENResultSet *rs = [database executeQuery:sql];
+		if ([rs next]) {
+			// SUM() over no rows is NULL, which reads as 0
+			sum = (NSUInteger)[rs longLongIntForColumnIndex:0];
+		}
+		[rs close];
+		ZENCallAsyncCountCompletionBlockOnThreadPool(sumBlock, sum);
+	}];
 }
 
-- (void)sumAllVideoDurationForUI:(ZENAsyncCountCompletionBlock)countBlock {
+- (void)sumColumn:(NSString *)columnName
+	 uiCompletion:(ZENAsyncCountCompletionBlock)sumBlock {
 	// Bounce to main thread
-	[self sumAllVideoDuration:^(NSUInteger count) {
-		ZENCallAsyncCountCompletionBlockOnMainThread(countBlock, count);
-	}];
+	[self sumColumn:columnName
+		 completion:^(NSUInteger sum) {
+			 ZENCallAsyncCountCompletionBlockOnMainThread(sumBlock, sum);
+		 }];
 }
 
 #pragma mark - Fetch

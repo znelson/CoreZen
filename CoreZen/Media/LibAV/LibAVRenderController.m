@@ -46,28 +46,38 @@
 
 @implementation ZENLibAVRenderController
 
+// Leaves _codecContext NULL unless the decoder opened, so a non-NULL context
+// always means frames can be decoded.
 - (void)avInitWithCodec:(const AVCodec *)codec
 				 stream:(const AVStream *)stream {
 	if (!codec || !stream) {
 		NSLog(@"avInitWithCodec: codec or stream is NULL");
 		return;
 	}
-	_codecContext = avcodec_alloc_context3(codec);
-	avcodec_parameters_to_context(_codecContext, stream->codecpar);
+	AVCodecContext *codecContext = avcodec_alloc_context3(codec);
+	if (!codecContext) {
+		NSLog(@"avcodec_alloc_context3 failed");
+		return;
+	}
+	avcodec_parameters_to_context(codecContext, stream->codecpar);
 
-	if (_codecContext->pix_fmt < 0 || _codecContext->pix_fmt >= AV_PIX_FMT_NB) {
+	if (codecContext->pix_fmt < 0 || codecContext->pix_fmt >= AV_PIX_FMT_NB) {
 		NSLog(@"Video codec pixel format is invalid");
+		avcodec_free_context(&codecContext);
 		return;
 	}
 
 	// iina does this...
-	_codecContext->time_base = stream->time_base;
+	codecContext->time_base = stream->time_base;
 
-	int result = avcodec_open2(_codecContext, codec, NULL);
+	int result = avcodec_open2(codecContext, codec, NULL);
 	if (result < 0) {
 		NSLog(@"avcodec_open2 failed, result: %d", result);
+		avcodec_free_context(&codecContext);
 		return;
 	}
+
+	_codecContext = codecContext;
 }
 
 - (instancetype)initWithInfoController:(ZENLibAVInfoController *)infoController {
@@ -225,55 +235,80 @@
 	return image;
 }
 
+// Runs on the work queue. Leaves renderedFrame.image nil when there is nothing
+// to render: no video stream (audio-only files), a file libav couldn't open, a
+// decoder that didn't open, or an unknown duration.
+- (void)renderFrameOnWorkQueue:(ZENRenderedFrame *)renderedFrame
+						  size:(NSSize)size {
+	ZENLibAVInfoController *infoController = self.infoController;
+
+	double durationSeconds = infoController.durationSeconds;
+	if (durationSeconds <= 0) {
+		return;
+	}
+
+	if (renderedFrame.requestType == ZENFrameRequestTypeSeconds) {
+		// seconds -> percentage
+		renderedFrame.requestedPercentage = renderedFrame.requestedSeconds / durationSeconds;
+	} else {
+		// percentage -> seconds
+		renderedFrame.requestedSeconds = durationSeconds * renderedFrame.requestedPercentage;
+	}
+
+	AVFormatContext *formatContext = infoController.formatContextHandle;
+	const AVStream *stream = infoController.videoStreamHandle;
+	if (!_codecContext || !formatContext || !stream) {
+		return;
+	}
+
+	// Get duration in terms of the video stream time base (instead of overall libav time base)
+	int64_t durationAVTicks = (int64_t)infoController.durationMicroseconds;
+	int64_t durationStreamTicks = av_rescale_q(durationAVTicks, AV_TIME_BASE_Q, stream->time_base);
+	if (durationStreamTicks <= 0) {
+		return;
+	}
+	int64_t frameTimestamp = durationStreamTicks * renderedFrame.requestedPercentage;
+
+	renderedFrame.requestedTimestamp = frameTimestamp;
+
+	AVFrame *rawFrame = av_frame_alloc();
+
+	// Render the frame at timestamp from media file
+	if ([self renderRawFrame:rawFrame formatContext:formatContext stream:stream timestamp:frameTimestamp]) {
+		renderedFrame.actualTimestamp = rawFrame->best_effort_timestamp;
+		renderedFrame.actualPercentage = renderedFrame.actualTimestamp / (double)durationStreamTicks;
+		renderedFrame.actualSeconds = renderedFrame.actualPercentage * durationSeconds;
+
+		// Resize the frame to desired size, convert to RGB
+		if ([self resizeRawFrame:&rawFrame maxSize:size]) {
+			renderedFrame.image = [self convertRawFrameToImage:rawFrame];
+		}
+	}
+
+	av_frame_free(&rawFrame);
+}
+
 - (ZENWorkQueueToken *)renderFrame:(ZENRenderedFrame *)renderedFrame
 							  size:(NSSize)size
 						completion:(ZENRenderFrameResultsBlock)completion {
-	return [self.workQueue async:^(ZENWorkQueueToken *canceled) {
-		if (!canceled.canceled) {
-			ZENLibAVInfoController *infoController = self.infoController;
-
-			double durationSeconds = infoController.durationSeconds;
-
-			if (renderedFrame.requestType == ZENFrameRequestTypeSeconds) {
-				// seconds -> percentage
-				renderedFrame.requestedPercentage = renderedFrame.requestedSeconds / durationSeconds;
-			} else {
-				// percentage -> seconds
-				renderedFrame.requestedSeconds = durationSeconds * renderedFrame.requestedPercentage;
-			}
-
-			AVFormatContext *formatContext = infoController.formatContextHandle;
-			const AVStream *stream = infoController.videoStreamHandle;
-
-			int64_t durationAVTicks = formatContext->duration;
-
-			// Get duration in terms of the video stream time base (instead of overall libav time base)
-			int64_t durationStreamTicks = av_rescale_q(durationAVTicks, AV_TIME_BASE_Q, stream->time_base);
-			int64_t frameTimestamp = durationStreamTicks * renderedFrame.requestedPercentage;
-
-			renderedFrame.requestedTimestamp = frameTimestamp;
-
-			AVFrame *rawFrame = av_frame_alloc();
-
-			// Render the frame at timestamp from media file
-			if ([self renderRawFrame:rawFrame formatContext:formatContext stream:stream timestamp:frameTimestamp]) {
-				renderedFrame.actualTimestamp = rawFrame->best_effort_timestamp;
-				renderedFrame.actualPercentage = renderedFrame.actualTimestamp / (double)durationStreamTicks;
-				renderedFrame.actualSeconds = renderedFrame.actualPercentage * durationSeconds;
-
-				// Resize the frame to desired size, convert to RGB
-				if ([self resizeRawFrame:&rawFrame maxSize:size]) {
-					renderedFrame.image = [self convertRawFrameToImage:rawFrame];
-				}
-			}
-
-			av_frame_free(&rawFrame);
-		}
-
+	void (^complete)(void) = ^{
 		dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
 			completion(renderedFrame);
 		});
+	};
+
+	ZENWorkQueueToken *token = [self.workQueue async:^(ZENWorkQueueToken *canceled) {
+		if (!canceled.canceled) {
+			[self renderFrameOnWorkQueue:renderedFrame size:size];
+		}
+		complete();
 	}];
+
+	if (!token) {
+		// The work queue was terminated, so the block above will never run
+		complete();
+	}
+	return token;
 }
 
 @end

@@ -1,50 +1,25 @@
-/opt/homebrew/Cellar/brotli/1.2.1/lib/libbrotlicommon.1.2.1.dylib
-/opt/homebrew/Cellar/brotli/1.2.1/lib/libbrotlidec.1.2.1.dylib
-/opt/homebrew/Cellar/dav1d/1.5.4/lib/libdav1d.7.dylib
-/opt/homebrew/Cellar/ffmpeg/9.0.2_1/lib/libavcodec.63.1.102.dylib
-/opt/homebrew/Cellar/ffmpeg/9.0.2_1/lib/libavdevice.63.1.102.dylib
-/opt/homebrew/Cellar/ffmpeg/9.0.2_1/lib/libavfilter.12.1.102.dylib
-/opt/homebrew/Cellar/ffmpeg/9.0.2_1/lib/libavformat.63.1.102.dylib
-/opt/homebrew/Cellar/ffmpeg/9.0.2_1/lib/libavutil.61.1.102.dylib
-/opt/homebrew/Cellar/ffmpeg/9.0.2_1/lib/libswresample.7.1.102.dylib
-/opt/homebrew/Cellar/ffmpeg/9.0.2_1/lib/libswscale.10.1.102.dylib
-/opt/homebrew/Cellar/fontconfig/2.18.3/lib/libfontconfig.1.dylib
-/opt/homebrew/Cellar/freetype/2.15.0/lib/libfreetype.6.dylib
-/opt/homebrew/Cellar/fribidi/1.0.18/lib/libfribidi.0.dylib
-/opt/homebrew/Cellar/gettext/1.0/lib/libintl.8.dylib
-/opt/homebrew/Cellar/glib/2.90.1/lib/libglib-2.0.0.dylib
-/opt/homebrew/Cellar/graphite2/1.3.15/lib/libgraphite2.3.3.1.dylib
-/opt/homebrew/Cellar/harfbuzz/15.1.0/lib/libharfbuzz.0.dylib
-/opt/homebrew/Cellar/jpeg-turbo/3.2.1/lib/libjpeg.8.3.2.dylib
-/opt/homebrew/Cellar/lame/4.0/lib/libmp3lame.0.dylib
-/opt/homebrew/Cellar/libarchive/3.8.11/lib/libarchive.13.dylib
-/opt/homebrew/Cellar/libass/0.17.5_1/lib/libass.9.dylib
-/opt/homebrew/Cellar/libb2/0.98.1/lib/libb2.1.dylib
-/opt/homebrew/Cellar/libbluray/1.5.0/lib/libbluray.4.dylib
-/opt/homebrew/Cellar/libplacebo/7.387.0/lib/libplacebo.387.dylib
-/opt/homebrew/Cellar/libpng/1.6.59/lib/libpng16.16.dylib
-/opt/homebrew/Cellar/libsamplerate/0.2.2/lib/libsamplerate.0.2.2.dylib
-/opt/homebrew/Cellar/libudfread/1.2.0/lib/libudfread.3.dylib
-/opt/homebrew/Cellar/libunibreak/8.0/lib/libunibreak.8.dylib
-/opt/homebrew/Cellar/libvmaf/3.2.1/lib/libvmaf.3.dylib
-/opt/homebrew/Cellar/libvpx/1.17.0/lib/libvpx.12.dylib
-/opt/homebrew/Cellar/little-cms2/2.19.1/lib/liblcms2.2.dylib
-/opt/homebrew/Cellar/luajit/2.1.1794214635/lib/libluajit-5.1.2.1.1794214635.dylib
-/opt/homebrew/Cellar/lz4/1.11.1/lib/liblz4.1.11.1.dylib
-/opt/homebrew/Cellar/mpg123/1.33.7/lib/libmpg123.0.dylib
-/opt/homebrew/Cellar/mpv/0.42.0/lib/libmpv.2.dylib
-/opt/homebrew/Cellar/mujs/1.3.11/lib/libmujs.dylib
-/opt/homebrew/Cellar/openssl@4/4.1.0/lib/libcrypto.4.dylib
-/opt/homebrew/Cellar/openssl@4/4.1.0/lib/libssl.4.dylib
-/opt/homebrew/Cellar/opus/1.6.1/lib/libopus.0.dylib
-/opt/homebrew/Cellar/pcre2/10.49/lib/libpcre2-8.0.dylib
-/opt/homebrew/Cellar/rubberband/4.0.0/lib/librubberband.3.dylib
-/opt/homebrew/Cellar/shaderc/2026.4/lib/libshaderc_shared.1.dylib
-/opt/homebrew/Cellar/svt-av1/4.3.0/lib/libSvtAv1Enc.4.3.0.dylib
-/opt/homebrew/Cellar/uchardet/0.0.8/lib/libuchardet.0.0.8.dylib
-/opt/homebrew/Cellar/vulkan-loader/1.4.363.0/lib/libvulkan.1.4.363.dylib
-/opt/homebrew/Cellar/x264/r3222/lib/libx264.165.dylib
-/opt/homebrew/Cellar/x265/4.3/lib/libx265.217.dylib
-/opt/homebrew/Cellar/xz/5.8.4/lib/liblzma.5.dylib
-/opt/homebrew/Cellar/zimg/3.0.6/lib/libzimg.2.dylib
-/opt/homebrew/Cellar/zstd/1.5.7_1/lib/libzstd.1.5.7.dylib
+# Built by Scripts/build_dependencies.py for arm64, macOS 14.0+
+# SDK: MacOSX27.2.sdk
+fribidi 1.0.18 https://github.com/fribidi/fribidi/releases/download/v1.0.18/fribidi-1.0.18.tar.xz sha256:1de5e8073d035388b71d0b2d452b1da1f8caeea8a7702997b401fe1b6250727f
+freetype 2.15.0 https://downloads.sourceforge.net/project/freetype/freetype2/2.15.0/freetype-2.15.0.tar.xz sha256:93cd47eb719c325107f2d3cf087d06299e944c3b48a40b55537302304dea1dd5
+harfbuzz 15.1.0 https://github.com/harfbuzz/harfbuzz/releases/download/15.1.0/harfbuzz-15.1.0.tar.xz sha256:0fc7c565443a5f4be7da65ac5ee5bd737d9b158dc908708b7689a0a5796b0c8d
+libass 0.17.5 https://github.com/libass/libass/releases/download/0.17.5/libass-0.17.5.tar.xz sha256:2dca25c0e0c837ddf00b52011b3f82cac1e4ddd3ad018227806b0c2288864acc
+dav1d 1.5.4 https://code.videolan.org/videolan/dav1d/-/archive/1.5.4/dav1d-1.5.4.tar.bz2 sha256:2abfb0c89212e6e4733a54e0ae509ec00a5b845a6360946f918806e14aedb011
+ffmpeg 9.0.2 https://ffmpeg.org/releases/ffmpeg-9.0.2.tar.xz sha256:8c3850283eb25fa026482078a04051e0be17347b09ef81a0849bec15a96e002e
+libplacebo 7.387.0 https://code.videolan.org/videolan/libplacebo.git v7.387.0 275f7dea27924cdd34ab2e6c20e448b6bc4fab65
+mpv 0.42.0 https://github.com/mpv-player/mpv/archive/refs/tags/v0.42.0.tar.gz sha256:bcfebbfa2b65a6d88dc97ea18117831072373e38b5785a2afb874ed4df5070dd
+    patch patches/mpv-0.42.0-view-without-vulkan.patch sha256:bb5c9c54ae49a0485b34ce4ca77edf0e2001307da879e92cbfb7d4f5e832ecfe
+# Staged libraries:
+libass.9.dylib
+libavcodec.63.dylib
+libavfilter.12.dylib
+libavformat.63.dylib
+libavutil.61.dylib
+libdav1d.7.dylib
+libfreetype.6.dylib
+libfribidi.0.dylib
+libharfbuzz.0.dylib
+libmpv.2.dylib
+libplacebo.387.dylib
+libswresample.7.dylib
+libswscale.10.dylib

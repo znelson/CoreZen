@@ -20,16 +20,12 @@ NSString *zen_mpv_to_nsstring(const char *str) {
 	if (!str) {
 		return nil;
 	}
-	return [NSString stringWithCString:str encoding:NSASCIIStringEncoding];
+	return [NSString stringWithUTF8String:str];
 }
 
-const char *zen_nsstring_to_mpv(NSString *str) {
-	return [str cStringUsingEncoding:NSASCIIStringEncoding];
-}
-
-const char *zen_double_to_mpv_string(double d) {
-	NSString *str = [NSString stringWithFormat:@"%f", d];
-	return zen_nsstring_to_mpv(str);
+void zen_mpv_format_double(double value, char *buffer, size_t size) {
+	// libmpv requires the C numeric locale, so this always uses '.' for decimals
+	snprintf(buffer, size, "%f", value);
 }
 
 void zen_mpv_set_bool_property(mpv_handle *mpv, const char *const property, BOOL value) {

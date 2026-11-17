@@ -40,6 +40,7 @@ static void zen_mpv_wakeup(void *ctx);
 
 - (void)mpvCommand:(const char **const)command;
 - (void)mpvSimpleCommand:(const char *const)command;
+- (void)mpvSeek:(double)target flags:(const char *const)flags;
 
 @end
 
@@ -181,34 +182,30 @@ static void zen_mpv_wakeup(void *ctx);
 	[self mpvSimpleCommand:kMPVCommand_frame_step];
 }
 
-- (void)seekBySeconds:(double)seconds {
+- (void)mpvSeek:(double)target flags:(const char *const)flags {
+	// The command holds a pointer to this stack buffer, which stays valid
+	// until mpv_command returns
+	char targetArgument[32];
+	zen_mpv_format_double(target, targetArgument, sizeof(targetArgument));
 	const char *command[] = {
 		kMPVCommand_seek,
-		zen_double_to_mpv_string(seconds),
-		kMPVCommandParam_relative,
+		targetArgument,
+		flags,
 		nil
 	};
 	[self mpvCommand:command];
+}
+
+- (void)seekBySeconds:(double)seconds {
+	[self mpvSeek:seconds flags:kMPVCommandParam_relative];
 }
 
 - (void)seekToSeconds:(double)seconds {
-	const char *command[] = {
-		kMPVCommand_seek,
-		zen_double_to_mpv_string(seconds),
-		kMPVCommandParam_absolute,
-		nil
-	};
-	[self mpvCommand:command];
+	[self mpvSeek:seconds flags:kMPVCommandParam_absolute];
 }
 
 - (void)seekToPercentage:(double)percentage {
-	const char *command[] = {
-		kMPVCommand_seek,
-		zen_double_to_mpv_string(percentage),
-		kMPVCommandParam_absolute_percent,
-		nil
-	};
-	[self mpvCommand:command];
+	[self mpvSeek:percentage flags:kMPVCommandParam_absolute_percent];
 }
 
 - (void)mpvHandleEvents {
@@ -329,12 +326,15 @@ static void zen_mpv_wakeup(void *ctx);
 								self.player.positionPercent = percentPos;
 							});
 						} else if (zen_mpv_compare_strings(kMPVProperty_path, propertyName)) {
-							NSString *path = zen_mpv_to_nsstring(valueNode->u.string);
-							NSURL *url = [NSURL fileURLWithPath:path];
-							// NSLog(@"Path: %@", url);
-							dispatch_async(dispatch_get_main_queue(), ^{
-								self.player.fileURL = url;
-							});
+							// mpv reports the path exactly as -openFileURL: passed it, a file
+							// system representation, so convert it back the same way
+							if (valueNode->format == MPV_FORMAT_STRING && valueNode->u.string) {
+								NSURL *url = [NSURL fileURLWithFileSystemRepresentation:valueNode->u.string isDirectory:NO relativeToURL:nil];
+								// NSLog(@"Path: %@", url);
+								dispatch_async(dispatch_get_main_queue(), ^{
+									self.player.fileURL = url;
+								});
+							}
 						}
 					}
 

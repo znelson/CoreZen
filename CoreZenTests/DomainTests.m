@@ -213,4 +213,136 @@
 	[self waitForExpectationsWithTimeout:5.0 handler:nil];
 }
 
+#pragma mark - Async init
+
+- (ZENObjectRepository *)repositoryWithEmbryo:(Class<ZENDomainObject>)embryo {
+	return [[ZENObjectRepository alloc] initWithDataModel:nil
+											   tableClass:[ZENTestTable class]
+											databaseQueue:self.queue
+									   domainObjectEmbryo:embryo
+												cacheType:ZENObjectRepositoryCacheType_Strong];
+}
+
+// Writes rows straight to the table, so the repository first meets them on fetch
+- (NSArray<NSNumber *> *)insertRowsNamed:(NSArray<NSString *> *)names {
+	NSMutableArray<NSNumber *> *identifiers = [NSMutableArray new];
+	ZENTestTable *table = [ZENTestTable new];
+	[self.queue transactionSync:^(ZENDatabase *database) {
+		for (NSString *name in names) {
+			ZENIdentifier identifier = ZENGetNextObjectIdentifier();
+			[table insertDTO:[[ZENTestDTO alloc] initWithIdentifier:identifier name:name] database:database];
+			[identifiers addObject:@(identifier)];
+		}
+	}];
+	return identifiers;
+}
+
+- (NSArray *)fetchAllFromRepository:(ZENObjectRepository *)repo {
+	XCTestExpectation *fetched = [self expectationWithDescription:@"fetch all"];
+	__block NSArray *result = nil;
+	[repo fetchAllObjects:^(NSArray *fetchedObjects) {
+		result = fetchedObjects;
+		[fetched fulfill];
+	}];
+	[self waitForExpectations:@[fetched] timeout:5.0];
+	return result;
+}
+
+- (void)testFetchAllRunsAsyncInitOncePerObject {
+	ZENObjectRepository *repo = [self repositoryWithEmbryo:[ZENSlowInitDomainObject class]];
+	[self insertRowsNamed:@[@"Alpha", @"Beta"]];
+
+	NSArray<ZENSlowInitDomainObject *> *first = [self fetchAllFromRepository:repo];
+	NSArray<ZENSlowInitDomainObject *> *second = [self fetchAllFromRepository:repo];
+
+	XCTAssertEqual(first.count, 2u);
+	XCTAssertEqualObjects(first, second, @"Second fetch should return the cached objects");
+	for (ZENSlowInitDomainObject *object in second) {
+		XCTAssertTrue(object.initialized);
+		XCTAssertEqual(object.asyncInitCount, 1, @"Cached objects shouldn't be initialized again");
+	}
+}
+
+- (void)testFetchByIdentifierRunsAsyncInitOnce {
+	ZENObjectRepository *repo = [self repositoryWithEmbryo:[ZENSlowInitDomainObject class]];
+	ZENIdentifier identifier = [self insertRowsNamed:@[@"Alpha"]].firstObject.longLongValue;
+
+	for (int fetch = 0; fetch < 2; ++fetch) {
+		XCTestExpectation *fetched = [self expectationWithDescription:@"fetch"];
+		[repo fetchObjectByIdentifier:identifier completion:^(NSArray *fetchedObjects) {
+			ZENSlowInitDomainObject *object = fetchedObjects.firstObject;
+			XCTAssertTrue(object.initialized);
+			XCTAssertEqual(object.asyncInitCount, 1);
+			[fetched fulfill];
+		}];
+		[self waitForExpectations:@[fetched] timeout:5.0];
+	}
+}
+
+- (void)testConcurrentFetchesWaitForAsyncInit {
+	// The second fetch finds the object in the cache while its async init is
+	// still running, and must wait for it rather than return it early
+	ZENObjectRepository *repo = [self repositoryWithEmbryo:[ZENSlowInitDomainObject class]];
+	ZENIdentifier identifier = [self insertRowsNamed:@[@"Alpha"]].firstObject.longLongValue;
+
+	NSMutableArray<XCTestExpectation *> *expectations = [NSMutableArray new];
+	for (int fetch = 0; fetch < 3; ++fetch) {
+		XCTestExpectation *fetched = [self expectationWithDescription:[NSString stringWithFormat:@"fetch %d", fetch]];
+		[expectations addObject:fetched];
+		[repo fetchObjectByIdentifier:identifier completion:^(NSArray *fetchedObjects) {
+			ZENSlowInitDomainObject *object = fetchedObjects.firstObject;
+			XCTAssertTrue(object.initialized, @"Fetch %d returned an object before its async init finished", fetch);
+			[fetched fulfill];
+		}];
+	}
+	[self waitForExpectations:expectations timeout:5.0];
+}
+
+- (void)testFetchAllWaitsForAsyncInitInProgress {
+	ZENObjectRepository *repo = [self repositoryWithEmbryo:[ZENSlowInitDomainObject class]];
+	ZENIdentifier identifier = [self insertRowsNamed:@[@"Alpha", @"Beta"]].firstObject.longLongValue;
+
+	// Start one object's async init, then fetch everything while it runs
+	[repo fetchObjectByIdentifier:identifier completion:^(NSArray *fetchedObjects){}];
+	NSArray<ZENSlowInitDomainObject *> *objects = [self fetchAllFromRepository:repo];
+
+	XCTAssertEqual(objects.count, 2u);
+	for (ZENSlowInitDomainObject *object in objects) {
+		XCTAssertTrue(object.initialized);
+		XCTAssertEqual(object.asyncInitCount, 1);
+	}
+}
+
+- (void)testAsyncInitCompletesOnceWhenObjectsCompleteTwice {
+	NSArray *objects = @[
+		[[ZENDoubleCompletionDomainObject alloc] initWithDTO:[[ZENTestDTO alloc] initWithIdentifier:1 name:@"Alpha"]],
+		[[ZENDoubleCompletionDomainObject alloc] initWithDTO:[[ZENTestDTO alloc] initWithIdentifier:2 name:@"Beta"]],
+	];
+
+	XCTestExpectation *completed = [self expectationWithDescription:@"async init completed"];
+	XCTestExpectation *completedAgain = [self expectationWithDescription:@"async init completed again"];
+	completedAgain.inverted = YES;
+	__block NSInteger completions = 0;
+	[ZENDomainObject asyncInit:objects
+						 model:nil
+					completion:^{
+						@synchronized(self) {
+							completions += 1;
+							[(completions == 1 ? completed : completedAgain) fulfill];
+						}
+					}];
+	[self waitForExpectations:@[completed] timeout:5.0];
+	[self waitForExpectations:@[completedAgain] timeout:0.5];
+}
+
+- (void)testAsyncInitWithNoObjectsCompletes {
+	XCTestExpectation *completed = [self expectationWithDescription:@"async init completed"];
+	[ZENDomainObject asyncInit:@[]
+						 model:nil
+					completion:^{
+						[completed fulfill];
+					}];
+	[self waitForExpectations:@[completed] timeout:5.0];
+}
+
 @end

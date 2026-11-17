@@ -13,7 +13,14 @@
 #import "ResultSet.h"
 #import "DomainCommon.h"
 
-@interface ZENObjectRepository ()
+#import <os/lock.h>
+
+@interface ZENObjectRepository () {
+	// Objects whose async init is still running, by identifier. A fetch that
+	// finds one of them in the cache waits on its group before returning it.
+	NSMutableDictionary<NSNumber *, dispatch_group_t> *_pendingInits;
+	os_unfair_lock _pendingInitsLock;
+}
 
 @property (nonatomic, strong, readonly) NSObject<ZENDatabaseTable> *table;
 @property (nonatomic, strong, readonly) ZENDatabaseQueue *queue;
@@ -28,6 +35,11 @@
 - (id<ZENIdentifiable>)fetchObjectByIdentifier:(ZENIdentifier)identifier
 									  database:(ZENDatabase *)database;
 
+// To be called on database queue, before the objects are cached.
+- (void)startAsyncInit:(NSArray *)objects;
+
+- (void)deliverObjects:(NSArray *)objects whenInitialized:(ZENFetchResultsBlock)resultsBlock;
+
 @end
 
 @implementation ZENObjectRepository
@@ -41,6 +53,8 @@
 						cacheType:(ZENObjectRepositoryCacheType)cacheType {
 	self = [super init];
 	if (self) {
+		_pendingInits = [NSMutableDictionary new];
+		_pendingInitsLock = OS_UNFAIR_LOCK_INIT;
 		_dataModel = dataModel;
 		_table = [(Class)tableClass new];
 		_queue = databaseQueue;
@@ -69,6 +83,50 @@
 	}
 	[rs close];
 	return object;
+}
+
+#pragma mark - [private] Async init
+
+- (void)startAsyncInit:(NSArray *)objects {
+	// Objects are registered here before they're cached, so a fetch that finds
+	// one in the cache also finds its init in progress
+	for (id<ZENDomainObject> object in objects) {
+		NSNumber *identifier = @(object.identifier);
+		dispatch_group_t group = dispatch_group_create();
+		dispatch_group_enter(group);
+
+		os_unfair_lock_lock(&_pendingInitsLock);
+		_pendingInits[identifier] = group;
+		os_unfair_lock_unlock(&_pendingInitsLock);
+
+		[ZENDomainObject asyncInit:@[object] model:self.dataModel completion:^{
+			os_unfair_lock_lock(&self->_pendingInitsLock);
+			[self->_pendingInits removeObjectForKey:identifier];
+			os_unfair_lock_unlock(&self->_pendingInitsLock);
+			dispatch_group_leave(group);
+		}];
+	}
+}
+
+- (void)deliverObjects:(NSArray *)objects whenInitialized:(ZENFetchResultsBlock)resultsBlock {
+	dispatch_group_t initialized = dispatch_group_create();
+	dispatch_queue_t threadPool = dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0);
+
+	os_unfair_lock_lock(&_pendingInitsLock);
+	for (id<ZENIdentifiable> object in objects) {
+		dispatch_group_t pending = _pendingInits[@(object.identifier)];
+		if (pending) {
+			dispatch_group_enter(initialized);
+			dispatch_group_notify(pending, threadPool, ^{
+				dispatch_group_leave(initialized);
+			});
+		}
+	}
+	os_unfair_lock_unlock(&_pendingInitsLock);
+
+	dispatch_group_notify(initialized, threadPool, ^{
+		ZENCallFetchResultsBlockOnThreadPool(resultsBlock, objects);
+	});
 }
 
 #pragma mark - Count
@@ -112,7 +170,7 @@
 	// Check if this object is in the cache
 	id<ZENIdentifiable> object = [self.cache cachedObject:identifier];
 	if (object) {
-		ZENCallFetchResultsBlockOnThreadPool(resultsBlock, @[object]);
+		[self deliverObjects:@[object] whenInitialized:resultsBlock];
 		return;
 	}
 
@@ -120,26 +178,21 @@
 	[self.queue fetchAsync:^(ZENDatabase *database) {
 		// Check again if this object has shown up in the cache since we looked earlier
 		id<ZENIdentifiable> object = [self.cache cachedObject:identifier];
-		if (object) {
-			ZENCallFetchResultsBlockOnThreadPool(resultsBlock, @[object]);
-			return;
-		}
-
-		// Create the object, then cache it. This is safe becuase this running on the database queue
-		// and we only ever create and cache objects on this queue. If there was a race, only one instance
-		// can win and cache the object. The other instance would have a cache hit just before here.
-		object = [self fetchObjectByIdentifier:identifier database:database];
 		if (!object) {
-			ZENCallFetchResultsBlockOnThreadPool(resultsBlock, @[]);
-			return;
+			// Create the object, start its async init, then cache it. This is safe because this runs
+			// on the database queue, and we only ever create and cache objects on this queue. If there
+			// was a race, only one instance can win and cache the object. The other instance would have
+			// a cache hit just before here.
+			object = [self fetchObjectByIdentifier:identifier database:database];
+			if (!object) {
+				ZENCallFetchResultsBlockOnThreadPool(resultsBlock, @[]);
+				return;
+			}
+			[self startAsyncInit:@[object]];
+			[self.cache cacheObject:object];
 		}
-		[self.cache cacheObject:object];
 
-		// Async initialize object
-		NSArray *fetchedObjects = @[object];
-		[ZENDomainObject asyncInit:fetchedObjects model:self.dataModel completion:^{
-			ZENCallFetchResultsBlockOnThreadPool(resultsBlock, fetchedObjects);
-		}];
+		[self deliverObjects:@[object] whenInitialized:resultsBlock];
 	}];
 }
 
@@ -156,6 +209,7 @@
 	// the full list of the object identifiers without a query.
 	[self.queue fetchAsync:^(ZENDatabase *database) {
 		NSMutableArray *objects = [NSMutableArray array];
+		NSMutableArray *newObjects = [NSMutableArray array];
 		ZENResultSet *rs = [self.table allRows:database];
 		while ([rs next]) {
 			// Check if an object with this identifier is in the cache
@@ -164,21 +218,23 @@
 			id<ZENIdentifiable> object = [self.cache cachedObject:identifier];
 
 			if (!object) {
-				// Create the object, then cache it. See above for note on thread safety.
 				ZENDataTransferObject *dto = [self.table dtoFromRow:rs];
 				object = [[(Class)self.embryo alloc] initWithDTO:dto];
-				[self.cache cacheObject:object];
+				[newObjects addObject:object];
 			}
 
 			[objects addObject:object];
 		}
 		[rs close];
 
-		// Async initialize objects
-		NSArray *fetchedObjects = [objects copy];
-		[ZENDomainObject asyncInit:fetchedObjects model:self.dataModel completion:^{
-			ZENCallFetchResultsBlockOnThreadPool(resultsBlock, fetchedObjects);
-		}];
+		// Only objects new to the cache need async init; cached objects already
+		// had theirs, or are still waiting on it. See above for note on thread safety.
+		[self startAsyncInit:newObjects];
+		for (id<ZENIdentifiable> object in newObjects) {
+			[self.cache cacheObject:object];
+		}
+
+		[self deliverObjects:[objects copy] whenInitialized:resultsBlock];
 	}];
 }
 

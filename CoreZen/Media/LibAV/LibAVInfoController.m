@@ -19,17 +19,10 @@
 #pragma clang diagnostic pop
 
 void ZENLogAVFindBestStreamError(NSString *filePath, int returnCode, enum AVMediaType mediaType) {
-	NSString *reason = @"Unknown";
-	if (returnCode == AVERROR_STREAM_NOT_FOUND) {
-		NSString *streamType = @"Unknown";
-		if (mediaType == AVMEDIA_TYPE_VIDEO) {
-			streamType = @"AVMEDIA_TYPE_VIDEO";
-		} else if (mediaType == AVMEDIA_TYPE_AUDIO) {
-			streamType = @"AVMEDIA_TYPE_AUDIO";
-		}
-		reason = [NSString stringWithFormat:@"No stream with the requested type could be found (%@)", streamType];
-	}
-	NSLog(@"avformat_find_stream_info(%@, AVMEDIA_TYPE_VIDEO) failed: %@", filePath, reason);
+	const char *streamType = av_get_media_type_string(mediaType);
+	char reason[AV_ERROR_MAX_STRING_SIZE];
+	av_strerror(returnCode, reason, sizeof(reason));
+	NSLog(@"av_find_best_stream(%@, %s) failed: %s", filePath, streamType ? streamType : "unknown", reason);
 }
 
 @interface ZENLibAVInfoController () {

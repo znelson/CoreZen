@@ -33,7 +33,8 @@
 			  completion:(ZENAsyncContinueBlock)completion;
 
 // Calls performAsyncInit on a thread pool for each of the objects,
-// then completion block after, also on thread pool.
+// then completion block after, also on thread pool. Only the first call to
+// each object's performAsyncInit completion counts; later calls are ignored.
 + (void)asyncInit:(NSArray *)objects
 			model:(id<ZENDataModel>)model
 	   completion:(ZENAsyncContinueBlock)completion;

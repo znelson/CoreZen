@@ -66,7 +66,6 @@
 		5350F8A42886020500F8CA68 /* DatabaseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5350F8A32886020500F8CA68 /* DatabaseTests.m */; };
 		5350F8B42886074F00F8CA68 /* ObjectCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5350F8B32886074F00F8CA68 /* ObjectCacheTests.m */; };
 		5350F8B72886080500F8CA68 /* CategoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5350F8B62886080500F8CA68 /* CategoryTests.m */; };
-		5350F8BB2886179200F8CA68 /* FMDB.framework in Copy Files */ = {isa = PBXBuildFile; fileRef = 538499102885FF21004ED6A1 /* FMDB.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		5350F8C22886194200F8CA68 /* MediaFile.h in Headers */ = {isa = PBXBuildFile; fileRef = 5350F8C02886194200F8CA68 /* MediaFile.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5350F8C32886194200F8CA68 /* MediaFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 5350F8C12886194200F8CA68 /* MediaFile.m */; };
 		5350FB0628889E7400F8CA68 /* Node.h in Headers */ = {isa = PBXBuildFile; fileRef = 5350FB0428889E7400F8CA68 /* Node.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -75,7 +74,6 @@
 		5356FE5928A4290000ECCA92 /* MPVConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 5356FE5728A4290000ECCA92 /* MPVConstants.m */; };
 		5356FE7028A4595800ECCA92 /* MediaPlayerView+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 5356FE6E28A4595800ECCA92 /* MediaPlayerView+Private.h */; };
 		5356FE7428A459BA00ECCA92 /* MediaPlayer+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 5356FE7228A459BA00ECCA92 /* MediaPlayer+Private.h */; };
-		538499112885FF21004ED6A1 /* FMDB.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 538499102885FF21004ED6A1 /* FMDB.framework */; };
 		5386706C28BFE16300FB15EB /* MediaPlayerControlsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 5386706928BFE16300FB15EB /* MediaPlayerControlsView.m */; };
 		5386706E28BFE16300FB15EB /* MediaPlayerControlsView.h in Headers */ = {isa = PBXBuildFile; fileRef = 5386706B28BFE16300FB15EB /* MediaPlayerControlsView.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		538E05032885DCED00CE9DE7 /* DomainObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 538E05012885DCED00CE9DE7 /* DomainObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -166,6 +164,7 @@
 		0E03AE27A6C781F30909CE0A /* MediaPlayerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9DE763B7E360E1D3524EB2D3 /* MediaPlayerTests.m */; };
 		A04E46CC8864C0ED866A6437 /* MediaPlayerViewTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FC1C76B108AFBE6B8C8543EC /* MediaPlayerViewTests.m */; };
 		F58AE78C8E9A4406D4723325 /* MediaPlayerCTIViewTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C5B29F0078785EF2C39E97E /* MediaPlayerCTIViewTests.m */; };
+		7D95C46E92A3C3AB5E60F995 /* FMDB in Frameworks */ = {isa = PBXBuildFile; productRef = 995F4E6086E58BD45AB4621F /* FMDB */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -235,7 +234,6 @@
 				6DED5F7216D430429DB62318 /* libx265.217.dylib in Copy Files */,
 				23D61C02218C9885E5CEEE8A /* libzimg.2.dylib in Copy Files */,
 				C5E59B78D94ED061BD0A658A /* libzstd.1.dylib in Copy Files */,
-				5350F8BB2886179200F8CA68 /* FMDB.framework in Copy Files */,
 			);
 			name = "Copy Files";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -312,7 +310,6 @@
 		5356FE5728A4290000ECCA92 /* MPVConstants.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MPVConstants.m; sourceTree = "<group>"; };
 		5356FE6E28A4595800ECCA92 /* MediaPlayerView+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MediaPlayerView+Private.h"; sourceTree = "<group>"; };
 		5356FE7228A459BA00ECCA92 /* MediaPlayer+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MediaPlayer+Private.h"; sourceTree = "<group>"; };
-		538499102885FF21004ED6A1 /* FMDB.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = FMDB.xcframework; path = Carthage/Build/FMDB.xcframework; sourceTree = "<group>"; };
 		5386706928BFE16300FB15EB /* MediaPlayerControlsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MediaPlayerControlsView.m; sourceTree = "<group>"; };
 		5386706B28BFE16300FB15EB /* MediaPlayerControlsView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MediaPlayerControlsView.h; sourceTree = "<group>"; };
 		538E05012885DCED00CE9DE7 /* DomainObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DomainObject.h; sourceTree = "<group>"; };
@@ -559,7 +556,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				538499112885FF21004ED6A1 /* FMDB.framework in Frameworks */,
+				7D95C46E92A3C3AB5E60F995 /* FMDB in Frameworks */,
 				48BB90F2DBAF3672ED21EADB /* libavcodec.63.dylib in Frameworks */,
 				7B2B64E3CB00046E5031968D /* libavformat.63.dylib in Frameworks */,
 				86BA8A5351845CD5EE95EDB3 /* libavutil.61.dylib in Frameworks */,
@@ -707,7 +704,6 @@
 		5309C4162885C9A800BC0AAE /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				538499102885FF21004ED6A1 /* FMDB.xcframework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -1224,6 +1220,9 @@
 			dependencies = (
 			);
 			name = CoreZen;
+			packageProductDependencies = (
+				995F4E6086E58BD45AB4621F /* FMDB */,
+			);
 			productName = CoreZen;
 			productReference = 5309C3A92885A1DC00BC0AAE /* CoreZen.framework */;
 			productType = "com.apple.product-type.framework";
@@ -1272,6 +1271,9 @@
 				Base,
 			);
 			mainGroup = 5309C39F2885A1DC00BC0AAE;
+			packageReferences = (
+				0DE2810FCD70E378268950CE /* XCRemoteSwiftPackageReference "fmdb" */,
+			);
 			productRefGroup = 5309C3AA2885A1DC00BC0AAE /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -1636,6 +1638,24 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+/* Begin XCRemoteSwiftPackageReference section */
+		0DE2810FCD70E378268950CE /* XCRemoteSwiftPackageReference "fmdb" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ccgus/fmdb";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.7.12;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		995F4E6086E58BD45AB4621F /* FMDB */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0DE2810FCD70E378268950CE /* XCRemoteSwiftPackageReference "fmdb" */;
+			productName = FMDB;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 5309C3A02885A1DC00BC0AAE /* Project object */;
 }

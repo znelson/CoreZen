@@ -22,8 +22,9 @@ LIB_GROUP_ID = '53D4B6342B51E38E00B91FA0'
 INCLUDE_GROUP_ID = '53D4B5992B51E38E00B91FA0'
 COPY_FILES_PHASE_ID = '5350F8BA2886178900F8CA68'
 FRAMEWORKS_PHASE_ID = '5309C3A62885A1DC00BC0AAE'
-FMDB_COPY_BF_ID = '5350F8BB2886179200F8CA68'
-FMDB_FW_BF_ID = '538499112885FF21004ED6A1'
+# FMDB comes from Swift Package Manager. Its package product is linked in
+# Link Binary with Libraries alongside the dylibs, so keep that entry.
+FMDB_PACKAGE_BF_ID = '7D95C46E92A3C3AB5E60F995'
 
 
 def generate_id(seed, used_ids):
@@ -322,13 +323,11 @@ def main():
     copy_files = ''.join(
         f'\t\t\t\t{dylib_copy_bf[n]} /* {n} in Copy Files */,\n'
         for n in dylibs)
-    copy_files += (
-        f'\t\t\t\t{FMDB_COPY_BF_ID} /* FMDB.framework in Copy Files */,\n')
     content = replace_list(
         content, COPY_FILES_PHASE_ID, 'files', copy_files)
 
     fw_files = (
-        f'\t\t\t\t{FMDB_FW_BF_ID} /* FMDB.framework in Frameworks */,\n')
+        f'\t\t\t\t{FMDB_PACKAGE_BF_ID} /* FMDB in Frameworks */,\n')
     for name in linked_names:
         fw_files += (
             f'\t\t\t\t{dylib_link_bf[name]} '

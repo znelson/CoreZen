@@ -25,4 +25,8 @@ typedef void (^ZENDatabaseBlock)(ZENDatabase *database);
 - (void)fetchSync:(ZENDatabaseBlock)fetchBlock;
 - (void)vacuumAsync;
 
+// Log each SQL statement as it runs. Off by default. A change takes effect from
+// the next block the queue runs.
+@property (atomic) BOOL traceExecution;
+
 @end

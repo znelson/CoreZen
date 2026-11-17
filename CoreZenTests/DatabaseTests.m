@@ -245,4 +245,28 @@
 	[self waitForExpectationsWithTimeout:5.0 handler:nil];
 }
 
+#pragma mark - Trace Execution
+
+// ZENDatabase keeps its FMDatabase private, so these read FMDB's setting by key path
+
+- (void)testTraceExecutionIsOffByDefault {
+	XCTAssertFalse(self.queue.traceExecution);
+	[self.queue fetchSync:^(ZENDatabase *database) {
+		XCTAssertEqualObjects([database valueForKeyPath:@"fmDatabase.traceExecution"], @NO);
+	}];
+}
+
+- (void)testTraceExecutionCanBeTurnedOnAndOff {
+	// setUp already ran a block on the queue, so this also covers a database it created earlier
+	self.queue.traceExecution = YES;
+	[self.queue fetchSync:^(ZENDatabase *database) {
+		XCTAssertEqualObjects([database valueForKeyPath:@"fmDatabase.traceExecution"], @YES);
+	}];
+
+	self.queue.traceExecution = NO;
+	[self.queue fetchSync:^(ZENDatabase *database) {
+		XCTAssertEqualObjects([database valueForKeyPath:@"fmDatabase.traceExecution"], @NO);
+	}];
+}
+
 @end

@@ -1,10 +1,8 @@
 {
-    "dependencies":
-    {
+    "dependencies": {
         "libmpv": 2
     },
-    "headers":
-    [
+    "headers": [
         "libmpv",
         "libavcodec",
         "libavdevice",
@@ -14,24 +12,15 @@
         "libswscale",
         "libswresample"
     ],
-    "search_paths":
-    {
-        "arm":
-        [
-            "/opt/homebrew"
-        ],
-        "x86":
-        [
-            "/usr/local"
-        ]
-    },
-    "linked_libraries":
-    [
+    "search_paths": [
+        "/opt/homebrew"
+    ],
+    "linked_libraries": [
         "libavcodec",
         "libavformat",
         "libavutil",
         "libmpv",
         "libswscale"
     ],
-    "download_url": "https://0a915b6a-a05f-4da5-aaad-17b6419a38d6.s3.amazonaws.com/CoreZen/Dependencies_2026-04-01.tar.gz"
+    "download_url": "https://0a915b6a-a05f-4da5-aaad-17b6419a38d6.s3.amazonaws.com/CoreZen/Dependencies_2026-11-11.tar.gz"
 }

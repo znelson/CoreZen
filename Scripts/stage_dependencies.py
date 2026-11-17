@@ -1,41 +1,47 @@
 #!/usr/bin/env python3
+"""
+Stage Apple Silicon (arm64) dependencies from Homebrew into Dependencies/.
+
+Starting from the libraries listed in dependencies.json, this copies each dylib
+and everything it links against (transitively) out of /opt/homebrew, rewrites
+their install names to @rpath, and copies the headers for the libraries listed
+under "headers". The result is written to Dependencies/lib, Dependencies/include
+and Dependencies/dependencies.resolved.
+
+CoreZen ships arm64-only dependencies. Intel/x86_64 support was dropped in
+November 2026 after Apple ended Intel Mac support with macOS 26 and Homebrew
+stopped building Intel bottles.
+
+Usage:
+    ./stage_dependencies.py              # Stage from local Homebrew
+    ./stage_dependencies.py --compress   # Archive Dependencies/ for upload
+    ./stage_dependencies.py --download   # Fetch and extract the archive (CI)
+"""
 
 import argparse
 import datetime
 import json
 import os
-import platform
 import shutil
 import subprocess
 import sys
 
-parser = argparse.ArgumentParser()
+parser = argparse.ArgumentParser(description='Stage arm64 dependencies from Homebrew into Dependencies/')
 parser.add_argument('-y', '--skip-prompt', action='store_true',
                     help='Skip prompt before deleting old dependencies folder')
 parser.add_argument('-d', '--download', action='store_true',
                     help='Download dependencies from AWS instead of searching locally')
 parser.add_argument('-c', '--compress', action='store_true', help='Compress dependencies to upload to AWS')
-parser.add_argument('-l', '--lipo', action='store_true',
-                    help='Combine Apple Silicon and Intel .dylib binaries into universal binaries')
-parser.add_argument('-x', '--x86', action='store_true', help='Gather x86 dependencies only')
-parser.add_argument('-a', '--arm', action='store_true', help='Gather ARM dependencies only')
 args = parser.parse_args()
 
-exclusive_args = ['download', 'compress', 'lipo']
-
-if sum([getattr(args, arg) for arg in exclusive_args]) > 1:
+if args.download and args.compress:
     print('The following commands should not be used together:')
-    for arg in exclusive_args:
-        print(f'  --{arg}')
+    print('  --download')
+    print('  --compress')
     exit(1)
 
-# active_archs matches the keys in dependencies.json "search_paths" dict
-# If neither --arm nor --x86, enable both
-active_archs = ['arm', 'x86']
-if args.arm != args.x86 and not args.lipo:
-    active_archs = ['arm'] if args.arm else ['x86']
-
 ##
+k_required_arch = 'arm64'
 k_framework_extension = '.framework'
 k_framework_separator = f'{k_framework_extension}{os.sep}'
 
@@ -124,13 +130,6 @@ def run_cmd(cmd, validate_stderr=None):
 
 
 ##
-def parse_major_version(version):
-    if '.' in version:
-        return version.split('.')[0]
-    return version
-
-
-##
 def is_system_library(path):
     system_paths = [
         '/system/',
@@ -163,6 +162,17 @@ def find_dylib_actual_name(dylib_path):
             raise RuntimeError(f'Unhandled framework dir: {dylib_path}')
         dylib_path = os.path.split(dylib_path)[1]
     return os.path.split(dylib_path)[1]
+
+
+##
+def verify_dylib_arch(path):
+    # Guard against accidentally staging a binary that lacks an arm64 slice,
+    # e.g. from a stale Intel Homebrew install left on the search path.
+    output = run_cmd(['lipo', '-archs', path])
+    archs = output[0].split() if output else []
+    if k_required_arch not in archs:
+        print(f'ERROR: {path} has no {k_required_arch} slice (found: {archs})')
+        exit(1)
 
 
 ##
@@ -247,13 +257,17 @@ dependency_versions = dependencies_json['dependencies']
 header_libraries = dependencies_json['headers']
 download_url = dependencies_json['download_url']
 
+if not isinstance(search_paths, list):
+    print('ERROR: "search_paths" in dependencies.json must be a list of Homebrew prefixes, e.g. ["/opt/homebrew"]')
+    exit(1)
+
 root_path = os.path.dirname(scripts_path)
 destination_path = os.path.join(root_path, 'Dependencies')
 
 print(f'Scripts path: {scripts_path}')
 print(f'Destination path: {destination_path}')
 
-if os.path.exists(destination_path) and not (args.compress or args.lipo):
+if os.path.exists(destination_path) and not args.compress:
     print('Deleting existing Dependencies directory:')
     print(f'  {destination_path}')
     if not args.skip_prompt:
@@ -262,10 +276,7 @@ if os.path.exists(destination_path) and not (args.compress or args.lipo):
 
 lib_destination_path = os.path.join(destination_path, 'lib')
 include_destination_path = os.path.join(destination_path, 'include')
-
-platform_name, other_platform_name = 'arm', 'intel'
-if platform.processor() != 'arm':
-    platform_name, other_platform_name = other_platform_name, platform_name
+resolved_destination_path = os.path.join(destination_path, 'dependencies.resolved')
 
 print(f'Libraries path: {lib_destination_path}')
 print(f'Includes path: {include_destination_path}')
@@ -302,6 +313,12 @@ if args.compress:
         print('  Run without --compress option to populate these directories first')
         exit(1)
 
+    if not os.path.isfile(resolved_destination_path):
+        print('ERROR: Resolved dependency list does not exist at:')
+        print(f'       {resolved_destination_path}')
+        print('  Run without --compress option to stage dependencies first')
+        exit(1)
+
     date = datetime.datetime.now().strftime('%Y-%m-%d')
 
     zip_filename = f'Dependencies_{date}.tar.gz'
@@ -317,61 +334,21 @@ if args.compress:
     print(f'Output: {zip_filepath}')
     print(f'Root:   {root_path}')
 
-    proc = subprocess.Popen(['tar', '-czvf', zip_filepath, '-C', root_path, os.path.basename(destination_path)])
+    proc = subprocess.Popen(['tar', '--exclude', '.DS_Store', '-czvf', zip_filepath,
+                             '-C', root_path, os.path.basename(destination_path)])
     proc.communicate()
+    if proc.returncode != 0:
+        print(f'ERROR: Compression failed (exit code {proc.returncode})')
+        exit(1)
 
-    resolved_deps_filepath_src = os.path.join(destination_path, 'dependencies.resolved')
     resolved_deps_filepath_dst = os.path.join(scripts_path, 'dependencies.resolved')
-    shutil.copyfile(resolved_deps_filepath_src, resolved_deps_filepath_dst)
+    shutil.copyfile(resolved_destination_path, resolved_deps_filepath_dst)
 
     print('Copied resolved dependencies to:')
     print(f'    {resolved_deps_filepath_dst}')
 
-    exit()
-
-if args.lipo:
-    lib_source_paths = [os.path.join(lib_destination_path, arch) for arch in active_archs]
-
-    if not all([os.path.isdir(source_path) for source_path in lib_source_paths]):
-        print('ERROR: Dependencies need to be staged at:')
-        for source_path in lib_source_paths:
-            print(f'    {source_path}')
-        exit(1)
-
-    if not os.path.isdir(lib_destination_path):
-        os.makedirs(lib_destination_path)
-
-    source_path = lib_source_paths[0]
-    filenames = [fn for fn in os.listdir(source_path) if fn.endswith('.dylib')]
-
-    for filename in filenames:
-        input_dylib_paths = [os.path.join(dest_path, filename) for dest_path in lib_source_paths]
-        output_dylib_path = os.path.join(lib_destination_path, filename)
-
-        if not all([os.path.exists(source_path) for source_path in input_dylib_paths]):
-            print('ERROR: Matching arch dependencies not found:')
-            for source_path in input_dylib_paths:
-                source_path_state = '  [FOUND]' if os.path.exists(source_path) else '[MISSING]'
-                print(f'    {source_path_state} {source_path}')
-            exit(1)
-
-        if os.path.exists(output_dylib_path):
-            print('ERROR: Universal lib destination already exists:')
-            print(f'    {output_dylib_path}')
-            exit(1)
-
-        lipo_cmd = ['lipo']
-        lipo_cmd.extend(input_dylib_paths)
-        lipo_cmd.append('-output')
-        lipo_cmd.append(output_dylib_path)
-        lipo_cmd.append('-create')
-
-        print('Combining to create universal binary:')
-        for source_path in input_dylib_paths:
-            print(f'    {source_path}')
-        print(f'    {output_dylib_path}')
-        proc = subprocess.Popen(lipo_cmd)
-        proc.communicate()
+    print('Next: upload the archive to AWS and update "download_url" in dependencies.json to:')
+    print(f'    {os.path.dirname(download_url)}/{zip_filename}')
 
     exit()
 
@@ -380,144 +357,136 @@ os.makedirs(include_destination_path)
 
 # Look for the dependency dylibs specified in dependencies.json
 # This will fail immediately if any dependency cannot be found
-for arch in active_archs:
+print('Dependency versions:')
 
-    print(f'Dependency versions [{arch}]:')
+located_dependencies = []
 
-    located_dependencies = []
+for dependency, version in dependency_versions.items():
 
-    arch_search_paths = search_paths[arch]
+    print(f'  {dependency} @ {version}')
 
-    arch_lib_destination_path = os.path.join(lib_destination_path, arch)
-    os.makedirs(arch_lib_destination_path)
+    dylib_name = f'{dependency}.{version}.dylib'
 
-    arch_include_destination_path = os.path.join(include_destination_path, arch)
-    os.makedirs(arch_include_destination_path)
+    located_dependency = locate_dependency(dylib_name, search_paths)
+    located_dependencies.append(located_dependency)
 
-    for dependency, version in dependency_versions.items():
+# Process the dependencies as a set. With each dependency we process we may
+# discover new dependencies to add to the set.
+dylibs_to_process = set(located_dependencies)
 
-        print(f'  {dependency} @ {version}')
+# After we've processed a dependency we can add it to these sets. Use these
+# to avoid potential recursive dependencies and assert that we only depend on
+# a single version of any particular library.
+processed_dylibs = set()
+libname_to_dylib_path = {}
 
-        dylib_name = f'{dependency}.{version}.dylib'
+while len(dylibs_to_process):
 
-        located_dependency = locate_dependency(dylib_name, arch_search_paths)
-        located_dependencies.append(located_dependency)
+    src_dylib_path = dylibs_to_process.pop()
 
-    # Process the dependencies as a set. With each dependency we process we may
-    # discover new dependencies to add to the set.
-    dylibs_to_process = set(located_dependencies)
+    # Maintain the filename requested with this dependency
+    dest_dylib_name = find_dylib_actual_name(src_dylib_path)
 
-    # After we've processed a dependency we can add it to these sets. Use these
-    # to avoid potential recursive dependencies and assert that we only depend on
-    # a single version of any particular library.
-    processed_dylibs = set()
-    libname_to_dylib_path = {}
+    src_dylib_path = os.path.realpath(src_dylib_path)
 
-    while len(dylibs_to_process):
+    if src_dylib_path in processed_dylibs:
+        # print(f'Skipping previously handled dependency: {src_dylib_path}')
+        continue
 
-        src_dylib_path = dylibs_to_process.pop()
+    # If this is a lib we've seen before, confirm that it's the same path as before
+    previous_path = libname_to_dylib_path.get(dest_dylib_name, None)
+    if previous_path and previous_path != src_dylib_path:
+        print(f'ERROR: Mismatched library paths for {dest_dylib_name}')
+        print(f'  New: {src_dylib_path}')
+        print(f'  Old: {previous_path}')
+        exit(1)
 
-        # Maintain the filename requested with this dependency
-        dest_dylib_name = find_dylib_actual_name(src_dylib_path)
+    processed_dylibs.add(src_dylib_path)
+    libname_to_dylib_path[dest_dylib_name] = src_dylib_path
 
-        src_dylib_path = os.path.realpath(src_dylib_path)
+    # Copy this dylib to local
+    dest_dylib_path = os.path.join(lib_destination_path, dest_dylib_name)
+    dest_dylib_path = copy_dylib(src_dylib_path, dest_dylib_path)
 
-        if src_dylib_path in processed_dylibs:
-            # print(f'Skipping previously handled dependency: {src_dylib_path}')
-            continue
+    verify_dylib_arch(dest_dylib_path)
 
-        # If this is a lib we've seen before, confirm that it's the same path as before
-        previous_path = libname_to_dylib_path.get(dest_dylib_name, None)
-        if previous_path and previous_path != src_dylib_path:
-            print(f'ERROR: Mismatched library paths for {dylib_name}')
-            print(f'  New: {src_dylib_path}')
-            print(f'  Old: {previous_path}')
-            exit(1)
+    # print(f'Stamping -id into {dest_dylib_name}')
+    stamp_dylib_id(dest_dylib_path)
 
-        processed_dylibs.add(src_dylib_path)
-        libname_to_dylib_path[dest_dylib_name] = src_dylib_path
+    cmd = ['otool', '-L', dest_dylib_path]
+    output = run_cmd(cmd)
 
-        # Copy this dylib to local
-        dest_dylib_path = os.path.join(arch_lib_destination_path, dest_dylib_name)
-        dest_dylib_path = copy_dylib(src_dylib_path, dest_dylib_path)
+    # Skip the first line, it just repeats the input dylib path
+    # Skip the second line, it is the identity entry
+    output = output[2:]
 
-        # print(f'Stamping -id into {dest_dylib_name}')
-        stamp_dylib_id(dest_dylib_path)
+    output = [line for line in output if not is_system_library(line)]
 
-        cmd = ['otool', '-L', dest_dylib_path]
-        output = run_cmd(cmd)
+    if output:
+        print(f'Processing dependencies of {dest_dylib_name}:')
 
-        # Skip the first line, it just repeats the input dylib path
-        # Skip the second line, it is the identity entry
-        output = output[2:]
+        for line in output:
 
-        output = [line for line in output if not is_system_library(line)]
+            # line is like:
+            #   @loader_path/../../../../opt/libsamplerate/lib/libsamplerate.0.dylib (compatibility version 3.0.0, current version 3.2.0)
 
-        if output:
-            print(f'Processing dependencies of {dest_dylib_name}:')
+            dependency_path = line.split(' (compatibility version')[0]
+            dependency_dylib_name = os.path.split(dependency_path)[1]
 
-            for line in output:
+            print(f'  Dependency {dependency_path}')
+            # print(f'  Stamping -change for {dependency_dylib_name} into {dest_dylib_name}')
+            stamp_dylib_change(dest_dylib_path, dependency_path)
 
-                # line is like:
-                #   @loader_path/../../../../opt/libsamplerate/lib/libsamplerate.0.dylib (compatibility version 3.0.0, current version 3.2.0)
+            if dependency_path.startswith('@'):
+                dependency_path = locate_dependency(dependency_dylib_name, search_paths)
+            dylibs_to_process.add(dependency_path)
 
-                dependency_path = line.split(' (compatibility version')[0]
-                dependency_dylib_name = os.path.split(dependency_path)[1]
-
-                print(f'  Dependency {dependency_path}')
-                # print(f'  Stamping -change for {dependency_dylib_name} into {dest_dylib_name}')
-                stamp_dylib_change(dest_dylib_path, dependency_path)
-
-                if dependency_path.startswith('@'):
-                    dependency_path = locate_dependency(dependency_dylib_name, arch_search_paths)
-                dylibs_to_process.add(dependency_path)
-
-    for header_library in header_libraries:
-        dylib_path = None
-        for libname, libpath in libname_to_dylib_path.items():
-            if libname.startswith(header_library):
-                if dylib_path:
-                    print(f'ERROR: More than one path for header library "{header_library}":')
-                    print(f'  Old: {dylib_path}')
-                    print(f'  New: {libpath}')
-                    exit(1)
-                else:
-                    dylib_path = libpath
-
-        if not dylib_path:
-            print(f'ERROR: No path found for header library "{header_library}"')
-            exit(1)
-
-        # search for 'libxyz' and 'xyz'
-        include_names = [header_library]
-        if header_library.startswith('lib'):
-            include_names.append(header_library[3:])
-
-        # search for 'libxyz.h' and 'xyz.h'
-        include_names.extend([f'{lib}.h' for lib in include_names])
-
-        lib_path = os.path.dirname(os.path.dirname(dylib_path))
-        src_include_path = None
-        dest_include_path = None
-        for include_name in include_names:
-            include_path = os.path.join(lib_path, 'include', include_name)
-            if os.path.exists(include_path):
-                src_include_path = include_path
-                dest_include_path = os.path.join(arch_include_destination_path, include_name)
-                break
-        if src_include_path:
-            print(f'Copying includes from {src_include_path} to {dest_include_path}')
-            if os.path.isfile(src_include_path):
-                shutil.copyfile(src_include_path, dest_include_path)
+for header_library in header_libraries:
+    dylib_path = None
+    for libname, libpath in libname_to_dylib_path.items():
+        if libname.startswith(header_library):
+            if dylib_path:
+                print(f'ERROR: More than one path for header library "{header_library}":')
+                print(f'  Old: {dylib_path}')
+                print(f'  New: {libpath}')
+                exit(1)
             else:
-                shutil.copytree(src_include_path, dest_include_path)
-        else:
-            print(f'ERROR: Include directory not found for {dylib_path}')
-            exit(1)
+                dylib_path = libpath
 
-    staged_txt_path = os.path.join(destination_path, f'dependencies.{arch}.resolved')
-    with open(staged_txt_path, 'w') as text_file:
-        for dylib_path in sorted(processed_dylibs):
-            text_file.write(dylib_path)
-            text_file.write(os.linesep)
-    print(f'Staged dependency list: {staged_txt_path}')
+    if not dylib_path:
+        print(f'ERROR: No path found for header library "{header_library}"')
+        exit(1)
+
+    # search for 'libxyz' and 'xyz'
+    include_names = [header_library]
+    if header_library.startswith('lib'):
+        include_names.append(header_library[3:])
+
+    # search for 'libxyz.h' and 'xyz.h'
+    include_names.extend([f'{lib}.h' for lib in include_names])
+
+    lib_path = os.path.dirname(os.path.dirname(dylib_path))
+    src_include_path = None
+    dest_include_path = None
+    for include_name in include_names:
+        include_path = os.path.join(lib_path, 'include', include_name)
+        if os.path.exists(include_path):
+            src_include_path = include_path
+            dest_include_path = os.path.join(include_destination_path, include_name)
+            break
+    if src_include_path:
+        print(f'Copying includes from {src_include_path} to {dest_include_path}')
+        if os.path.isfile(src_include_path):
+            shutil.copyfile(src_include_path, dest_include_path)
+        else:
+            shutil.copytree(src_include_path, dest_include_path)
+    else:
+        print(f'ERROR: Include directory not found for {dylib_path}')
+        exit(1)
+
+with open(resolved_destination_path, 'w') as text_file:
+    for dylib_path in sorted(processed_dylibs):
+        text_file.write(dylib_path)
+        text_file.write(os.linesep)
+print(f'Staged {len(processed_dylibs)} libraries')
+print(f'Staged dependency list: {resolved_destination_path}')

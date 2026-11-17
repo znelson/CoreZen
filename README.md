@@ -8,10 +8,10 @@ Written by [Zach Nelson](https://github.com/znelson). See the [LICENSE file](htt
 
 ## Getting Started
 
-### FMDB.framework Dependency
-`CoreZen` links against and bundles [FMDB.framework](https://github.com/ccgus/fmdb). The Xcode project is set up to find FMDB installed using [Carthage](https://github.com/Carthage/Carthage#quick-start).
+### FMDB Dependency
+`CoreZen` uses [FMDB](https://github.com/ccgus/fmdb) through Swift Package Manager and links it into `CoreZen.framework`. Xcode fetches it automatically; the exact version is pinned in `CoreZen.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved`.
 
-_**Installation:**_ Run `XCODE_XCCONFIG_FILE="$PWD/Scripts/carthage.xcconfig" carthage bootstrap --use-xcframeworks --platform mac` to build Carthage/Build/FMDB.xcframework. The `CoreZen` Xcode project will find it from there. (The xcconfig raises FMDB's deployment targets, which Xcode 27 otherwise rejects.)
+_**Installation:**_ Nothing to install. To fetch it ahead of a build, run `xcodebuild -resolvePackageDependencies -project CoreZen.xcodeproj -scheme CoreZen`.
 
 ### mpv and libav Dependencies
 `CoreZen` links against and bundles dynamic libraries for [libmpv](https://github.com/mpv-player/mpv/blob/master/DOCS/man/libmpv.rst) and [libav](https://github.com/libav/libav#readme). The Xcode project is set up to find headers and libraries installed using [Homebrew](https://brew.sh).
@@ -46,7 +46,7 @@ _**Installation:**_
 * The [`ZENDatabaseTable`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Database/DatabaseTable.h) protocol to abstract the [FMDB](https://github.com/ccgus/fmdb) work for create, read, update, and delete operations on [`ZENDataTransferObject`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Database/DataTransferObject.h)s on an sqlite3 database table.
 * [`ZENDatabaseSchema`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Database/DatabaseSchema.h) performs simple dynamic database schema updates based an array of [`ZENDatabaseTable`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Database/DatabaseTable.h) objects.
 
-*Note on dependencies:* [`ZENDatabaseQueue`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Database/DatabaseQueue.h) and other classes in `CoreZen` depend on [FMDB.framework](https://github.com/ccgus/fmdb). [See above for installation from Carthage.](#fmdbframework-dependency)
+*Note on dependencies:* [`ZENDatabaseQueue`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Database/DatabaseQueue.h) and other classes in `CoreZen` depend on [FMDB](https://github.com/ccgus/fmdb), which Swift Package Manager provides. [See above.](#fmdb-dependency)
 
 #### IV. Domain Objects
 

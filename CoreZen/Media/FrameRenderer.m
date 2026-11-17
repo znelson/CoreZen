@@ -78,16 +78,24 @@
 															  [collector collect:frame];
 														  }];
 
-			[tokens addObject:token];
+			// No token means the render queue was terminated. The completion
+			// above still runs, so the collector still finishes.
+			if (token) {
+				[tokens addObject:token];
+			}
 		}
 
 		result = [[ZENWorkQueueMultiToken alloc] initWithTokens:tokens];
 
 	} else if (count == 1) {
 		result = [self renderFrameAtPercentage:0.50 width:width height:height completion:^(ZENRenderedFrame *frame) {
-			NSArray *frames = @[frame];
-			completion(frames);
+			// Match ZENFrameCollector, which only keeps frames with an image
+			completion(frame.image ? @[frame] : @[]);
 		}];
+	} else {
+		dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+			completion(@[]);
+		});
 	}
 	return result;
 }

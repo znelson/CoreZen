@@ -159,6 +159,9 @@
 		CC00000228860A0000000004 /* TestDTO.m in Sources */ = {isa = PBXBuildFile; fileRef = CC00000128860A0000000005 /* TestDTO.m */; };
 		CC00000228860A0000000005 /* TestTable.m in Sources */ = {isa = PBXBuildFile; fileRef = CC00000128860A0000000007 /* TestTable.m */; };
 		CC00000228860A0000000006 /* TestDomainObject.m in Sources */ = {isa = PBXBuildFile; fileRef = CC00000128860A0000000009 /* TestDomainObject.m */; };
+		0313158D2D7374094EFBE6DC /* MediaTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D27F0ECF10C39A3A06669EF /* MediaTests.m */; };
+		030EFFD5692EA63A973B2FE9 /* video.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 7C383F9E59E944DEF41405A3 /* video.mp4 */; };
+		3A881C011BDBA50B90143879 /* audio.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 318D307DF615F0093C6C9C47 /* audio.m4a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -538,6 +541,9 @@
 		CC00000128860A0000000007 /* TestTable.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestTable.m; sourceTree = "<group>"; };
 		CC00000128860A0000000008 /* TestDomainObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestDomainObject.h; sourceTree = "<group>"; };
 		CC00000128860A0000000009 /* TestDomainObject.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestDomainObject.m; sourceTree = "<group>"; };
+		7D27F0ECF10C39A3A06669EF /* MediaTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MediaTests.m; sourceTree = "<group>"; };
+		7C383F9E59E944DEF41405A3 /* video.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = video.mp4; sourceTree = "<group>"; };
+		318D307DF615F0093C6C9C47 /* audio.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = audio.m4a; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -615,6 +621,8 @@
 				CC00000128860A0000000001 /* NodeTests.m */,
 				5350F8B32886074F00F8CA68 /* ObjectCacheTests.m */,
 				CC00000128860A0000000002 /* QueueTests.m */,
+				7D27F0ECF10C39A3A06669EF /* MediaTests.m */,
+				CDC246E00BF0C4A74F302C04 /* Resources */,
 			);
 			path = CoreZenTests;
 			sourceTree = "<group>";
@@ -1121,6 +1129,15 @@
 			path = mpv;
 			sourceTree = "<group>";
 		};
+		CDC246E00BF0C4A74F302C04 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				7C383F9E59E944DEF41405A3 /* video.mp4 */,
+				318D307DF615F0093C6C9C47 /* audio.m4a */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -1267,6 +1284,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				030EFFD5692EA63A973B2FE9 /* video.mp4 in Resources */,
+				3A881C011BDBA50B90143879 /* audio.m4a in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1330,6 +1349,7 @@
 				CC00000228860A0000000006 /* TestDomainObject.m in Sources */,
 				538E052E2885FB5400CE9DE7 /* TestIdentifiable.m in Sources */,
 				CC00000228860A0000000005 /* TestTable.m in Sources */,
+				0313158D2D7374094EFBE6DC /* MediaTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

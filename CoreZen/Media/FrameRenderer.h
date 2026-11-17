@@ -42,6 +42,11 @@ typedef NS_ENUM(NSInteger, ZENFrameRequestType) {
 @protocol ZENFrameRenderController;
 
 // Interface for requesting rendered frames
+//
+// Every render method calls its completion exactly once, on a background queue.
+// A frame's image is nil when it couldn't be rendered: the file has no video
+// stream or couldn't be opened, the request was canceled, or the media file was
+// terminated. renderFrames: only returns frames that have an image.
 @interface ZENFrameRenderer : NSObject
 
 @property (nonatomic, strong, readonly) ZENMediaFile *mediaFile;

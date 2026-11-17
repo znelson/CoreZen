@@ -35,11 +35,18 @@ typedef enum : NSUInteger {
 // Same as above, but resultsBlock happens on the main thread.
 - (void)countAllObjectsForUI:(ZENAsyncCountCompletionBlock)countBlock;
 
-// Runs asynchronously. Completion block happens on a thread pool.
-- (void)sumAllVideoDuration:(ZENAsyncCountCompletionBlock)countBlock;
+#pragma mark - Sum
 
-// Same as above, but resultsBlock happens on the main thread.
-- (void)sumAllVideoDurationForUI:(ZENAsyncCountCompletionBlock)countBlock;
+// Sum of an integer column over all objects, or 0 if there are none. columnName
+// goes into the SQL as is, so it must be a column of this repository's table
+// named in code, never user input. Runs asynchronously. Completion block
+// happens on a thread pool.
+- (void)sumColumn:(NSString *)columnName
+	   completion:(ZENAsyncCountCompletionBlock)sumBlock;
+
+// Same as above, but uiCompletion block happens on the main thread.
+- (void)sumColumn:(NSString *)columnName
+	 uiCompletion:(ZENAsyncCountCompletionBlock)sumBlock;
 
 #pragma mark - Fetch
 

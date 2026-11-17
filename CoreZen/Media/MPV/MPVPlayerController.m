@@ -38,9 +38,9 @@ static void zen_mpv_wakeup(void *ctx);
 - (void)destroyHandle;
 - (void)mpvHandleEvents;
 
-- (void)mpvCommand:(const char **const)command;
+- (int)mpvCommand:(const char **const)command;
 - (void)mpvSimpleCommand:(const char *const)command;
-- (void)mpvSeek:(double)target flags:(const char *const)flags;
+- (ZENMPVCommandResult)mpvSeek:(double)target flags:(const char *const)flags;
 
 @end
 
@@ -48,8 +48,8 @@ static void zen_mpv_wakeup(void *ctx);
 
 @synthesize identifier = _identifier;
 
-- (void)mpvCommand:(const char **const)command {
-	mpv_command(_mpvHandle, command);
+- (int)mpvCommand:(const char **const)command {
+	return mpv_command(_mpvHandle, command);
 }
 
 - (void)mpvSimpleCommand:(const char *const)command {
@@ -182,7 +182,7 @@ static void zen_mpv_wakeup(void *ctx);
 	[self mpvSimpleCommand:kMPVCommand_frame_step];
 }
 
-- (void)mpvSeek:(double)target flags:(const char *const)flags {
+- (ZENMPVCommandResult)mpvSeek:(double)target flags:(const char *const)flags {
 	// The command holds a pointer to this stack buffer, which stays valid
 	// until mpv_command returns
 	char targetArgument[32];
@@ -193,19 +193,26 @@ static void zen_mpv_wakeup(void *ctx);
 		flags,
 		nil
 	};
-	[self mpvCommand:command];
+	int error = [self mpvCommand:command];
+	if (error >= 0) {
+		return ZENMPVCommandResultAccepted;
+	}
+	NSLog(@"mpv seek %s %s failed: %s", targetArgument, flags, mpv_error_string(error));
+	// mpv reports a seek before the file has loaded as a generic command error,
+	// and a bad target such as NaN as an invalid parameter
+	return (error == MPV_ERROR_COMMAND) ? ZENMPVCommandResultNotReady : ZENMPVCommandResultRejected;
 }
 
-- (void)seekBySeconds:(double)seconds {
-	[self mpvSeek:seconds flags:kMPVCommandParam_relative];
+- (ZENMPVCommandResult)seekBySeconds:(double)seconds {
+	return [self mpvSeek:seconds flags:kMPVCommandParam_relative];
 }
 
-- (void)seekToSeconds:(double)seconds {
-	[self mpvSeek:seconds flags:kMPVCommandParam_absolute];
+- (ZENMPVCommandResult)seekToSeconds:(double)seconds {
+	return [self mpvSeek:seconds flags:kMPVCommandParam_absolute];
 }
 
-- (void)seekToPercentage:(double)percentage {
-	[self mpvSeek:percentage flags:kMPVCommandParam_absolute_percent];
+- (ZENMPVCommandResult)seekToPercentage:(double)percentage {
+	return [self mpvSeek:percentage flags:kMPVCommandParam_absolute_percent];
 }
 
 - (void)mpvHandleEvents {
@@ -246,10 +253,16 @@ static void zen_mpv_wakeup(void *ctx);
 			}
 			case MPV_EVENT_END_FILE: {
 				NSLog(@"MPV_EVENT_END_FILE");
+				dispatch_async(dispatch_get_main_queue(), ^{
+					[self.player playerControllerDidEndFile];
+				});
 				break;
 			}
 			case MPV_EVENT_FILE_LOADED: {
 				NSLog(@"MPV_EVENT_FILE_LOADED");
+				dispatch_async(dispatch_get_main_queue(), ^{
+					[self.player playerControllerDidLoadFile];
+				});
 				break;
 			}
 			case MPV_EVENT_CLIENT_MESSAGE: {
@@ -274,7 +287,7 @@ static void zen_mpv_wakeup(void *ctx);
 			case MPV_EVENT_PLAYBACK_RESTART: {
 				NSLog(@"MPV_EVENT_PLAYBACK_RESTART");
 				dispatch_async(dispatch_get_main_queue(), ^{
-					self.player.seeking = NO;
+					[self.player playerControllerDidRestartPlayback];
 				});
 				break;
 			}

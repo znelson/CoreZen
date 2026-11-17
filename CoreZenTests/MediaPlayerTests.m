@@ -134,4 +134,54 @@ static BOOL ZENHasAudioOutputDevice(void) {
 	[self waitForExpectationsWithTimeout:kPlayerTimeout handler:nil];
 }
 
+- (void)testSeekRightAfterLoadIsApplied {
+	// mpv rejects seeks until the file has loaded, so the player has to hold
+	// this one, e.g. for resuming playback at a saved position
+	XCTSkipUnless(ZENHasAudioOutputDevice(), @"Seeking needs mpv to play audio, and there's no audio output device");
+	[self expectPositionPercentNear:50.0];
+	[self.player loadFileURL:[self copyVideoNamed:@"video.mp4"]];
+	[self.player seekAbsoluteSeconds:1.0];
+	[self waitForExpectationsWithTimeout:kPlayerTimeout handler:nil];
+}
+
+- (void)testLatestSeekWinsWhileSeeking {
+	// Like scrubbing with the slider: the last position asked for must be
+	// where playback ends up, even if it arrives while a seek is running
+	XCTSkipUnless(ZENHasAudioOutputDevice(), @"Seeking needs mpv to play audio, and there's no audio output device");
+	[self loadFileURLReadyToSeek:[self copyVideoNamed:@"video.mp4"]];
+	[self expectPositionPercentNear:75.0];
+	[self.player seekAbsolutePercentage:25.0];
+	[self.player seekAbsolutePercentage:75.0];
+	[self waitForExpectationsWithTimeout:kPlayerTimeout handler:nil];
+}
+
+- (void)testRelativeSeeksWhileSeekingAddUp {
+	XCTSkipUnless(ZENHasAudioOutputDevice(), @"Seeking needs mpv to play audio, and there's no audio output device");
+	[self loadFileURLReadyToSeek:[self copyVideoNamed:@"video.mp4"]];
+	// Three half-second steps from the start of the 2 second video
+	[self expectPositionPercentNear:75.0];
+	[self.player seekRelativeSeconds:0.5];
+	[self.player seekRelativeSeconds:0.5];
+	[self.player seekRelativeSeconds:0.5];
+	[self waitForExpectationsWithTimeout:kPlayerTimeout handler:nil];
+}
+
+- (void)testRejectedSeekDoesNotBlockLaterSeeks {
+	XCTSkipUnless(ZENHasAudioOutputDevice(), @"Seeking needs mpv to play audio, and there's no audio output device");
+	[self loadFileURLReadyToSeek:[self copyVideoNamed:@"video.mp4"]];
+
+	// mpv rejects a non-numeric target outright
+	[self.player seekAbsoluteSeconds:NAN];
+	XCTAssertFalse(self.player.seeking);
+
+	[self expectPositionPercentNear:50.0];
+	[self.player seekAbsoluteSeconds:1.0];
+	[self waitForExpectationsWithTimeout:kPlayerTimeout handler:nil];
+}
+
+- (void)testSeekWithNoFileLoadedDoesNotLeaveSeekingSet {
+	[self.player seekAbsoluteSeconds:1.0];
+	XCTAssertFalse(self.player.seeking);
+}
+
 @end

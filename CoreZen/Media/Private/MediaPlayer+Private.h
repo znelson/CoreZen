@@ -25,4 +25,9 @@
 // Reciprocal of ZENMediaPlayerView detachPlayer, leaves player paused
 - (void)detachPlayerView;
 
+// Called by ZENMPVPlayerController on the main thread as mpv reports events
+- (void)playerControllerDidLoadFile;
+- (void)playerControllerDidRestartPlayback;
+- (void)playerControllerDidEndFile;
+
 @end

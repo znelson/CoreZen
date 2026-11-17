@@ -19,9 +19,24 @@ ZENObjectCache *ZENGetWeakMediaPlayerCache(void) {
 	return cache;
 }
 
+typedef NS_ENUM(NSInteger, ZENSeekKind) {
+	ZENSeekKindRelativeSeconds,
+	ZENSeekKindAbsoluteSeconds,
+	ZENSeekKindAbsolutePercentage,
+};
+
 @interface ZENMediaPlayer ()
 
 @property (nonatomic) BOOL terminated;
+
+// The latest seek that hasn't reached mpv yet, because the file hadn't loaded
+// or another seek was running. Main thread only.
+@property (nonatomic) BOOL hasPendingSeek;
+@property (nonatomic) ZENSeekKind pendingSeekKind;
+@property (nonatomic) double pendingSeekTarget;
+
+- (void)requestSeek:(ZENSeekKind)kind target:(double)target;
+- (void)startPendingSeek;
 
 @end
 
@@ -87,6 +102,8 @@ ZENObjectCache *ZENGetWeakMediaPlayerCache(void) {
 }
 
 - (void)loadFileURL:(NSURL *)url {
+	// A seek still waiting from the previous file doesn't apply to this one
+	self.hasPendingSeek = NO;
 	[self.playerController openFileURL:url];
 }
 
@@ -107,24 +124,78 @@ ZENObjectCache *ZENGetWeakMediaPlayerCache(void) {
 }
 
 - (void)seekRelativeSeconds:(double)seconds {
-	if (!self.seeking) {
-		self.seeking = YES;
-		[self.playerController seekBySeconds:seconds];
-	}
+	[self requestSeek:ZENSeekKindRelativeSeconds target:seconds];
 }
 
 - (void)seekAbsoluteSeconds:(double)seconds {
-	if (!self.seeking) {
-		self.seeking = YES;
-		[self.playerController seekToSeconds:seconds];
-	}
+	[self requestSeek:ZENSeekKindAbsoluteSeconds target:seconds];
 }
 
 - (void)seekAbsolutePercentage:(double)percentage {
-	if (!self.seeking) {
-		self.seeking = YES;
-		[self.playerController seekToPercentage:percentage];
+	[self requestSeek:ZENSeekKindAbsolutePercentage target:percentage];
+}
+
+#pragma mark - [private] Seeking
+
+- (void)requestSeek:(ZENSeekKind)kind target:(double)target {
+	// Only the latest seek is kept, except that relative seeks add up
+	if (self.hasPendingSeek && kind == ZENSeekKindRelativeSeconds && self.pendingSeekKind == ZENSeekKindRelativeSeconds) {
+		target += self.pendingSeekTarget;
 	}
+	self.pendingSeekKind = kind;
+	self.pendingSeekTarget = target;
+	self.hasPendingSeek = YES;
+
+	[self startPendingSeek];
+}
+
+- (void)startPendingSeek {
+	// One seek runs at a time. The pending seek starts when mpv reports that the
+	// running one has finished, or that the file has loaded.
+	if (!self.hasPendingSeek || self.seeking) {
+		return;
+	}
+
+	ZENMPVCommandResult result = ZENMPVCommandResultRejected;
+	switch (self.pendingSeekKind) {
+		case ZENSeekKindRelativeSeconds:
+			result = [self.playerController seekBySeconds:self.pendingSeekTarget];
+			break;
+		case ZENSeekKindAbsoluteSeconds:
+			result = [self.playerController seekToSeconds:self.pendingSeekTarget];
+			break;
+		case ZENSeekKindAbsolutePercentage:
+			result = [self.playerController seekToPercentage:self.pendingSeekTarget];
+			break;
+	}
+
+	switch (result) {
+		case ZENMPVCommandResultAccepted:
+			self.hasPendingSeek = NO;
+			self.seeking = YES;
+			break;
+		case ZENMPVCommandResultNotReady:
+			// Usually the file hasn't loaded yet; try again when it has
+			break;
+		case ZENMPVCommandResultRejected:
+			self.hasPendingSeek = NO;
+			break;
+	}
+}
+
+- (void)playerControllerDidLoadFile {
+	[self startPendingSeek];
+}
+
+- (void)playerControllerDidRestartPlayback {
+	// A seek finished, or playback started after loading
+	self.seeking = NO;
+	[self startPendingSeek];
+}
+
+- (void)playerControllerDidEndFile {
+	// A seek running when the file ended won't report finishing
+	self.seeking = NO;
 }
 
 @end

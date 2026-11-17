@@ -33,6 +33,10 @@
 
 - (void)stepOneFrame:(BOOL)forward;
 
+// Seeks run one at a time. A seek requested before the loaded file is ready, or
+// while another seek is running, waits and then runs. Only the latest waiting
+// seek is kept, except that relative seeks add up. Loading a new file drops a
+// waiting seek. Call these on the main thread.
 - (void)seekRelativeSeconds:(double)seconds;
 
 - (void)seekAbsoluteSeconds:(double)seconds;

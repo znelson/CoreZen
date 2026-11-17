@@ -90,15 +90,25 @@
 }
 
 - (void)initializeIdentifiers:(ZENDatabase *)database {
+	// Every table draws identifiers from the same global counter, so the counter
+	// must resume after the largest identifier in any table, not the last one read.
+	ZENIdentifier largestIdentifier = ZENInvalidIdentifier;
+	NSString *largestTableName = nil;
 	for (NSString *tableName in self.tableNames) {
 		NSString *statement = [NSString stringWithFormat:@"SELECT identifier FROM %@ ORDER BY identifier DESC LIMIT 1;", tableName];
 		ZENResultSet *rs = [database executeQuery:statement];
 		if ([rs next]) {
-			ZENIdentifier largestIdentifier = [rs longLongIntForColumnIndex:0];
-			NSLog(@"Setting largest identifier to %lli (from %@)", largestIdentifier, tableName);
-			ZENSetLargestObjectIdentifier(largestIdentifier);
+			ZENIdentifier tableIdentifier = [rs longLongIntForColumnIndex:0];
+			if (tableIdentifier > largestIdentifier) {
+				largestIdentifier = tableIdentifier;
+				largestTableName = tableName;
+			}
 		}
 		[rs close];
+	}
+	if (largestTableName) {
+		NSLog(@"Setting largest identifier to %lli (from %@)", largestIdentifier, largestTableName);
+		ZENSetLargestObjectIdentifier(largestIdentifier);
 	}
 }
 

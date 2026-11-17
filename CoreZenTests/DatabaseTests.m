@@ -58,6 +58,54 @@
 	}];
 }
 
+#pragma mark - Identifiers
+
+// Fills a fresh database with rows, then simulates an app relaunch: the global
+// identifier counter is reset and the schema initializes the database again.
+- (void)relaunchWithIdentifiers:(NSArray<NSArray<NSNumber *> *> *)identifiers
+					   inTables:(NSArray<Class> *)tableClasses {
+	ZENDatabaseQueue *queue = [ZENDatabaseQueue databaseQueueInMemory];
+	ZENDatabaseSchema *schema = [ZENDatabaseSchema schemaWithTableClasses:tableClasses];
+	[queue fetchSync:^(ZENDatabase *database) {
+		[schema initializeDatabase:database];
+	}];
+	[queue transactionSync:^(ZENDatabase *database) {
+		[tableClasses enumerateObjectsUsingBlock:^(Class tableClass, NSUInteger index, BOOL *stop) {
+			ZENTestTable *table = [tableClass new];
+			for (NSNumber *identifier in identifiers[index]) {
+				ZENTestDTO *dto = [[ZENTestDTO alloc] initWithIdentifier:identifier.longLongValue name:@"row"];
+				XCTAssertTrue([table insertDTO:dto database:database]);
+			}
+		}];
+	}];
+
+	ZENSetLargestObjectIdentifier(0);
+	[queue fetchSync:^(ZENDatabase *database) {
+		[schema initializeDatabase:database];
+	}];
+	[queue shutdown];
+}
+
+- (void)testIdentifiersResumeAfterLargestInEarlierTable {
+	// Identifiers come from one global counter shared by every table. The last
+	// table holds the smaller identifiers here, so it must not decide the counter.
+	[self relaunchWithIdentifiers:@[@[@99, @100], @[@50]]
+						 inTables:@[[ZENTestTable class], [ZENOtherTestTable class]]];
+	XCTAssertEqual(ZENGetNextObjectIdentifier(), 101);
+}
+
+- (void)testIdentifiersResumeAfterLargestInLastTable {
+	[self relaunchWithIdentifiers:@[@[@50], @[@99, @100]]
+						 inTables:@[[ZENTestTable class], [ZENOtherTestTable class]]];
+	XCTAssertEqual(ZENGetNextObjectIdentifier(), 101);
+}
+
+- (void)testIdentifiersUnchangedWhenTablesAreEmpty {
+	[self relaunchWithIdentifiers:@[@[], @[]]
+						 inTables:@[[ZENTestTable class], [ZENOtherTestTable class]]];
+	XCTAssertEqual(ZENGetNextObjectIdentifier(), 1);
+}
+
 #pragma mark - Insert
 
 - (void)testInsertAndFetchDTO {

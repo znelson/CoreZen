@@ -73,6 +73,39 @@
 	XCTAssertEqualObjects([root zen_relativePathToURL:child], @"Users/CoreZen/movie.mp4");
 }
 
+- (void)testURLByAppendingRelativePathRoundTrips {
+	// Paths with characters that are special in URL strings
+	NSArray<NSString *> *childPaths = @[
+		@"/Volumes/Media/movie.mp4",
+		@"/Volumes/Media/Season 1/Clips #2/50% off?.mp4",
+	];
+	NSArray<NSURL *> *bases = @[
+		[NSURL fileURLWithPath:@"/Volumes/Media" isDirectory:YES],
+		[NSURL URLWithString:@"file:///Volumes/Media/"],
+		[NSURL fileURLWithPath:@"/" isDirectory:YES],
+	];
+	for (NSURL *base in bases) {
+		for (NSString *childPath in childPaths) {
+			NSURL *child = [NSURL fileURLWithPath:childPath];
+			NSString *relativePath = [base zen_relativePathToURL:child];
+			NSURL *rebuilt = [base zen_URLByAppendingRelativePath:relativePath isDirectory:NO];
+			XCTAssertEqualObjects(rebuilt.path, childPath, @"base: %@, relativePath: %@", base, relativePath);
+		}
+	}
+}
+
+- (void)testURLByAppendingRelativePathForSameURL {
+	NSURL *base = [NSURL fileURLWithPath:@"/Volumes/Media" isDirectory:YES];
+	NSURL *rebuilt = [base zen_URLByAppendingRelativePath:@"" isDirectory:YES];
+	XCTAssertEqualObjects(rebuilt.path, @"/Volumes/Media");
+	XCTAssertTrue(rebuilt.hasDirectoryPath);
+}
+
+- (void)testURLByAppendingRelativePathReturnsNilForNilPath {
+	NSURL *base = [NSURL fileURLWithPath:@"/Volumes/Media" isDirectory:YES];
+	XCTAssertNil([base zen_URLByAppendingRelativePath:nil isDirectory:NO]);
+}
+
 - (void)testVolumeInfo {
 	NSURL *url = [NSURL fileURLWithPath:@"/Users" isDirectory:YES];
 	NSString *volumeName;

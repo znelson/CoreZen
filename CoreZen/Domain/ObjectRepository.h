@@ -43,6 +43,10 @@ typedef enum : NSUInteger {
 
 #pragma mark - Fetch
 
+// Fetched objects are delivered only after their async init has finished. Each
+// object's performAsyncInit runs once, when the repository first creates it
+// from the database; objects already in the cache aren't initialized again.
+
 // Runs asynchronously. Result callback block happens on a thread pool.
 - (void)fetchObjectByIdentifier:(ZENIdentifier)identifier
 					 completion:(ZENFetchResultsBlock)resultsBlock;

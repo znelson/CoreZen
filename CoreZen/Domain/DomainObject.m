@@ -7,6 +7,7 @@
 
 #import "DomainObject.h"
 #import "DomainCommon.h"
+#import "WorkQueue.h"
 
 @interface ZENDomainObject ()
 
@@ -34,29 +35,31 @@
 + (void)asyncInit:(NSArray *)objects
 			model:(id<ZENDataModel>)model
 	   completion:(ZENAsyncContinueBlock)completion {
-	__block NSUInteger initsInFlight = objects.count;
-	__block NSCondition *condition = [NSCondition new];
+	// Each object leaves the group when its init completes. dispatch_group_notify
+	// waits without tying up a thread while the inits run.
+	dispatch_group_t group = dispatch_group_create();
 
-	for (ZENDomainObject *domainObject in objects) {
+	for (id<ZENDomainObject> domainObject in objects) {
+		dispatch_group_enter(group);
+		// A token activates only once, so only an object's first completion
+		// call leaves the group
+		ZENWorkQueueToken *completed = [ZENWorkQueueToken new];
 		ZENCallAsyncContinueBlockOnThreadPool(^{
 			[domainObject performAsyncInit:model completion:^{
-				[condition lock];
-				if (0 == --initsInFlight) {
-					[condition signal];
+				if ([completed activate]) {
+					dispatch_group_leave(group);
+				} else {
+					NSLog(@"WARNING: %@ called its performAsyncInit: completion more than once", domainObject);
 				}
-				[condition unlock];
 			}];
 		});
 	}
 
 	if (completion) {
-		ZENCallAsyncContinueBlockOnThreadPool(^{
-			[condition lock];
-			while (initsInFlight > 0) {
-				[condition wait];
+		dispatch_group_notify(group, dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{
+			@autoreleasepool {
+				completion();
 			}
-			[condition unlock];
-			completion();
 		});
 	}
 }

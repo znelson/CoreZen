@@ -135,7 +135,7 @@
 
 				result = avcodec_receive_frame(_codecContext, frame);
 				if (result == AVERROR(EAGAIN)) {
-					NSLog(@"avcodec_receive_frame failed: EAGAIN (input not ready, retrying)");
+					// Not an error: the decoder needs more packets before it can output a frame
 					continue;
 				}
 

@@ -35,6 +35,44 @@
 	XCTAssertNil(relativePath, @"Unrelated URLs should not produce a relative path");
 }
 
+- (void)testRelativePathReturnsNilForSiblingWithSamePrefix {
+	// A shared string prefix doesn't make one path contain the other
+	NSURL *base = [NSURL fileURLWithPath:@"/Volumes/Media" isDirectory:YES];
+	XCTAssertNil([base zen_relativePathToURL:[NSURL fileURLWithPath:@"/Volumes/Media2/movie.mp4"]]);
+	XCTAssertNil([base zen_relativePathToURL:[NSURL fileURLWithPath:@"/Volumes/Media2" isDirectory:YES]]);
+	XCTAssertNil([base zen_relativePathToURL:[NSURL fileURLWithPath:@"/Volumes/Media.txt"]]);
+}
+
+- (void)testRelativePathReturnsNilForParent {
+	NSURL *base = [NSURL fileURLWithPath:@"/Volumes/Media/Movies" isDirectory:YES];
+	XCTAssertNil([base zen_relativePathToURL:[NSURL fileURLWithPath:@"/Volumes/Media" isDirectory:YES]]);
+}
+
+- (void)testRelativePathForNestedFile {
+	NSURL *base = [NSURL fileURLWithPath:@"/Volumes/Media" isDirectory:YES];
+	NSURL *child = [NSURL fileURLWithPath:@"/Volumes/Media/Movies/2026/movie.mp4"];
+	XCTAssertEqualObjects([base zen_relativePathToURL:child], @"/Movies/2026/movie.mp4");
+}
+
+- (void)testRelativePathForSameURL {
+	NSURL *base = [NSURL fileURLWithPath:@"/Volumes/Media" isDirectory:YES];
+	XCTAssertEqualObjects([base zen_relativePathToURL:base], @"");
+}
+
+- (void)testRelativePathWithTrailingSlashOnBase {
+	NSURL *base = [NSURL URLWithString:@"file:///Volumes/Media/"];
+	NSURL *child = [NSURL fileURLWithPath:@"/Volumes/Media/movie.mp4"];
+	XCTAssertEqualObjects([base zen_relativePathToURL:child], @"/movie.mp4");
+}
+
+- (void)testRelativePathFromRoot {
+	// The boot volume's URL is the root, whose path already ends in a separator,
+	// so the relative path has no leading "/"
+	NSURL *root = [NSURL fileURLWithPath:@"/" isDirectory:YES];
+	NSURL *child = [NSURL fileURLWithPath:@"/Users/CoreZen/movie.mp4"];
+	XCTAssertEqualObjects([root zen_relativePathToURL:child], @"Users/CoreZen/movie.mp4");
+}
+
 - (void)testVolumeInfo {
 	NSURL *url = [NSURL fileURLWithPath:@"/Users" isDirectory:YES];
 	NSString *volumeName;

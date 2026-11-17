@@ -18,6 +18,10 @@
 				   volumeName:(NSString **)outVolumeName
 					volumeURL:(NSURL **)outVolumeURL;
 
+// Path of url relative to this URL, or nil if url is neither this URL nor
+// inside it. The result keeps the separator after this URL's path, e.g.
+// /Volumes/Media to /Volumes/Media/Movies/a.mp4 gives @"/Movies/a.mp4". From
+// the root URL "/" it has no leading separator, and for the same path it's @"".
 - (NSString *)zen_relativePathToURL:(NSURL *)url;
 
 - (NSUInteger)zen_fileSize;

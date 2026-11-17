@@ -35,8 +35,8 @@
 - (id<ZENIdentifiable>)fetchObjectByIdentifier:(ZENIdentifier)identifier
 									  database:(ZENDatabase *)database;
 
-// To be called on database queue, before the objects are cached.
-- (void)startAsyncInit:(NSArray *)objects;
+// To be called on database queue, with objects that aren't cached yet.
+- (void)cacheAndStartAsyncInit:(NSArray *)objects;
 
 - (void)deliverObjects:(NSArray *)objects whenInitialized:(ZENFetchResultsBlock)resultsBlock;
 
@@ -87,24 +87,40 @@
 
 #pragma mark - [private] Async init
 
-- (void)startAsyncInit:(NSArray *)objects {
-	// Objects are registered here before they're cached, so a fetch that finds
-	// one in the cache also finds its init in progress
+- (void)cacheAndStartAsyncInit:(NSArray *)objects {
 	for (id<ZENDomainObject> object in objects) {
 		NSNumber *identifier = @(object.identifier);
 		dispatch_group_t group = dispatch_group_create();
 		dispatch_group_enter(group);
 
+		// Register the init before caching the object, so a fetch that finds it in
+		// the cache also finds its init in progress. Cache it before starting the
+		// init, so a failed init can't finish before the object is cached.
 		os_unfair_lock_lock(&_pendingInitsLock);
 		_pendingInits[identifier] = group;
 		os_unfair_lock_unlock(&_pendingInitsLock);
+		[self.cache cacheObject:object];
 
-		[ZENDomainObject asyncInit:@[object] model:self.dataModel completion:^{
-			os_unfair_lock_lock(&self->_pendingInitsLock);
-			[self->_pendingInits removeObjectForKey:identifier];
-			os_unfair_lock_unlock(&self->_pendingInitsLock);
-			dispatch_group_leave(group);
-		}];
+		[ZENDomainObject asyncInit:@[object]
+							 model:self.dataModel
+						completion:^(NSError *error) {
+							if (error) {
+								// Drop the object, so fetches leave it out. A later fetch creates it
+								// again from the database and retries its init.
+								NSLog(@"Async init failed for %@: %@", object, error);
+								if ([self.cache cachedObject:object.identifier] == object) {
+									[self.cache removeObject:object.identifier];
+								}
+							}
+
+							// A fetch after a failure may have registered a new init for this identifier
+							os_unfair_lock_lock(&self->_pendingInitsLock);
+							if (self->_pendingInits[identifier] == group) {
+								[self->_pendingInits removeObjectForKey:identifier];
+							}
+							os_unfair_lock_unlock(&self->_pendingInitsLock);
+							dispatch_group_leave(group);
+						}];
 	}
 }
 
@@ -125,7 +141,14 @@
 	os_unfair_lock_unlock(&_pendingInitsLock);
 
 	dispatch_group_notify(initialized, threadPool, ^{
-		ZENCallFetchResultsBlockOnThreadPool(resultsBlock, objects);
+		// An object whose init failed was dropped from the cache, so leave it out
+		NSMutableArray *initializedObjects = [NSMutableArray arrayWithCapacity:objects.count];
+		for (id<ZENIdentifiable> object in objects) {
+			if ([self.cache cachedObject:object.identifier] == object) {
+				[initializedObjects addObject:object];
+			}
+		}
+		ZENCallFetchResultsBlockOnThreadPool(resultsBlock, initializedObjects);
 	});
 }
 
@@ -190,7 +213,7 @@
 		// Check again if this object has shown up in the cache since we looked earlier
 		id<ZENIdentifiable> object = [self.cache cachedObject:identifier];
 		if (!object) {
-			// Create the object, start its async init, then cache it. This is safe because this runs
+			// Create the object, cache it, then start its async init. This is safe because this runs
 			// on the database queue, and we only ever create and cache objects on this queue. If there
 			// was a race, only one instance can win and cache the object. The other instance would have
 			// a cache hit just before here.
@@ -199,8 +222,7 @@
 				ZENCallFetchResultsBlockOnThreadPool(resultsBlock, @[]);
 				return;
 			}
-			[self startAsyncInit:@[object]];
-			[self.cache cacheObject:object];
+			[self cacheAndStartAsyncInit:@[object]];
 		}
 
 		[self deliverObjects:@[object] whenInitialized:resultsBlock];
@@ -240,10 +262,7 @@
 
 		// Only objects new to the cache need async init; cached objects already
 		// had theirs, or are still waiting on it. See above for note on thread safety.
-		[self startAsyncInit:newObjects];
-		for (id<ZENIdentifiable> object in newObjects) {
-			[self.cache cacheObject:object];
-		}
+		[self cacheAndStartAsyncInit:newObjects];
 
 		[self deliverObjects:[objects copy] whenInitialized:resultsBlock];
 	}];
@@ -282,17 +301,32 @@
 }
 
 - (void)asyncInitAndAdd:(ZENDomainObject *)domainObject
-			 completion:(ZENAsyncContinueBlock)completion {
-	[domainObject.class asyncInit:@[domainObject] model:self.dataModel completion:^{
-		[self addObject:domainObject completion:completion];
-	}];
+			 completion:(ZENAsyncCompletionBlock)completion {
+	[domainObject.class asyncInit:@[domainObject]
+							model:self.dataModel
+					   completion:^(NSError *error) {
+						   if (error) {
+							   // Don't add an object whose init failed
+							   if (completion) {
+								   completion(error);
+							   }
+							   return;
+						   }
+						   [self addObject:domainObject
+								completion:^{
+									if (completion) {
+										completion(nil);
+									}
+								}];
+					   }];
 }
 
 - (void)asyncInitAndAdd:(ZENDomainObject *)domainObject
-		   uiCompletion:(ZENAsyncContinueBlock)completion {
-	[self asyncInitAndAdd:domainObject completion:^{
-		ZENCallAsyncContinueBlockOnMainThread(completion);
-	}];
+		   uiCompletion:(ZENAsyncCompletionBlock)completion {
+	[self asyncInitAndAdd:domainObject
+			   completion:^(NSError *error) {
+				   ZENCallAsyncCompletionBlockOnMainThread(completion, error);
+			   }];
 }
 
 #pragma mark - Update

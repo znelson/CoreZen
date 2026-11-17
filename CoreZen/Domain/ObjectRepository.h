@@ -53,6 +53,8 @@ typedef enum : NSUInteger {
 // Fetched objects are delivered only after their async init has finished. Each
 // object's performAsyncInit runs once, when the repository first creates it
 // from the database; objects already in the cache aren't initialized again.
+// An object whose async init fails is left out of the results and dropped from
+// the cache, so a later fetch creates it again and retries its init.
 
 // Runs asynchronously. Result callback block happens on a thread pool.
 - (void)fetchObjectByIdentifier:(ZENIdentifier)identifier
@@ -79,13 +81,14 @@ typedef enum : NSUInteger {
 	 uiCompletion:(ZENAsyncContinueBlock)completion;
 
 // Helper method to call DomainObject +asyncInit: on object before
-// adding to repository.
+// adding to repository. If the object's async init fails, it isn't added, and
+// completion gets the error. Completion block happens on a thread pool.
 - (void)asyncInitAndAdd:(ZENDomainObject *)domainObject
-			 completion:(ZENAsyncContinueBlock)completion;
+			 completion:(ZENAsyncCompletionBlock)completion;
 
 // Same as above, but uiCompletion block happens on the main thread.
 - (void)asyncInitAndAdd:(ZENDomainObject *)domainObject
-		   uiCompletion:(ZENAsyncContinueBlock)completion;
+		   uiCompletion:(ZENAsyncCompletionBlock)completion;
 
 #pragma mark - Update
 

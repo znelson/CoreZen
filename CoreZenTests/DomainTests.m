@@ -373,7 +373,8 @@
 	__block NSInteger completions = 0;
 	[ZENDomainObject asyncInit:objects
 						 model:nil
-					completion:^{
+					completion:^(NSError *error) {
+						XCTAssertNil(error);
 						@synchronized(self) {
 							completions += 1;
 							[(completions == 1 ? completed : completedAgain) fulfill];
@@ -387,10 +388,85 @@
 	XCTestExpectation *completed = [self expectationWithDescription:@"async init completed"];
 	[ZENDomainObject asyncInit:@[]
 						 model:nil
-					completion:^{
+					completion:^(NSError *error) {
+						XCTAssertNil(error);
 						[completed fulfill];
 					}];
 	[self waitForExpectations:@[completed] timeout:5.0];
+}
+
+#pragma mark - Async init failure
+
+- (void)testAsyncInitReportsFailure {
+	NSArray *objects = @[
+		[[ZENFailableInitDomainObject alloc] initWithDTO:[[ZENTestDTO alloc] initWithIdentifier:1 name:@"Alpha"]],
+		[[ZENFailableInitDomainObject alloc] initWithDTO:[[ZENTestDTO alloc] initWithIdentifier:2 name:@"Fail-Beta"]],
+	];
+
+	XCTestExpectation *completed = [self expectationWithDescription:@"async init completed"];
+	[ZENDomainObject asyncInit:objects
+						 model:nil
+					completion:^(NSError *error) {
+						XCTAssertEqualObjects(error.domain, ZENTestErrorDomain);
+						[completed fulfill];
+					}];
+	[self waitForExpectations:@[completed] timeout:5.0];
+}
+
+- (void)testFetchAllLeavesOutObjectsWhoseInitFailed {
+	ZENObjectRepository *repo = [self repositoryWithEmbryo:[ZENFailableInitDomainObject class]];
+	[self insertRowsNamed:@[@"Alpha", @"Fail-Beta", @"Gamma"]];
+
+	NSArray<ZENTestDomainObject *> *objects = [self fetchAllFromRepository:repo];
+	XCTAssertEqualObjects([objects valueForKey:@"name"], (@[@"Alpha", @"Gamma"]));
+}
+
+- (void)testFetchByIdentifierRetriesFailedInit {
+	ZENObjectRepository *repo = [self repositoryWithEmbryo:[ZENFailableInitDomainObject class]];
+	ZENIdentifier identifier = [self insertRowsNamed:@[@"Fail-Alpha"]].firstObject.longLongValue;
+
+	XCTestExpectation *failed = [self expectationWithDescription:@"fetch while init fails"];
+	[repo fetchObjectByIdentifier:identifier
+					   completion:^(NSArray *fetchedObjects) {
+						   XCTAssertEqual(fetchedObjects.count, 0u);
+						   [failed fulfill];
+					   }];
+	[self waitForExpectations:@[failed] timeout:5.0];
+
+	// Fix the row, so the next fetch creates the object again and its init succeeds
+	[self.queue transactionSync:^(ZENDatabase *database) {
+		[[ZENTestTable new] updateDTO:[[ZENTestDTO alloc] initWithIdentifier:identifier name:@"Alpha"] database:database];
+	}];
+
+	XCTestExpectation *succeeded = [self expectationWithDescription:@"fetch after fixing the row"];
+	[repo fetchObjectByIdentifier:identifier
+					   completion:^(NSArray *fetchedObjects) {
+						   ZENTestDomainObject *object = fetchedObjects.firstObject;
+						   XCTAssertEqualObjects(object.name, @"Alpha");
+						   [succeeded fulfill];
+					   }];
+	[self waitForExpectations:@[succeeded] timeout:5.0];
+}
+
+- (void)testAsyncInitAndAddReportsFailureWithoutAdding {
+	ZENObjectRepository *repo = [self repositoryWithEmbryo:[ZENFailableInitDomainObject class]];
+	ZENFailableInitDomainObject *failing = [[ZENFailableInitDomainObject alloc] initWithDTO:[[ZENTestDTO alloc] initWithIdentifier:ZENGetNextObjectIdentifier() name:@"Fail-Alpha"]];
+	ZENFailableInitDomainObject *succeeding = [[ZENFailableInitDomainObject alloc] initWithDTO:[[ZENTestDTO alloc] initWithIdentifier:ZENGetNextObjectIdentifier() name:@"Beta"]];
+
+	XCTestExpectation *added = [self expectationWithDescription:@"added"];
+	[repo asyncInitAndAdd:failing
+			   completion:^(NSError *error) {
+				   XCTAssertEqualObjects(error.domain, ZENTestErrorDomain);
+				   [repo asyncInitAndAdd:succeeding
+							  completion:^(NSError *error) {
+								  XCTAssertNil(error);
+								  [added fulfill];
+							  }];
+			   }];
+	[self waitForExpectations:@[added] timeout:5.0];
+
+	NSArray<ZENTestDomainObject *> *objects = [self fetchAllFromRepository:repo];
+	XCTAssertEqualObjects([objects valueForKey:@"name"], (@[@"Beta"]));
 }
 
 @end

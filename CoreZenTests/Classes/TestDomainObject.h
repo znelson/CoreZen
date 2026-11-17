@@ -23,3 +23,10 @@
 @interface ZENDoubleCompletionDomainObject : ZENTestDomainObject
 
 @end
+
+extern NSString *const ZENTestErrorDomain;
+
+// Fails its performAsyncInit: right away when its name starts with "Fail"
+@interface ZENFailableInitDomainObject : ZENTestDomainObject
+
+@end

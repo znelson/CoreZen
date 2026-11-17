@@ -1,0 +1,11 @@
+# Formatting-only commits, skipped by git blame.
+# GitHub reads this file automatically. Locally, run once:
+#   git config blame.ignoreRevsFile .git-blame-ignore-revs
+
+# clang-format rules (#58): whitespace-only reformat of 8 headers. It also
+# added the CI "Check Formatting" step, which blame now attributes to older
+# commits.
+4a632debf706cbe1c947abe55fcbaf3c76f26d79
+
+# clang-format .m files (#64)
+feda59be385d1ef2b12bb076e589e6a8b8d4f6e4

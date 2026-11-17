@@ -1,0 +1,17 @@
+mpv 0.42.0 can't build libmpv on macOS with Vulkan disabled: video/out/mac/view.swift
+refers to MetalLayer, which is only compiled when Vulkan is enabled. This is the
+upstream fix, merged after 0.42.0:
+https://github.com/mpv-player/mpv/pull/18818 (commit f32e7ef1e8cd31378a3fb171ed1fa887f8df501f)
+Drop this patch when updating to an mpv release that includes it.
+
+--- a/video/out/mac/view.swift
++++ b/video/out/mac/view.swift
+@@ -29,7 +29,7 @@
+     override var acceptsFirstResponder: Bool { return true }
+ 
+     override var isOpaque: Bool {
+-        if let metalLayer = layer as? MetalLayer {
++        if let metalLayer = layer as? CAMetalLayer {
+             return !metalLayer.isOpaque
+         }
+ 

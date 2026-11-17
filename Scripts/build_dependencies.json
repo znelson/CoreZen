@@ -1,0 +1,115 @@
+{
+    "macos_deployment_target": "14.0",
+    "arch": "arm64",
+    "build_tools": [
+        "meson==1.12.1",
+        "ninja==1.13.2",
+        "pkgconf==3.0.7.post0",
+        "jinja2==3.1.6",
+        "markupsafe==3.0.4"
+    ],
+    "packages": [
+        {
+            "name": "fribidi",
+            "version": "1.0.18",
+            "url": "https://github.com/fribidi/fribidi/releases/download/v1.0.18/fribidi-1.0.18.tar.xz",
+            "sha256": "1de5e8073d035388b71d0b2d452b1da1f8caeea8a7702997b401fe1b6250727f",
+            "build": "meson",
+            "options": ["-Ddocs=false", "-Dbin=false", "-Dtests=false"]
+        },
+        {
+            "name": "freetype",
+            "version": "2.15.0",
+            "url": "https://downloads.sourceforge.net/project/freetype/freetype2/2.15.0/freetype-2.15.0.tar.xz",
+            "sha256": "93cd47eb719c325107f2d3cf087d06299e944c3b48a40b55537302304dea1dd5",
+            "build": "meson",
+            "options": [
+                "-Dbrotli=disabled", "-Dbzip2=disabled", "-Dharfbuzz=disabled",
+                "-Dpng=disabled", "-Dzlib=disabled", "-Dtests=disabled"
+            ]
+        },
+        {
+            "name": "harfbuzz",
+            "version": "15.1.0",
+            "url": "https://github.com/harfbuzz/harfbuzz/releases/download/15.1.0/harfbuzz-15.1.0.tar.xz",
+            "sha256": "0fc7c565443a5f4be7da65ac5ee5bd737d9b158dc908708b7689a0a5796b0c8d",
+            "build": "meson",
+            "options": [
+                "-Dfreetype=enabled", "-Dglib=disabled", "-Dgobject=disabled", "-Dcairo=disabled",
+                "-Dchafa=disabled", "-Dicu=disabled", "-Dgraphite2=disabled", "-Dcoretext=disabled",
+                "-Dtests=disabled", "-Dintrospection=disabled", "-Ddocs=disabled",
+                "-Dbenchmark=disabled", "-Dutilities=disabled"
+            ]
+        },
+        {
+            "name": "libass",
+            "version": "0.17.5",
+            "url": "https://github.com/libass/libass/releases/download/0.17.5/libass-0.17.5.tar.xz",
+            "sha256": "2dca25c0e0c837ddf00b52011b3f82cac1e4ddd3ad018227806b0c2288864acc",
+            "build": "meson",
+            "options": [
+                "-Dcoretext=enabled", "-Dfontconfig=disabled", "-Ddirectwrite=disabled",
+                "-Dlibunibreak=disabled", "-Drequire-system-font-provider=true"
+            ]
+        },
+        {
+            "name": "dav1d",
+            "version": "1.5.4",
+            "url": "https://code.videolan.org/videolan/dav1d/-/archive/1.5.4/dav1d-1.5.4.tar.bz2",
+            "sha256": "2abfb0c89212e6e4733a54e0ae509ec00a5b845a6360946f918806e14aedb011",
+            "build": "meson",
+            "options": ["-Denable_tools=false", "-Denable_tests=false", "-Denable_docs=false"]
+        },
+        {
+            "name": "ffmpeg",
+            "version": "9.0.2",
+            "url": "https://ffmpeg.org/releases/ffmpeg-9.0.2.tar.xz",
+            "sha256": "8c3850283eb25fa026482078a04051e0be17347b09ef81a0849bec15a96e002e",
+            "build": "ffmpeg",
+            "notes": "LGPL and decode-only. iconv stays off: FFmpeg only uses it to convert subtitle text, CoreZen doesn't show subtitles, and macOS needs an extra -liconv for it.",
+            "options": [
+                "--enable-shared", "--disable-static", "--disable-programs", "--disable-doc",
+                "--disable-debug", "--disable-autodetect", "--enable-videotoolbox",
+                "--enable-audiotoolbox", "--enable-zlib", "--enable-bzlib",
+                "--enable-libdav1d", "--disable-avdevice", "--disable-encoders",
+                "--disable-muxers", "--disable-network", "--install-name-dir=@rpath"
+            ]
+        },
+        {
+            "name": "libplacebo",
+            "version": "7.387.0",
+            "git": "https://code.videolan.org/videolan/libplacebo.git",
+            "tag": "v7.387.0",
+            "commit": "275f7dea27924cdd34ab2e6c20e448b6bc4fab65",
+            "build": "meson",
+            "options": [
+                "-Dopengl=enabled", "-Dvulkan=disabled", "-Dd3d11=disabled", "-Dglslang=disabled",
+                "-Dshaderc=disabled", "-Dlcms=disabled", "-Dlibdovi=disabled", "-Dunwind=disabled",
+                "-Dxxhash=disabled", "-Ddemos=false", "-Dtests=false"
+            ]
+        },
+        {
+            "name": "mpv",
+            "version": "0.42.0",
+            "url": "https://github.com/mpv-player/mpv/archive/refs/tags/v0.42.0.tar.gz",
+            "sha256": "bcfebbfa2b65a6d88dc97ea18117831072373e38b5785a2afb874ed4df5070dd",
+            "patches": ["patches/mpv-0.42.0-view-without-vulkan.patch"],
+            "build": "meson",
+            "notes": "videotoolbox-gl (hardware decoding with the OpenGL render API) needs gl-cocoa, which needs cocoa, and mpv 0.42's cocoa sources include Swift-generated headers, so swift-build stays on. mpv's own Swift app features (cocoa-cb, media player, touch bar) stay off.",
+            "options": [
+                "-Dgpl=false", "-Dlibmpv=true", "-Dcplayer=false", "-Dtests=false", "-Dbuild-date=false",
+                "-Dcocoa=enabled", "-Dgl-cocoa=enabled", "-Dvideotoolbox-gl=enabled",
+                "-Dcoreaudio=enabled", "-Dswift-build=enabled", "-Dmacos-cocoa-cb=disabled",
+                "-Dmacos-media-player=disabled", "-Dmacos-touchbar=disabled", "-Dvulkan=disabled",
+                "-Dlua=disabled", "-Djavascript=disabled", "-Dlibarchive=disabled",
+                "-Dlibbluray=disabled", "-Duchardet=disabled", "-Drubberband=disabled",
+                "-Dlcms2=disabled", "-Dzimg=disabled", "-Djpeg=disabled", "-Dlibavdevice=disabled",
+                "-Dmanpage-build=disabled", "-Dhtml-build=disabled", "-Dpdf-build=disabled"
+            ]
+        }
+    ],
+    "stage": {
+        "libraries": ["libmpv", "libavcodec", "libavformat", "libavutil", "libswscale"],
+        "headers": ["mpv", "libavcodec", "libavfilter", "libavformat", "libavutil", "libswresample", "libswscale"]
+    }
+}

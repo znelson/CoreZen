@@ -7,9 +7,12 @@
 
 #import <Foundation/Foundation.h>
 
+// Decodes a UTF-8 string from mpv. Returns nil for NULL.
 NSString *zen_mpv_to_nsstring(const char *str);
-const char *zen_nsstring_to_mpv(NSString *str);
-const char *zen_double_to_mpv_string(double d);
+
+// Formats a number as an mpv command argument. mpv reads command arguments as
+// C strings, so the caller owns the buffer and keeps it alive for the command.
+void zen_mpv_format_double(double value, char *buffer, size_t size);
 
 typedef struct mpv_handle mpv_handle;
 

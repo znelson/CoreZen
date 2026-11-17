@@ -162,6 +162,8 @@
 		0313158D2D7374094EFBE6DC /* MediaTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D27F0ECF10C39A3A06669EF /* MediaTests.m */; };
 		030EFFD5692EA63A973B2FE9 /* video.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 7C383F9E59E944DEF41405A3 /* video.mp4 */; };
 		3A881C011BDBA50B90143879 /* audio.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 318D307DF615F0093C6C9C47 /* audio.m4a */; };
+		B87FBFD38A588272C385E7BC /* MPVFunctionsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AED5F263101D1308D8C370C /* MPVFunctionsTests.m */; };
+		0E03AE27A6C781F30909CE0A /* MediaPlayerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9DE763B7E360E1D3524EB2D3 /* MediaPlayerTests.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -544,6 +546,8 @@
 		7D27F0ECF10C39A3A06669EF /* MediaTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MediaTests.m; sourceTree = "<group>"; };
 		7C383F9E59E944DEF41405A3 /* video.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = video.mp4; sourceTree = "<group>"; };
 		318D307DF615F0093C6C9C47 /* audio.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = audio.m4a; sourceTree = "<group>"; };
+		1AED5F263101D1308D8C370C /* MPVFunctionsTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MPVFunctionsTests.m; sourceTree = "<group>"; };
+		9DE763B7E360E1D3524EB2D3 /* MediaPlayerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MediaPlayerTests.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -623,6 +627,8 @@
 				CC00000128860A0000000002 /* QueueTests.m */,
 				7D27F0ECF10C39A3A06669EF /* MediaTests.m */,
 				CDC246E00BF0C4A74F302C04 /* Resources */,
+				1AED5F263101D1308D8C370C /* MPVFunctionsTests.m */,
+				9DE763B7E360E1D3524EB2D3 /* MediaPlayerTests.m */,
 			);
 			path = CoreZenTests;
 			sourceTree = "<group>";
@@ -1350,6 +1356,8 @@
 				538E052E2885FB5400CE9DE7 /* TestIdentifiable.m in Sources */,
 				CC00000228860A0000000005 /* TestTable.m in Sources */,
 				0313158D2D7374094EFBE6DC /* MediaTests.m in Sources */,
+				B87FBFD38A588272C385E7BC /* MPVFunctionsTests.m in Sources */,
+				0E03AE27A6C781F30909CE0A /* MediaPlayerTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1566,6 +1574,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = NO;
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/CoreZen/**";
 			};
 			name = Debug;
 		};
@@ -1584,6 +1593,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = NO;
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/CoreZen/**";
 			};
 			name = Release;
 		};

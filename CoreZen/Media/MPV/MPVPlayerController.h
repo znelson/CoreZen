@@ -11,6 +11,16 @@
 @class ZENMediaPlayer;
 struct mpv_handle;
 
+// How mpv responded to a command
+typedef NS_ENUM(NSInteger, ZENMPVCommandResult) {
+	ZENMPVCommandResultAccepted,
+	// The command couldn't run in mpv's current state, e.g. a seek before the
+	// file has loaded. It may succeed later.
+	ZENMPVCommandResultNotReady,
+	// mpv rejected the command or its arguments, e.g. a seek to NaN
+	ZENMPVCommandResultRejected,
+};
+
 @interface ZENMPVPlayerController : NSObject <ZENIdentifiable>
 
 - (instancetype)initWithPlayer:(ZENMediaPlayer *)player;
@@ -32,8 +42,8 @@ struct mpv_handle;
 - (void)frameStepBack;
 - (void)frameStepForward;
 
-- (void)seekBySeconds:(double)seconds;
-- (void)seekToSeconds:(double)seconds;
-- (void)seekToPercentage:(double)percentage;
+- (ZENMPVCommandResult)seekBySeconds:(double)seconds;
+- (ZENMPVCommandResult)seekToSeconds:(double)seconds;
+- (ZENMPVCommandResult)seekToPercentage:(double)percentage;
 
 @end

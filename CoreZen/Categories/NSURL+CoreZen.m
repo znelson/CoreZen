@@ -71,6 +71,18 @@
 	return relativePath;
 }
 
+- (NSURL *)zen_URLByAppendingRelativePath:(NSString *)relativePath
+							  isDirectory:(BOOL)isDirectory {
+	NSString *basePath = [self path];
+	if (!basePath || !relativePath) {
+		return nil;
+	}
+	// Join as paths, not URL strings: resolving @"/Movies" as a relative URL
+	// would replace this URL's path, and "#" or "?" would be parsed as URL syntax
+	NSString *path = [basePath stringByAppendingPathComponent:relativePath];
+	return [NSURL fileURLWithPath:path isDirectory:isDirectory];
+}
+
 - (NSUInteger)zen_fileSize {
 	NSError *error;
 	NSDictionary *attributes = [NSFileManager.defaultManager attributesOfItemAtPath:self.path error:&error];

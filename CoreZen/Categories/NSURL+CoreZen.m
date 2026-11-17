@@ -59,11 +59,16 @@
 - (NSString *)zen_relativePathToURL:(NSURL *)url {
 	NSString *fullPath = [url path];
 	NSString *basePath = [self path];
-	if ([fullPath hasPrefix:basePath]) {
-		NSString *relativePath = [fullPath substringFromIndex:basePath.length];
-		return relativePath;
+	if (![fullPath hasPrefix:basePath]) {
+		return nil;
 	}
-	return nil;
+	NSString *relativePath = [fullPath substringFromIndex:basePath.length];
+	// The match must end at a path separator, so /Volumes/Media doesn't contain
+	// /Volumes/Media2. The root path "/" already ends with one.
+	if (relativePath.length > 0 && ![relativePath hasPrefix:@"/"] && ![basePath hasSuffix:@"/"]) {
+		return nil;
+	}
+	return relativePath;
 }
 
 - (NSUInteger)zen_fileSize {

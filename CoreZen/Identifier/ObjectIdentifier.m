@@ -15,7 +15,7 @@
 static atomic_int_fast64_t nextIdentifier = 1;
 
 void ZENSetLargestObjectIdentifier(ZENIdentifier identifier) {
-	atomic_store(&nextIdentifier, identifier+1);
+	atomic_store(&nextIdentifier, identifier + 1);
 }
 
 ZENIdentifier ZENGetNextObjectIdentifier(void) {

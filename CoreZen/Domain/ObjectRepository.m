@@ -62,7 +62,6 @@
 
 - (id<ZENIdentifiable>)fetchObjectByIdentifier:(ZENIdentifier)identifier
 									  database:(ZENDatabase *)database {
-
 	ZENResultSet *rs = [self.table rowByIdentifier:identifier database:database];
 	id<ZENIdentifiable> object = nil;
 	if ([rs next]) {
@@ -110,24 +109,22 @@
 
 - (void)fetchObjectByIdentifier:(ZENIdentifier)identifier
 					 completion:(ZENFetchResultsBlock)resultsBlock {
-	
 	// Check if this object is in the cache
 	id<ZENIdentifiable> object = [self.cache cachedObject:identifier];
 	if (object) {
 		ZENCallFetchResultsBlockOnThreadPool(resultsBlock, @[object]);
 		return;
 	}
-	
+
 	// Bounce to the database queue to fetch this object
 	[self.queue fetchAsync:^(ZENDatabase *database) {
-		
 		// Check again if this object has shown up in the cache since we looked earlier
 		id<ZENIdentifiable> object = [self.cache cachedObject:identifier];
 		if (object) {
 			ZENCallFetchResultsBlockOnThreadPool(resultsBlock, @[object]);
 			return;
 		}
-		
+
 		// Create the object, then cache it. This is safe becuase this running on the database queue
 		// and we only ever create and cache objects on this queue. If there was a race, only one instance
 		// can win and cache the object. The other instance would have a cache hit just before here.
@@ -137,7 +134,7 @@
 			return;
 		}
 		[self.cache cacheObject:object];
-		
+
 		// Async initialize object
 		NSArray *fetchedObjects = @[object];
 		[ZENDomainObject asyncInit:fetchedObjects model:self.dataModel completion:^{
@@ -176,7 +173,7 @@
 			[objects addObject:object];
 		}
 		[rs close];
-		
+
 		// Async initialize objects
 		NSArray *fetchedObjects = [objects copy];
 		[ZENDomainObject asyncInit:fetchedObjects model:self.dataModel completion:^{
@@ -199,7 +196,7 @@
 	NSDictionary *notificationData = @{
 		ZENObjectRepositoryNotificationObjectKey: domainObject
 	};
-	
+
 	[self.queue transactionAsync:^(ZENDatabase *database) {
 		if ([self.table insertDTO:domainObject.basicDTO database:database]) {
 			[self.cache cacheObject:domainObject];
@@ -217,17 +214,17 @@
 	}];
 }
 
-- (void) asyncInitAndAdd:(ZENDomainObject *)domainObject
-			  completion:(ZENAsyncContinueBlock)completion {
+- (void)asyncInitAndAdd:(ZENDomainObject *)domainObject
+			 completion:(ZENAsyncContinueBlock)completion {
 	[domainObject.class asyncInit:@[domainObject] model:self.dataModel completion:^{
 		[self addObject:domainObject completion:completion];
 	}];
 }
 
-- (void) asyncInitAndAdd:(ZENDomainObject *)domainObject
-			uiCompletion:(ZENAsyncContinueBlock)completion {
+- (void)asyncInitAndAdd:(ZENDomainObject *)domainObject
+		   uiCompletion:(ZENAsyncContinueBlock)completion {
 	[self asyncInitAndAdd:domainObject completion:^{
-			ZENCallAsyncContinueBlockOnMainThread(completion);
+		ZENCallAsyncContinueBlockOnMainThread(completion);
 	}];
 }
 
@@ -238,7 +235,7 @@
 	NSDictionary *notificationData = @{
 		ZENObjectRepositoryNotificationObjectKey: domainObject
 	};
-	
+
 	[self.queue transactionAsync:^(ZENDatabase *database) {
 		[self.table updateDTO:domainObject.basicDTO database:database];
 		ZENDeliverNotificationOnMainThread(ZENObjectRepositoryObjectUpdatedNotification, self, notificationData);
@@ -296,7 +293,7 @@
 
 @end
 
-NSString * const ZENObjectRepositoryNotificationObjectKey = @"ZENObjectRepositoryNotificationObject";
-NSString * const ZENObjectRepositoryObjectAddedNotification = @"ZENObjectRepositoryObjectAddedNotification";
-NSString * const ZENObjectRepositoryObjectUpdatedNotification = @"ZENObjectRepositoryObjectUpdatedNotification";
-NSString * const ZENObjectRepositoryObjectDeletedNotification = @"ZENObjectRepositoryObjectDeletedNotification";
+NSString *const ZENObjectRepositoryNotificationObjectKey = @"ZENObjectRepositoryNotificationObject";
+NSString *const ZENObjectRepositoryObjectAddedNotification = @"ZENObjectRepositoryObjectAddedNotification";
+NSString *const ZENObjectRepositoryObjectUpdatedNotification = @"ZENObjectRepositoryObjectUpdatedNotification";
+NSString *const ZENObjectRepositoryObjectDeletedNotification = @"ZENObjectRepositoryObjectDeletedNotification";

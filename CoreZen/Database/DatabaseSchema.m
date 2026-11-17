@@ -65,9 +65,9 @@
 		startingVersion = [rs unsignedLongLongIntForColumnIndex:0];
 	}
 	[rs close];
-	
+
 	NSUInteger schemaVersion = startingVersion;
-	
+
 	while (YES) {
 		NSUInteger updatedVersion = schemaVersion + 1;
 		for (Class<ZENDatabaseTable> tableClass in self.tableClasses) {
@@ -79,7 +79,7 @@
 			break;
 		}
 	}
-	
+
 	BOOL versionChanged = (schemaVersion != startingVersion);
 	if (versionChanged) {
 		NSLog(@"Schema updated from version %lu to %lu", startingVersion, schemaVersion);

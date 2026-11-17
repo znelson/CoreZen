@@ -32,7 +32,7 @@ const char *zen_double_to_mpv_string(double d) {
 	return zen_nsstring_to_mpv(str);
 }
 
-void zen_mpv_set_bool_property(mpv_handle* mpv, const char* const property, BOOL value) {
+void zen_mpv_set_bool_property(mpv_handle *mpv, const char *const property, BOOL value) {
 	mpv_node node = {
 		.u.flag = (int)value,
 		.format = MPV_FORMAT_FLAG
@@ -40,7 +40,7 @@ void zen_mpv_set_bool_property(mpv_handle* mpv, const char* const property, BOOL
 	mpv_set_property(mpv, property, MPV_FORMAT_NODE, &node);
 }
 
-void zen_mpv_set_string_property(mpv_handle* mpv, const char* const property, const char* const value) {
+void zen_mpv_set_string_property(mpv_handle *mpv, const char *const property, const char *const value) {
 	mpv_node node = {
 		.u.string = (char *)value,
 		.format = MPV_FORMAT_STRING
@@ -48,24 +48,24 @@ void zen_mpv_set_string_property(mpv_handle* mpv, const char* const property, co
 	mpv_set_property(mpv, property, MPV_FORMAT_NODE, &node);
 }
 
-BOOL zen_mpv_compare_strings(const char* const one, const char* const two) {
+BOOL zen_mpv_compare_strings(const char *const one, const char *const two) {
 	return strcmp(one, two) == 0;
 }
 
-void zen_mpv_init_pthread_mutex_cond(pthread_mutex_t* mutex, pthread_cond_t* cond) {
+void zen_mpv_init_pthread_mutex_cond(pthread_mutex_t *mutex, pthread_cond_t *cond) {
 	pthread_mutexattr_t mutexAttrs;
 	pthread_mutexattr_init(&mutexAttrs);
 	pthread_mutexattr_setpolicy_np(&mutexAttrs, _PTHREAD_MUTEX_POLICY_FIRSTFIT);
 	pthread_mutex_init(mutex, &mutexAttrs);
 	pthread_mutexattr_destroy(&mutexAttrs);
-	
+
 	pthread_condattr_t condAttrs;
 	pthread_condattr_init(&condAttrs);
 	pthread_cond_init(cond, &condAttrs);
 	pthread_condattr_destroy(&condAttrs);
 }
 
-void zen_mpv_destroy_pthread_mutex_cond(pthread_mutex_t* mutex, pthread_cond_t* cond) {
+void zen_mpv_destroy_pthread_mutex_cond(pthread_mutex_t *mutex, pthread_cond_t *cond) {
 	pthread_mutex_destroy(mutex);
 	pthread_cond_destroy(cond);
 }

@@ -9,7 +9,7 @@
 
 @implementation ZENDataTransferObject
 
-@synthesize identifier=_identifier;
+@synthesize identifier = _identifier;
 
 - (instancetype)init {
 	self = [super init];

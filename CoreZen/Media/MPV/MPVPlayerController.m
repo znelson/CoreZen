@@ -23,37 +23,36 @@
 
 static void zen_mpv_wakeup(void *ctx);
 
-@interface ZENMPVPlayerController ()
-{
+@interface ZENMPVPlayerController () {
 	mpv_handle *_mpvHandle;
-	
+
 	BOOL _terminated;
-	
+
 	pthread_mutex_t _playerMutex;
 	pthread_cond_t _playerCondition;
-	
-@public
+
+  @public
 	dispatch_queue_t _eventQueue;
 }
 
 - (void)destroyHandle;
 - (void)mpvHandleEvents;
 
-- (void)mpvCommand:(const char** const)command;
-- (void)mpvSimpleCommand:(const char* const)command;
+- (void)mpvCommand:(const char **const)command;
+- (void)mpvSimpleCommand:(const char *const)command;
 
 @end
 
 @implementation ZENMPVPlayerController
 
-@synthesize identifier=_identifier;
+@synthesize identifier = _identifier;
 
-- (void)mpvCommand:(const char** const)command {
+- (void)mpvCommand:(const char **const)command {
 	mpv_command(_mpvHandle, command);
 }
 
-- (void)mpvSimpleCommand:(const char* const)command {
-	const char* cmd[] = { command, nil };
+- (void)mpvSimpleCommand:(const char *const)command {
+	const char *cmd[] = { command, nil };
 	[self mpvCommand:cmd];
 }
 
@@ -61,48 +60,48 @@ static void zen_mpv_wakeup(void *ctx);
 	self = [super init];
 	if (self) {
 		_player = player;
-		
+
 		static atomic_uint_fast64_t nextIdentifier = 1;
 		_identifier = atomic_fetch_add(&nextIdentifier, 1);
-		
+
 		_terminated = NO;
-		
+
 		// Initialize mutex and condition variable
 		zen_mpv_init_pthread_mutex_cond(&_playerMutex, &_playerCondition);
-		
+
 		// Initialize MPV player event serial queue
 		dispatch_queue_attr_t qos = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INITIATED, 0);
 		_eventQueue = dispatch_queue_create("ZENMediaPlayer.mpv-player", qos);
-		
+
 		// Create MPV handle (initialization happens after configuration)
 		_mpvHandle = mpv_create();
 		if (!_mpvHandle) {
 			NSLog(@"ERROR: mpv_create() failed");
 			return nil;
 		}
-		
+
 		_clientName = zen_mpv_to_nsstring(mpv_client_name(_mpvHandle));
-		
+
 		// Set MPV configuration
 		mpv_set_option_string(_mpvHandle, kMPVOption_hwdec, kMPVOptionParam_videotoolbox);
 		mpv_set_option_string(_mpvHandle, kMPVOption_vo, kMPVOptionParam_libmpv);
-		
+
 		mpv_request_log_messages(_mpvHandle, "warn");
-		
+
 		// Initialize MPV handle
 		mpv_initialize(_mpvHandle);
-		
+
 		char *version = mpv_get_property_string(_mpvHandle, kMPVProperty_mpv_version);
 		_version = zen_mpv_to_nsstring(version);
 		mpv_free(version);
-		
+
 		// Disable subtitles
 		zen_mpv_set_string_property(_mpvHandle, kMPVProperty_sid, kMPVPropertyKey_no);
-		
+
 		// Set event callback function
 		void *selfAsVoid = (__bridge void *)self;
 		mpv_set_wakeup_callback(_mpvHandle, zen_mpv_wakeup, selfAsVoid);
-		
+
 		// Observe properties
 		mpv_observe_property(_mpvHandle, _identifier, kMPVProperty_percent_pos, MPV_FORMAT_NODE);
 		mpv_observe_property(_mpvHandle, _identifier, kMPVProperty_pause, MPV_FORMAT_NODE);
@@ -113,9 +112,9 @@ static void zen_mpv_wakeup(void *ctx);
 
 - (void)terminate {
 	mpv_unobserve_property(_mpvHandle, self.identifier);
-	
+
 	NSLog(@"Terminating mpv player queue...");
-	
+
 	// Send a mpv quit command, which will trigger MPV_EVENT_SHUTDOWN
 	[self mpvSimpleCommand:kMPVCommand_quit];
 
@@ -125,9 +124,9 @@ static void zen_mpv_wakeup(void *ctx);
 		pthread_cond_wait(&_playerCondition, &_playerMutex);
 	}
 	pthread_mutex_unlock(&_playerMutex);
-	
+
 	NSLog(@"Finished terminating mpv player queue");
-	
+
 	// Clean up mutex and condition variable
 	zen_mpv_destroy_pthread_mutex_cond(&_playerMutex, &_playerCondition);
 }
@@ -135,34 +134,34 @@ static void zen_mpv_wakeup(void *ctx);
 - (void)destroyHandle {
 	// Remove property observers
 	mpv_unobserve_property(_mpvHandle, self.identifier);
-	
+
 	// Remove event callback function
 	mpv_set_wakeup_callback(_mpvHandle, nil, nil);
-	
+
 	// Destroy MPV handle
 	mpv_destroy(_mpvHandle);
 	_mpvHandle = nil;
-	
+
 	// Set _terminated flag and signal waiting thread
 	pthread_mutex_lock(&_playerMutex);
 	_terminated = YES;
 	pthread_cond_signal(&_playerCondition);
 	pthread_mutex_unlock(&_playerMutex);
 }
-	
+
 - (mpv_handle *)playerHandle {
 	return _mpvHandle;
 }
 
 - (void)openFileURL:(NSURL *)url {
-	const char* loadCommand[] = {
+	const char *loadCommand[] = {
 		kMPVCommand_loadfile,
 		url.path.fileSystemRepresentation,
 		kMPVCommandParam_replace,
 		nil
 	};
 	[self mpvCommand:loadCommand];
-	
+
 	[self pausePlayback];
 }
 
@@ -183,7 +182,7 @@ static void zen_mpv_wakeup(void *ctx);
 }
 
 - (void)seekBySeconds:(double)seconds {
-	const char* command[] = {
+	const char *command[] = {
 		kMPVCommand_seek,
 		zen_double_to_mpv_string(seconds),
 		kMPVCommandParam_relative,
@@ -193,7 +192,7 @@ static void zen_mpv_wakeup(void *ctx);
 }
 
 - (void)seekToSeconds:(double)seconds {
-	const char* command[] = {
+	const char *command[] = {
 		kMPVCommand_seek,
 		zen_double_to_mpv_string(seconds),
 		kMPVCommandParam_absolute,
@@ -203,7 +202,7 @@ static void zen_mpv_wakeup(void *ctx);
 }
 
 - (void)seekToPercentage:(double)percentage {
-	const char* command[] = {
+	const char *command[] = {
 		kMPVCommand_seek,
 		zen_double_to_mpv_string(percentage),
 		kMPVCommandParam_absolute_percent,
@@ -216,7 +215,7 @@ static void zen_mpv_wakeup(void *ctx);
 	while (true) {
 		mpv_event *event = mpv_wait_event(_mpvHandle, 0);
 		mpv_event_id eid = event->event_id;
-		
+
 		if (eid == MPV_EVENT_NONE) {
 			// MPV_EVENT_NONE means the event queue is empty, meaning we
 			// can break out of the outer loop and let this thread return
@@ -285,7 +284,6 @@ static void zen_mpv_wakeup(void *ctx);
 			case MPV_EVENT_PROPERTY_CHANGE: {
 				mpv_node node = {};
 				if (mpv_event_to_node(&node, event) == MPV_ERROR_SUCCESS) {
-
 					// Example node map for "pause" property change:
 					// {
 					// 	"event": "property-change",
@@ -294,7 +292,7 @@ static void zen_mpv_wakeup(void *ctx);
 					// 	"data": 0						// Flag value for "pause" property
 					// }
 
-					const char* propertyName = nil;
+					const char *propertyName = nil;
 					mpv_node *valueNode = nil;
 					uint64_t observerID = 0;
 
@@ -313,7 +311,7 @@ static void zen_mpv_wakeup(void *ctx);
 							}
 						}
 					}
-					
+
 					// mpv_event_property *property = event->data;
 					// NSLog(@"MPV_EVENT_PROPERTY_CHANGE (%llu): %s", observerID, property->name);
 
@@ -341,7 +339,7 @@ static void zen_mpv_wakeup(void *ctx);
 					}
 
 					mpv_free_node_contents(&node);
-				}			
+				}
 
 				break;
 			}

@@ -19,17 +19,17 @@
 	if (!url) {
 		return nil;
 	}
-	
+
 	// Append the extra path component
 	if (appendComponent) {
 		url = [url URLByAppendingPathComponent:appendComponent];
 	}
-	
+
 	// Create the directory if necessary
 	if (create && ![self createDirectoryAtURL:url withIntermediateDirectories:YES attributes:nil error:outError]) {
 		return nil;
 	}
-	
+
 	if (outError) {
 		*outError = nil;
 	}
@@ -47,7 +47,7 @@
 }
 
 + (NSString *)zen_executableName {
-	return [NSBundle.mainBundle.infoDictionary objectForKey:(NSString*)kCFBundleExecutableKey];
+	return [NSBundle.mainBundle.infoDictionary objectForKey:(NSString *)kCFBundleExecutableKey];
 }
 
 @end

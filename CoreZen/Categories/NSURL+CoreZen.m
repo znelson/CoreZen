@@ -29,24 +29,23 @@
 				   volumeName:(NSString **)outVolumeName
 					volumeURL:(NSURL **)outVolumeURL {
 	NSArray<NSURLResourceKey> *resourceKeys =
-	@[
-		NSURLVolumeLocalizedNameKey,
-		NSURLVolumeURLKey,
-		NSURLVolumeUUIDStringKey
-	];
+		@[
+			NSURLVolumeLocalizedNameKey,
+			NSURLVolumeURLKey,
+			NSURLVolumeUUIDStringKey
+		];
 
 	NSArray *volumeURLs = [NSFileManager.defaultManager
-						   mountedVolumeURLsIncludingResourceValuesForKeys:resourceKeys
-						   options:NSVolumeEnumerationSkipHiddenVolumes];
-	
+		mountedVolumeURLsIncludingResourceValuesForKeys:resourceKeys
+												options:NSVolumeEnumerationSkipHiddenVolumes];
+
 	NSString *volumeUUIDString = [volumeUUID UUIDString];
-	
+
 	for (NSURL *volumeURL in volumeURLs) {
 		NSString *uuid;
 		NSError *error;
 		if ([volumeURL getResourceValue:&uuid forKey:NSURLVolumeUUIDStringKey error:&error] &&
 			[uuid isEqual:volumeUUIDString]) {
-			
 			if ([volumeURL getResourceValue:outVolumeName forKey:NSURLVolumeLocalizedNameKey error:&error] &&
 				[volumeURL getResourceValue:outVolumeURL forKey:NSURLVolumeURLKey error:&error]) {
 				return YES;
@@ -58,7 +57,6 @@
 }
 
 - (NSString *)zen_relativePathToURL:(NSURL *)url {
-	
 	NSString *fullPath = [url path];
 	NSString *basePath = [self path];
 	if ([fullPath hasPrefix:basePath]) {

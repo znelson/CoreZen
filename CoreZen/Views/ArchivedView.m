@@ -22,7 +22,7 @@
 	if ([nib instantiateWithOwner:self topLevelObjects:nil]) {
 		NSView *nibView = self.rootView;
 		[self addSubview:nibView];
-		
+
 		[self zen_addConstraintsForEqualSizes:nibView];
 	}
 }

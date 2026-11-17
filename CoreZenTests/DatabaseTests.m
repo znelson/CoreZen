@@ -41,7 +41,7 @@
 - (void)testSchemaCreatesTable {
 	[self.queue fetchSync:^(ZENDatabase *database) {
 		ZENResultSet *rs = [database executeQuery:
-			@"SELECT name FROM sqlite_master WHERE type='table' AND name='test_objects';"];
+										 @"SELECT name FROM sqlite_master WHERE type='table' AND name='test_objects';"];
 		XCTAssertTrue([rs next], @"test_objects table should exist");
 		XCTAssertEqualObjects([rs stringForColumnIndex:0], @"test_objects");
 		[rs close];

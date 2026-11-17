@@ -44,13 +44,13 @@
 
 - (CGLContextObj)copyCGLContextForPixelFormat:(CGLPixelFormatObj)pf {
 	CGLContextObj context = self.playerView.openGLContext.CGLContextObj;
-	
+
 	// https://developer.apple.com/library/archive/documentation/GraphicsImaging/Conceptual/OpenGL-MacProgGuide/opengl_contexts/opengl_contexts.html
 	// If the swap interval is set to 0 (the default), buffers are swapped as soon as possible, without regard to the vertical refresh rate of the monitor.
 	// If the swap interval is set to any other value, the buffers are swapped only during the vertical retrace of the monitor.
 	static GLint sync = 1;
 	CGLSetParameter(context, kCGLCPSwapInterval, &sync);
-	
+
 	CGLSetCurrentContext(context);
 	CGLRetainContext(context);
 	return context;

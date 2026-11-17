@@ -31,7 +31,7 @@
 - (void)setupCommon:(NSString *)queueLabel {
 	static atomic_uint_fast64_t nextIdentifier = 0;
 	uint64_t cacheID = atomic_fetch_add(&nextIdentifier, 1);
-	
+
 	NSString *label = [NSString stringWithFormat:@"%@-%llu", queueLabel, cacheID];
 	_isolationQueue = dispatch_queue_create(label.UTF8String, DISPATCH_QUEUE_CONCURRENT);
 }
@@ -40,7 +40,7 @@
 	self = [super init];
 	if (self) {
 		_mapTable = [NSMapTable strongToWeakObjectsMapTable];
-		
+
 		[self setupCommon:@"ZENWeakObjectCache"];
 	}
 	return self;
@@ -54,7 +54,7 @@
 	self = [super init];
 	if (self) {
 		_mapTable = [NSMapTable strongToStrongObjectsMapTable];
-		
+
 		[self setupCommon:@"ZENStrongObjectCache"];
 	}
 	return self;

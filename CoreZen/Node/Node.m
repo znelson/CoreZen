@@ -96,10 +96,10 @@
 			if (oldParent) {
 				[oldParent removeChildNode:child];
 			}
-			
+
 			[self.mutableChildren addObject:child];
 			child.parent = self;
-			
+
 			[self childWasAdded:child];
 			[self enumerateParentsWithBlock:^(ZENNode *node, NSUInteger index, BOOL *stop) {
 				[node descendantWasAdded:child];
@@ -113,7 +113,7 @@
 	if (childIndex != NSNotFound) {
 		[self.mutableChildren removeObjectAtIndex:childIndex];
 		child.parent = nil;
-		
+
 		[self childWasRemoved:child];
 		[self enumerateParentsWithBlock:^(ZENNode *node, NSUInteger index, BOOL *stop) {
 			[node descendantWasRemoved:child];

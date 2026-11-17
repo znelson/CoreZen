@@ -43,19 +43,19 @@
 
 - (void)collect:(ZENRenderedFrame *)frame {
 	NSArray<ZENRenderedFrame *> *result = nil;
-	
+
 	[self.lock lock];
-	
+
 	if (frame.image) {
 		[self.frames addObject:frame];
 	}
-	
+
 	if (++self.finishedCount == self.totalCount) {
 		result = self.frames;
 	}
 
 	[self.lock unlock];
-	
+
 	if (result) {
 		self.completion(result);
 	}

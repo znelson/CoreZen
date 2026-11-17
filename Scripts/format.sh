@@ -17,7 +17,7 @@ for dir in "${SOURCE_DIRS[@]}"; do
 	[ -d "$target" ] || continue
 	while IFS= read -r -d '' f; do
 		files+=("$f")
-	done < <(find "$target" -name '*.m' -o -name '*.h' -print0 2>/dev/null || true)
+	done < <(find "$target" \( -name '*.m' -o -name '*.h' \) -print0 2>/dev/null || true)
 done
 
 if [ ${#files[@]} -eq 0 ]; then

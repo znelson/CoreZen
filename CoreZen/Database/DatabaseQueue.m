@@ -19,6 +19,7 @@
 - (instancetype)initInMemory;
 - (instancetype)initWithURL:(NSURL *)URL;
 - (ZENDatabase *)threadDatabase;
+- (void)runTransaction:(ZENDatabaseBlock)updateBlock;
 
 @property (nonatomic, strong, readonly) NSURL *databaseURL;
 @property (nonatomic, copy, readonly) NSString *databaseKey;
@@ -125,14 +126,38 @@
 	return database;
 }
 
+// Runs on the work queue. Commits the block's transaction, or rolls it back when
+// the block canceled it or one of its statements failed.
+- (void)runTransaction:(ZENDatabaseBlock)updateBlock {
+	ZENDatabase *database = self.threadDatabase;
+	if (![database beginTransaction]) {
+		NSLog(@"ERROR: Couldn't begin a transaction, so each of its statements commits on its own: %@",
+			  database.lastErrorMessage);
+	}
+
+	updateBlock(database);
+
+	if (!database.inTransaction) {
+		return;
+	}
+	NSString *rollbackReason = database.rollbackReason;
+	if (rollbackReason) {
+		NSLog(@"Rolling back a transaction because %@", rollbackReason);
+		[database rollback];
+	} else if (![database commit]) {
+		NSLog(@"ERROR: Couldn't commit a transaction, so rolling it back: %@", database.lastErrorMessage);
+		// A failed commit can leave the transaction open, which would swallow the next one
+		if (database.inTransaction) {
+			[database rollback];
+		}
+	}
+}
+
 - (void)transactionAsync:(ZENDatabaseBlock)updateBlock {
 	[self.workQueue async:^(ZENWorkQueueToken *canceled) {
 		if (!canceled.canceled) {
 			@autoreleasepool {
-				ZENDatabase *database = self.threadDatabase;
-				[database beginTransaction];
-				updateBlock(database);
-				[database commit];
+				[self runTransaction:updateBlock];
 			}
 		}
 	}];
@@ -141,10 +166,7 @@
 - (void)transactionSync:(ZENDatabaseBlock)updateBlock {
 	[self.workQueue sync:^{
 		@autoreleasepool {
-			ZENDatabase *database = self.threadDatabase;
-			[database beginTransaction];
-			updateBlock(database);
-			[database commit];
+			[self runTransaction:updateBlock];
 		}
 	}];
 }

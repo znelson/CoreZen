@@ -58,6 +58,51 @@
 	}];
 }
 
+// The schema version and whether the broken migration's table exists, after
+// initializing a fresh database with it, either on its own or inside a transaction
+- (void)initializeBrokenMigrationInTransaction:(BOOL)inTransaction
+								 schemaVersion:(long long *)schemaVersion
+								   tableExists:(BOOL *)tableExists {
+	ZENDatabaseQueue *queue = [ZENDatabaseQueue databaseQueueInMemory];
+	ZENDatabaseSchema *schema = [ZENDatabaseSchema schemaWithTableClasses:@[[ZENBrokenMigrationTestTable class]]];
+	ZENDatabaseBlock initialize = ^(ZENDatabase *database) {
+		[schema initializeDatabase:database];
+	};
+	if (inTransaction) {
+		[queue transactionSync:initialize];
+	} else {
+		[queue fetchSync:initialize];
+	}
+	[queue fetchSync:^(ZENDatabase *database) {
+		ZENResultSet *rs = [database executeQuery:@"PRAGMA user_version;"];
+		XCTAssertTrue([rs next]);
+		*schemaVersion = [rs longLongIntForColumnIndex:0];
+		[rs close];
+		rs = [database executeQuery:@"SELECT name FROM sqlite_master WHERE type='table' AND name='broken_migration_objects';"];
+		*tableExists = [rs next];
+		[rs close];
+	}];
+	[queue shutdown];
+}
+
+- (void)testFailedSchemaUpdateRollsBack {
+	// Rolling back the whole update leaves the database at version 0, so the
+	// update runs again next time instead of skipping the broken migration
+	long long schemaVersion = -1;
+	BOOL tableExists = YES;
+	[self initializeBrokenMigrationInTransaction:NO schemaVersion:&schemaVersion tableExists:&tableExists];
+	XCTAssertEqual(schemaVersion, 0);
+	XCTAssertFalse(tableExists, @"Version 1's table should roll back with the failed version 2");
+}
+
+- (void)testFailedSchemaUpdateInsideTransactionRollsBack {
+	long long schemaVersion = -1;
+	BOOL tableExists = YES;
+	[self initializeBrokenMigrationInTransaction:YES schemaVersion:&schemaVersion tableExists:&tableExists];
+	XCTAssertEqual(schemaVersion, 0);
+	XCTAssertFalse(tableExists, @"Version 1's table should roll back with the failed version 2");
+}
+
 #pragma mark - Identifiers
 
 // Fills a fresh database with rows, then simulates an app relaunch: the global
@@ -222,6 +267,84 @@
 		XCTAssertEqualObjects(fetchedNames, names,
 							  @"Should fetch all inserted names in order");
 	}];
+}
+
+#pragma mark - Transactions
+
+- (NSUInteger)countRows {
+	__block NSUInteger count = 0;
+	[self.queue fetchSync:^(ZENDatabase *database) {
+		count = [[ZENTestTable new] countAllRows:database];
+	}];
+	return count;
+}
+
+- (BOOL)insertRowNamed:(NSString *)name database:(ZENDatabase *)database {
+	ZENTestDTO *dto = [[ZENTestDTO alloc] initWithIdentifier:ZENGetNextObjectIdentifier() name:name];
+	return [[ZENTestTable new] insertDTO:dto database:database];
+}
+
+- (void)testTransactionRollsBackWhenAStatementFails {
+	[self.queue transactionSync:^(ZENDatabase *database) {
+		XCTAssertTrue([self insertRowNamed:@"Alpha" database:database]);
+		XCTAssertFalse([database executeUpdate:@"INSERT INTO no_such_table VALUES (1);"]);
+	}];
+	XCTAssertEqual([self countRows], 0u, @"The insert before the failed statement should roll back");
+}
+
+- (void)testTransactionRollsBackWhenAQueryFails {
+	[self.queue transactionSync:^(ZENDatabase *database) {
+		XCTAssertTrue([self insertRowNamed:@"Alpha" database:database]);
+		XCTAssertNil([database executeQuery:@"SELECT * FROM no_such_table;"]);
+	}];
+	XCTAssertEqual([self countRows], 0u, @"The insert before the failed query should roll back");
+}
+
+- (void)testAsyncTransactionRollsBackWhenAStatementFails {
+	[self.queue transactionAsync:^(ZENDatabase *database) {
+		XCTAssertTrue([self insertRowNamed:@"Alpha" database:database]);
+		XCTAssertFalse([database executeUpdate:@"INSERT INTO no_such_table VALUES (1);"]);
+	}];
+	XCTAssertEqual([self countRows], 0u, @"The insert before the failed statement should roll back");
+}
+
+- (void)testCanceledTransactionRollsBack {
+	[self.queue transactionSync:^(ZENDatabase *database) {
+		XCTAssertTrue([self insertRowNamed:@"Alpha" database:database]);
+		[database cancelTransaction];
+		// Statements after the cancel still run, and roll back too
+		XCTAssertTrue([self insertRowNamed:@"Beta" database:database]);
+	}];
+	XCTAssertEqual([self countRows], 0u);
+}
+
+- (void)testTransactionAfterRollbackCommits {
+	[self.queue transactionSync:^(ZENDatabase *database) {
+		XCTAssertTrue([self insertRowNamed:@"Alpha" database:database]);
+		[database cancelTransaction];
+	}];
+	[self.queue transactionSync:^(ZENDatabase *database) {
+		XCTAssertTrue([self insertRowNamed:@"Beta" database:database]);
+	}];
+	XCTAssertEqual([self countRows], 1u, @"Only the second transaction's insert should commit");
+}
+
+- (void)testCancelOutsideTransactionDoesNothing {
+	[self.queue fetchSync:^(ZENDatabase *database) {
+		[database cancelTransaction];
+		XCTAssertTrue([self insertRowNamed:@"Alpha" database:database]);
+	}];
+	XCTAssertEqual([self countRows], 1u, @"Outside a transaction each statement commits on its own");
+}
+
+- (void)testFailureOutsideTransactionDoesNotAffectNextTransaction {
+	[self.queue fetchSync:^(ZENDatabase *database) {
+		XCTAssertFalse([database executeUpdate:@"INSERT INTO no_such_table VALUES (1);"]);
+	}];
+	[self.queue transactionSync:^(ZENDatabase *database) {
+		XCTAssertTrue([self insertRowNamed:@"Alpha" database:database]);
+	}];
+	XCTAssertEqual([self countRows], 1u);
 }
 
 #pragma mark - Async Operations

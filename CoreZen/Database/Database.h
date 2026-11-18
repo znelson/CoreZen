@@ -19,4 +19,10 @@
 
 - (NSString *)lastErrorMessage;
 
+// In a transaction block: roll back the transaction's changes when the block
+// returns, instead of committing them. Statements the block runs after this
+// still run, and roll back too. A transaction also rolls back on its own when
+// one of its statements fails.
+- (void)cancelTransaction;
+
 @end

@@ -15,6 +15,8 @@
 
 - (void)enumerateDepthFirstHelper:(ZENNodeEnumerateBlock)block index:(NSUInteger *)index stop:(BOOL *)stop;
 
+- (void)addToSize:(NSInteger)change;
+
 - (instancetype)initZEN:(NSString *)name
 				   size:(NSInteger)size;
 
@@ -97,8 +99,13 @@
 				[oldParent removeChildNode:child];
 			}
 
+			// A node with children is as big as they are together, so a leaf's own
+			// size gives way to its first child's
+			NSInteger sizeChange = self.isChildless ? child.size - self.size : child.size;
+
 			[self.mutableChildren addObject:child];
 			child.parent = self;
+			[self addToSize:sizeChange];
 
 			[self childWasAdded:child];
 			[self enumerateParentsWithBlock:^(ZENNode *node, NSUInteger index, BOOL *stop) {
@@ -113,6 +120,7 @@
 	if (childIndex != NSNotFound) {
 		[self.mutableChildren removeObjectAtIndex:childIndex];
 		child.parent = nil;
+		[self addToSize:-child.size];
 
 		[self childWasRemoved:child];
 		[self enumerateParentsWithBlock:^(ZENNode *node, NSUInteger index, BOOL *stop) {
@@ -133,39 +141,37 @@
 	}
 }
 
-- (void)childWasAdded:(ZENNode *)child {
-	// To be overridden in derived classes
-	// Be sure to call [super childWasAdded:child]
-	if (self.children.count == 1) {
-		self.size = child.size;
-	} else {
-		self.size += child.size;
+// Every ancestor's size counts this node's, so a change to it changes theirs too
+- (void)addToSize:(NSInteger)change {
+	if (change == 0) {
+		return;
 	}
+	for (ZENNode *node = self; node; node = node.parent) {
+		node.size += change;
+	}
+}
+
+// The hooks are for subclasses. Sizes are already updated when they run, so these
+// do nothing; overrides should still call super.
+
+- (void)childWasAdded:(ZENNode *)child {
 }
 
 - (void)childWasRemoved:(ZENNode *)child {
-	// To be overridden in derived classes
-	// Be sure to call [super childWasRemoved:child]
-	self.size -= child.size;
 }
 
 - (void)descendantWasAdded:(ZENNode *)descendant {
-	// To be overridden in derived classes
-	// Be sure to call [super descendantWasAdded:child]
-	self.size += descendant.size;
 }
 
 - (void)descendantWasRemoved:(ZENNode *)descendant {
-	// To be overridden in derived classes
-	// Be sure to call [super descendantWasRemoved:child]
-	self.size -= descendant.size;
 }
 
 - (void)resetSize {
-	self.size = 0;
-	for (ZENNode *child in self.children) {
-		self.size += child.size;
+	NSInteger total = 0;
+	for (ZENNode *child in self.mutableChildren) {
+		total += child.size;
 	}
+	[self addToSize:total - self.size];
 }
 
 - (void)enumerateChildrenWithBlock:(ZENNodeEnumerateBlock)block {

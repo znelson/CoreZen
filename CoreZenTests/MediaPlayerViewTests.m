@@ -9,6 +9,7 @@
 
 #import "MediaPlayerView+Private.h"
 #import "MPVRenderController.h"
+#import "MPVViewLayer.h"
 
 static const NSTimeInterval kPlayerTimeout = 10.0;
 
@@ -120,6 +121,71 @@ static const NSTimeInterval kPlayerTimeout = 10.0;
 	// Happens when creating the context failed and the player is then detached
 	ZENMediaPlayerView *view = [self newPlayerView];
 	[view.renderController destroyRenderContext];
+}
+
+#pragma mark - Redraw
+
+// Loads the video fixture, which stays paused on its first frame, into an offscreen
+// view. The layer can't draw offscreen, so mpv's only frame is skipped, as it is when
+// a window loads a video before it's on screen.
+- (ZENMediaPlayerView *)viewWithSkippedFirstFrame {
+	ZENMediaPlayerView *view = [self newPlayerView];
+	ZENMediaPlayer *player = [self newPlayer];
+	[view attachPlayer:player];
+	[player loadFileURL:[[NSBundle bundleForClass:self.class] URLForResource:@"video" withExtension:@"mp4"]];
+
+	NSPredicate *handled = [NSPredicate predicateWithFormat:@"renderController.frameUpdateCount > 0"];
+	[self expectationForPredicate:handled evaluatedWithObject:view handler:nil];
+	[self waitForExpectationsWithTimeout:kPlayerTimeout handler:nil];
+	return view;
+}
+
+// What the layer answers when Core Animation asks whether it can draw
+- (BOOL)layerCanDraw:(ZENMediaPlayerView *)view {
+	ZENMPVViewLayer *layer = (ZENMPVViewLayer *)view.layer;
+	return [layer canDrawInCGLContext:NULL pixelFormat:NULL forLayerTime:0 displayTime:NULL];
+}
+
+- (void)testRedrawRequestDrawsCurrentFrameWhilePaused {
+	// mpv has no new frame while paused, but a view asked to redraw still needs to
+	// show the current one
+	ZENMediaPlayerView *view = [self viewWithSkippedFirstFrame];
+	[view.layer setNeedsDisplay];
+	XCTAssertTrue([self layerCanDraw:view]);
+}
+
+- (void)testResizeDrawsCurrentFrameWhilePaused {
+	ZENMediaPlayerView *view = [self viewWithSkippedFirstFrame];
+	[view setFrameSize:NSMakeSize(128, 96)];
+	XCTAssertTrue([self layerCanDraw:view]);
+}
+
+- (void)testMovingIntoWindowDrawsCurrentFrameWhilePaused {
+	ZENMediaPlayerView *view = [self viewWithSkippedFirstFrame];
+	NSWindow *window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 64, 48)
+												   styleMask:NSWindowStyleMaskBorderless
+													 backing:NSBackingStoreBuffered
+													   defer:YES];
+	window.releasedWhenClosed = NO;
+	[window.contentView addSubview:view];
+	XCTAssertTrue([self layerCanDraw:view]);
+	[view removeFromSuperview];
+}
+
+- (void)testWindowBecomingVisibleDrawsCurrentFrameWhilePaused {
+	ZENMediaPlayerView *view = [self viewWithSkippedFirstFrame];
+	NSWindow *window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 64, 48)
+												   styleMask:NSWindowStyleMaskBorderless
+													 backing:NSBackingStoreBuffered
+													   defer:YES];
+	window.releasedWhenClosed = NO;
+	[window.contentView addSubview:view];
+	[self layerCanDraw:view];
+
+	// The window comes on screen after the view moved into it, as at app launch
+	[NSNotificationCenter.defaultCenter postNotificationName:NSWindowDidChangeOcclusionStateNotification object:window];
+	XCTAssertTrue([self layerCanDraw:view]);
+	[view removeFromSuperview];
 }
 
 @end

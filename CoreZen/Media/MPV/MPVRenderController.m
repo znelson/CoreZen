@@ -41,6 +41,9 @@ static void zen_mpv_render_context_update(void *ctx);
 	dispatch_queue_t _renderQueue;
 }
 
+// Redeclare as readwrite
+@property (atomic) NSUInteger frameUpdateCount;
+
 - (mpv_handle *)mpvHandleFromPlayerView;
 
 - (void)initRenderContext;
@@ -154,6 +157,10 @@ static void zen_mpv_render_context_update(void *ctx);
 	}
 }
 
+- (BOOL)hasRenderContext {
+	return _mpvRenderContext != NULL;
+}
+
 - (BOOL)readyToRenderFrame {
 	if (_mpvRenderContext) {
 		uint64_t flags = mpv_render_context_update(_mpvRenderContext);
@@ -163,6 +170,10 @@ static void zen_mpv_render_context_update(void *ctx);
 }
 
 - (void)renderNextFrame {
+	if (!_mpvRenderContext) {
+		return;
+	}
+
 	[self.playerView lockViewContext];
 
 	GLint frameBuffer = 0;
@@ -213,10 +224,14 @@ static void zen_mpv_render_context_update(void *ctx);
 	pthread_mutex_unlock(&_renderMutex);
 
 	if (!terminated && !didRenderFrame) {
+		// The view couldn't draw the frame, for example because it isn't on screen yet.
+		// Let mpv move on; the view draws the current frame when it's next asked to redraw.
 		[self.playerView lockViewContext];
 		mpv_render_context_render(_mpvRenderContext, _mpvSkipRenderParams);
 		[self.playerView unlockViewContext];
 	}
+
+	self.frameUpdateCount += 1;
 }
 
 @end

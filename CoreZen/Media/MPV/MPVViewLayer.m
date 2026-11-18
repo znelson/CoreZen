@@ -14,6 +14,11 @@
 
 @interface ZENMPVViewLayer ()
 
+// Something other than a new mpv frame needs the layer redrawn, for example the view
+// appearing or being resized. Core Animation only calls canDrawInCGLContext: once the
+// layer can actually draw, so a request made while it's off screen waits until then.
+@property (atomic) BOOL redrawRequested;
+
 @end
 
 @implementation ZENMPVViewLayer
@@ -56,8 +61,23 @@
 	return context;
 }
 
+- (void)setNeedsDisplay {
+	self.redrawRequested = YES;
+	[super setNeedsDisplay];
+}
+
 - (BOOL)canDrawInCGLContext:(CGLContextObj)ctx pixelFormat:(CGLPixelFormatObj)pf forLayerTime:(CFTimeInterval)t displayTime:(const CVTimeStamp *)ts {
-	return self.playerView.renderController.readyToRenderFrame;
+	ZENMPVRenderController *renderController = self.playerView.renderController;
+	if (!renderController.hasRenderContext) {
+		return NO;
+	}
+
+	// Always ask mpv, which clears its new frame flag. Without a new frame, a redraw
+	// renders mpv's current frame again, such as the one a paused player is showing.
+	BOOL newFrame = renderController.readyToRenderFrame;
+	BOOL redraw = self.redrawRequested;
+	self.redrawRequested = NO;
+	return newFrame || redraw;
 }
 
 - (void)drawInCGLContext:(CGLContextObj)ctx pixelFormat:(CGLPixelFormatObj)pf forLayerTime:(CFTimeInterval)t displayTime:(const CVTimeStamp *)ts {

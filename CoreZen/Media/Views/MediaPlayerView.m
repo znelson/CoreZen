@@ -14,6 +14,10 @@
 
 - (void)setupCommon;
 
+// Redraw the current frame, which mpv doesn't send again while it's paused
+- (void)requestRedraw;
+- (void)windowDidChangeOcclusionState:(NSNotification *)notification;
+
 @end
 
 @implementation ZENMediaPlayerView
@@ -59,11 +63,44 @@
 	return self;
 }
 
+- (void)dealloc {
+	[NSNotificationCenter.defaultCenter removeObserver:self];
+}
+
+- (void)requestRedraw {
+	[self.layer setNeedsDisplay];
+}
+
+- (void)viewWillMoveToWindow:(NSWindow *)newWindow {
+	[super viewWillMoveToWindow:newWindow];
+	if (self.window) {
+		[NSNotificationCenter.defaultCenter removeObserver:self name:NSWindowDidChangeOcclusionStateNotification object:self.window];
+	}
+}
+
 - (void)viewDidMoveToWindow {
 	[super viewDidMoveToWindow];
 	if (self.player) {
 		[self.renderController createRenderContext];
 	}
+	if (self.window) {
+		// A window is often set up before it's on screen, as at app launch, and the
+		// layer can only draw once it is
+		[NSNotificationCenter.defaultCenter addObserver:self
+											   selector:@selector(windowDidChangeOcclusionState:)
+												   name:NSWindowDidChangeOcclusionStateNotification
+												 object:self.window];
+		[self requestRedraw];
+	}
+}
+
+- (void)windowDidChangeOcclusionState:(NSNotification *)notification {
+	[self requestRedraw];
+}
+
+- (void)setFrameSize:(NSSize)newSize {
+	[super setFrameSize:newSize];
+	[self requestRedraw];
 }
 
 - (BOOL)mouseDownCanMoveWindow {
@@ -88,6 +125,7 @@
 	self.player = player;
 	[player attachPlayerView:self];
 	[self.renderController createRenderContext];
+	[self requestRedraw];
 }
 
 - (void)detachPlayer {

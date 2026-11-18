@@ -13,6 +13,9 @@
 //            -c:v libx264 -pix_fmt yuv420p -g 5 -c:a aac -b:a 32k -shortest -movflags +faststart video.mp4
 //   audio.m4a: 2 s AAC audio, no video stream
 //     ffmpeg -f lavfi -i sine=frequency=440:duration=2 -c:a aac -b:a 32k audio.m4a
+//   silent.mp4: video.mp4's video, no audio stream
+//     ffmpeg -f lavfi -i testsrc=size=64x48:rate=10:duration=2 -c:v libx264 -pix_fmt yuv420p -g 5
+//            -movflags +faststart silent.mp4
 
 static const NSTimeInterval kRenderTimeout = 10.0;
 
@@ -93,6 +96,18 @@ static const NSTimeInterval kRenderTimeout = 10.0;
 	XCTAssertEqual(mediaFile.frameHeight, 48u);
 	XCTAssertEqualObjects(mediaFile.videoCodecName, @"h264");
 	XCTAssertEqualObjects(mediaFile.audioCodecName, @"aac");
+	XCTAssertTrue([mediaFile.videoCodecLongName containsString:@"H.264"], @"%@", mediaFile.videoCodecLongName);
+	XCTAssertTrue([mediaFile.audioCodecLongName containsString:@"AAC"], @"%@", mediaFile.audioCodecLongName);
+}
+
+- (void)testSilentVideoFileInfo {
+	ZENMediaFile *mediaFile = [self mediaFileNamed:@"silent.mp4"];
+	XCTAssertEqualWithAccuracy(mediaFile.durationMicroseconds, 2000000, 100000);
+	XCTAssertEqual(mediaFile.frameWidth, 64u);
+	XCTAssertEqual(mediaFile.frameHeight, 48u);
+	XCTAssertEqualObjects(mediaFile.videoCodecName, @"h264");
+	XCTAssertNil(mediaFile.audioCodecName);
+	XCTAssertNil(mediaFile.audioCodecLongName);
 }
 
 - (void)testAudioOnlyFileInfo {
@@ -100,7 +115,8 @@ static const NSTimeInterval kRenderTimeout = 10.0;
 	XCTAssertEqualWithAccuracy(mediaFile.durationMicroseconds, 2000000, 100000);
 	XCTAssertEqual(mediaFile.frameWidth, 0u);
 	XCTAssertEqual(mediaFile.frameHeight, 0u);
-	XCTAssertEqualObjects(mediaFile.videoCodecName, @"Unknown");
+	XCTAssertNil(mediaFile.videoCodecName);
+	XCTAssertNil(mediaFile.videoCodecLongName);
 	XCTAssertEqualObjects(mediaFile.audioCodecName, @"aac");
 }
 
@@ -109,8 +125,8 @@ static const NSTimeInterval kRenderTimeout = 10.0;
 	XCTAssertEqual(mediaFile.durationMicroseconds, 0u);
 	XCTAssertEqual(mediaFile.frameWidth, 0u);
 	XCTAssertEqual(mediaFile.frameHeight, 0u);
-	XCTAssertEqualObjects(mediaFile.videoCodecName, @"Unknown");
-	XCTAssertEqualObjects(mediaFile.audioCodecName, @"Unknown");
+	XCTAssertNil(mediaFile.videoCodecName);
+	XCTAssertNil(mediaFile.audioCodecName);
 }
 
 #pragma mark - Rendering

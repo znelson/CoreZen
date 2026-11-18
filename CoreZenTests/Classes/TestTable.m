@@ -80,3 +80,21 @@
 }
 
 @end
+
+@implementation ZENBrokenMigrationTestTable
+
++ (NSString *)tableName {
+	return @"broken_migration_objects";
+}
+
++ (BOOL)updateSchema:(ZENDatabase *)database version:(NSUInteger)version {
+	if (version == 2) {
+		NSString *sql = [NSString stringWithFormat:@"ALTER TABLE %@ ADD COLUMN extra TEXT;", self.tableName];
+		[database executeUpdate:sql];
+		[database executeUpdate:@"INSERT INTO no_such_table VALUES (1);"];
+		return YES;
+	}
+	return [super updateSchema:database version:version];
+}
+
+@end

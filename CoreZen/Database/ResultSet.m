@@ -7,25 +7,34 @@
 
 #import "ResultSet.h"
 #import "ResultSet+Private.h"
+#import "Database+Private.h"
 
 @import FMDB;
 
 @interface ZENResultSet ()
 @property (nonatomic, strong, readonly) FMResultSet *fmResultSet;
+@property (nonatomic, strong, readonly) ZENDatabase *database;
 @end
 
 @implementation ZENResultSet
 
-+ (instancetype)resultSetWithFMResultSet:(FMResultSet *)fmResultSet {
++ (instancetype)resultSetWithFMResultSet:(FMResultSet *)fmResultSet database:(ZENDatabase *)database {
 	ZENResultSet *rs = [[ZENResultSet alloc] init];
 	if (rs) {
 		rs->_fmResultSet = fmResultSet;
+		rs->_database = database;
 	}
 	return rs;
 }
 
 - (BOOL)next {
-	return [self.fmResultSet next];
+	// NO means either no more rows or a failure; only a failure sets the error
+	NSError *error = nil;
+	BOOL hasRow = [self.fmResultSet nextWithError:&error];
+	if (!hasRow && error) {
+		[self.database statementFailed];
+	}
+	return hasRow;
 }
 - (void)close {
 	[self.fmResultSet close];

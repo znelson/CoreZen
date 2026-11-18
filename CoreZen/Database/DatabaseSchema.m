@@ -39,12 +39,24 @@
 }
 
 - (void)initializeDatabase:(ZENDatabase *)database {
-	// Update the database schema to the latest version
-	[database beginTransaction];
-	if ([self updateDatabaseSchema:database]) {
-		[database commit];
-	} else {
-		[database rollback];
+	// Update the database schema to the latest version, in a transaction of its
+	// own unless the caller has one open. A failed statement makes the caller's
+	// transaction roll back too.
+	BOOL ownsTransaction = !database.inTransaction;
+	if (ownsTransaction) {
+		[database beginTransaction];
+	}
+	BOOL versionChanged = [self updateDatabaseSchema:database];
+	NSString *rollbackReason = database.rollbackReason;
+	if (rollbackReason) {
+		NSLog(@"ERROR: Rolling back the schema update because %@", rollbackReason);
+	}
+	if (ownsTransaction) {
+		if (versionChanged && !rollbackReason) {
+			[database commit];
+		} else {
+			[database rollback];
+		}
 	}
 	// Initialize the global identifiers from database tables
 	[self initializeIdentifiers:database];
@@ -77,6 +89,10 @@
 		}
 		if (schemaVersion != updatedVersion) {
 			break;
+		}
+		// Later versions build on this one, and everything rolls back anyway
+		if (database.rollbackReason) {
+			return NO;
 		}
 	}
 

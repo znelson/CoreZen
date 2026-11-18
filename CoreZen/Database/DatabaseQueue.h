@@ -19,6 +19,9 @@ typedef void (^ZENDatabaseBlock)(ZENDatabase *database);
 - (void)shutdown;
 - (void)shutdown:(ZENDatabaseBlock)updateBlock;
 
+// Run a block in a transaction, which commits when the block returns. It rolls
+// back instead if any statement in it fails, or if the block calls the
+// database's cancelTransaction.
 - (void)transactionAsync:(ZENDatabaseBlock)updateBlock;
 - (void)transactionSync:(ZENDatabaseBlock)updateBlock;
 - (void)fetchAsync:(ZENDatabaseBlock)fetchBlock;

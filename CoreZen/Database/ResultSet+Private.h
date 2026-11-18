@@ -8,9 +8,11 @@
 #import "ResultSet.h"
 
 @class FMResultSet;
+@class ZENDatabase;
 
 @interface ZENResultSet (Private)
 
-+ (instancetype)resultSetWithFMResultSet:(FMResultSet *)fmResultSet;
+// The database hears about it when stepping through rows fails
++ (instancetype)resultSetWithFMResultSet:(FMResultSet *)fmResultSet database:(ZENDatabase *)database;
 
 @end

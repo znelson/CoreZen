@@ -19,7 +19,8 @@
 
 // Allows object to perform async initialization. Called from thread pool. Call
 // completion with nil when initialization succeeds, or with an error when it
-// fails. A repository doesn't deliver, cache, or add an object whose init failed.
+// fails. A repository leaves an object whose init failed out of fetch results
+// and drops it from its cache, and asyncInitAndAdd: doesn't add it.
 - (void)performAsyncInit:(id<ZENDataModel>)model
 			  completion:(ZENAsyncCompletionBlock)completion;
 

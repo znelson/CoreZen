@@ -26,6 +26,9 @@ static const NSTimeInterval kSlowInitDelay = 0.2;
 @property (atomic) BOOL initialized;
 @property (atomic) NSInteger asyncInitCount;
 
+// The error performAsyncInit: finishes with, after its delay
+- (NSError *)asyncInitError;
+
 @end
 
 @implementation ZENSlowInitDomainObject
@@ -37,9 +40,14 @@ static const NSTimeInterval kSlowInitDelay = 0.2;
 	}
 	dispatch_time_t delay = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(kSlowInitDelay * NSEC_PER_SEC));
 	dispatch_after(delay, dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{
-		self.initialized = YES;
-		completion(nil);
+		NSError *error = [self asyncInitError];
+		self.initialized = (error == nil);
+		completion(error);
 	});
+}
+
+- (NSError *)asyncInitError {
+	return nil;
 }
 
 @end
@@ -56,16 +64,24 @@ static const NSTimeInterval kSlowInitDelay = 0.2;
 
 NSString *const ZENTestErrorDomain = @"ZENTestErrorDomain";
 
+static NSError *ZENTestInitError(ZENTestDomainObject *object) {
+	NSString *description = [NSString stringWithFormat:@"%@ fails its async init", object.name];
+	return [NSError errorWithDomain:ZENTestErrorDomain code:1 userInfo:@{ NSLocalizedDescriptionKey: description }];
+}
+
 @implementation ZENFailableInitDomainObject
 
 - (void)performAsyncInit:(id<ZENDataModel>)model
 			  completion:(ZENAsyncCompletionBlock)completion {
-	if ([self.name hasPrefix:@"Fail"]) {
-		NSString *description = [NSString stringWithFormat:@"%@ fails its async init", self.name];
-		completion([NSError errorWithDomain:ZENTestErrorDomain code:1 userInfo:@{ NSLocalizedDescriptionKey: description }]);
-	} else {
-		completion(nil);
-	}
+	completion([self.name hasPrefix:@"Fail"] ? ZENTestInitError(self) : nil);
+}
+
+@end
+
+@implementation ZENSlowFailingInitDomainObject
+
+- (NSError *)asyncInitError {
+	return ZENTestInitError(self);
 }
 
 @end

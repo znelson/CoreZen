@@ -30,3 +30,8 @@ extern NSString *const ZENTestErrorDomain;
 @interface ZENFailableInitDomainObject : ZENTestDomainObject
 
 @end
+
+// Fails its performAsyncInit: after the same delay as ZENSlowInitDomainObject
+@interface ZENSlowFailingInitDomainObject : ZENSlowInitDomainObject
+
+@end

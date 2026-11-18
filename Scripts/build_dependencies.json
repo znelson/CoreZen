@@ -12,6 +12,8 @@
         {
             "name": "fribidi",
             "version": "1.0.18",
+            "license": "LGPL 2.1 or later",
+            "license_files": ["COPYING"],
             "url": "https://github.com/fribidi/fribidi/releases/download/v1.0.18/fribidi-1.0.18.tar.xz",
             "sha256": "1de5e8073d035388b71d0b2d452b1da1f8caeea8a7702997b401fe1b6250727f",
             "build": "meson",
@@ -20,6 +22,10 @@
         {
             "name": "freetype",
             "version": "2.15.0",
+            "license": "FreeType License (FTL)",
+            "license_files": ["LICENSE.TXT", "docs/FTL.TXT"],
+            "credit": "Portions of this software are copyright © 2026 The FreeType Project (https://freetype.org). All rights reserved.",
+            "notes": "FreeType is offered under the FTL or GPLv2. CoreZen uses the FTL, which asks binary distributions to credit the FreeType Project in their documentation: that's the credit line, with the year from FreeType's own copyright notices.",
             "url": "https://downloads.sourceforge.net/project/freetype/freetype2/2.15.0/freetype-2.15.0.tar.xz",
             "sha256": "93cd47eb719c325107f2d3cf087d06299e944c3b48a40b55537302304dea1dd5",
             "build": "meson",
@@ -31,6 +37,8 @@
         {
             "name": "harfbuzz",
             "version": "15.1.0",
+            "license": "Old MIT",
+            "license_files": ["COPYING", "src/ms-use/COPYING"],
             "url": "https://github.com/harfbuzz/harfbuzz/releases/download/15.1.0/harfbuzz-15.1.0.tar.xz",
             "sha256": "0fc7c565443a5f4be7da65ac5ee5bd737d9b158dc908708b7689a0a5796b0c8d",
             "build": "meson",
@@ -44,6 +52,8 @@
         {
             "name": "libass",
             "version": "0.17.5",
+            "license": "ISC",
+            "license_files": ["COPYING"],
             "url": "https://github.com/libass/libass/releases/download/0.17.5/libass-0.17.5.tar.xz",
             "sha256": "2dca25c0e0c837ddf00b52011b3f82cac1e4ddd3ad018227806b0c2288864acc",
             "build": "meson",
@@ -55,6 +65,8 @@
         {
             "name": "dav1d",
             "version": "1.5.4",
+            "license": "BSD 2-Clause",
+            "license_files": ["COPYING"],
             "url": "https://code.videolan.org/videolan/dav1d/-/archive/1.5.4/dav1d-1.5.4.tar.bz2",
             "sha256": "2abfb0c89212e6e4733a54e0ae509ec00a5b845a6360946f918806e14aedb011",
             "build": "meson",
@@ -63,6 +75,8 @@
         {
             "name": "ffmpeg",
             "version": "9.0.2",
+            "license": "LGPL 2.1 or later",
+            "license_files": ["COPYING.LGPLv2.1", "LICENSE.md"],
             "url": "https://ffmpeg.org/releases/ffmpeg-9.0.2.tar.xz",
             "sha256": "8c3850283eb25fa026482078a04051e0be17347b09ef81a0849bec15a96e002e",
             "build": "ffmpeg",
@@ -78,6 +92,9 @@
         {
             "name": "libplacebo",
             "version": "7.387.0",
+            "license": "LGPL 2.1 or later",
+            "license_files": ["LICENSE", "3rdparty/fast_float/LICENSE-MIT", "3rdparty/glad/LICENSE"],
+            "notes": "Two of libplacebo's 3rdparty projects are compiled in: fast_float, offered under Apache-2.0, MIT or Boost (CoreZen uses MIT), and the OpenGL loader glad generates, covered by glad's LICENSE.",
             "git": "https://code.videolan.org/videolan/libplacebo.git",
             "tag": "v7.387.0",
             "commit": "275f7dea27924cdd34ab2e6c20e448b6bc4fab65",
@@ -91,6 +108,8 @@
         {
             "name": "mpv",
             "version": "0.42.0",
+            "license": "LGPL 2.1 or later",
+            "license_files": ["LICENSE.LGPL", "Copyright"],
             "url": "https://github.com/mpv-player/mpv/archive/refs/tags/v0.42.0.tar.gz",
             "sha256": "bcfebbfa2b65a6d88dc97ea18117831072373e38b5785a2afb874ed4df5070dd",
             "patches": ["patches/mpv-0.42.0-view-without-vulkan.patch"],

@@ -16,6 +16,12 @@ Edit `build_dependencies.json`: each package's version, URL and SHA-256 (or git 
 commit), and its build options. If you change `macos_deployment_target`, change
 `MACOSX_DEPLOYMENT_TARGET` in the Xcode project to match.
 
+Each package also names its `license`, as built, and the `license_files` in its source that
+`Dependencies/licenses` collects for `CoreZen.framework` to bundle. With a new version, check
+that its license hasn't changed and whether it added license files; the build stops if a listed
+one is missing. FreeType's `credit` line carries a year: take it from FreeType's copyright
+notices (`include/freetype/freetype.h`).
+
 2. Build and stage dependencies
 
 ```commandline

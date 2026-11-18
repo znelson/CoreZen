@@ -106,51 +106,54 @@
 	}
 }
 
+// Decodes the first frame from the keyframe at or before timestamp
 - (BOOL)renderRawFrame:(AVFrame *)frame
 		 formatContext:(AVFormatContext *)formatContext
 				stream:(const AVStream *)stream
 			 timestamp:(int64_t)timestamp {
-	avcodec_flush_buffers(_codecContext);
-
 	int streamIndex = stream->index;
 
 	int result = av_seek_frame(formatContext, streamIndex, timestamp, AVSEEK_FLAG_BACKWARD);
 	if (result < 0) {
 		NSLog(@"av_seek_frame failed: %d", result);
-		return FALSE;
+		return NO;
 	}
 
+	// Drop what the decoder holds from the last render. This also resets a
+	// decoder that was drained at the end of the file.
 	avcodec_flush_buffers(_codecContext);
 
-	AVPacket packet;
+	AVPacket *packet = av_packet_alloc();
+	if (!packet) {
+		NSLog(@"av_packet_alloc failed");
+		return NO;
+	}
 
-	while (av_read_frame(formatContext, &packet) >= 0) {
-		@try {
-			if (packet.stream_index == streamIndex) {
-				result = avcodec_send_packet(_codecContext, &packet);
-				if (result < 0) {
-					NSLog(@"avcodec_send_packet failed: %d", result);
-					break;
-				}
-
-				result = avcodec_receive_frame(_codecContext, frame);
-				if (result == AVERROR(EAGAIN)) {
-					// Not an error: the decoder needs more packets before it can output a frame
-					continue;
-				}
-
-				if (result < 0) {
-					NSLog(@"avcodec_receive_frame failed: %d", result);
-				}
-				break;
+	// The decoder may hold frames back to put them in display order, so feed it
+	// packets until it has a frame for us
+	while ((result = avcodec_receive_frame(_codecContext, frame)) == AVERROR(EAGAIN)) {
+		result = av_read_frame(formatContext, packet);
+		if (result == AVERROR_EOF) {
+			// Out of packets: an empty packet tells the decoder to output the
+			// frames it's still holding, then report the end
+			result = avcodec_send_packet(_codecContext, NULL);
+		} else if (result >= 0) {
+			if (packet->stream_index == streamIndex) {
+				result = avcodec_send_packet(_codecContext, packet);
 			}
-		} @catch (NSException *exception) {
-			NSLog(@"Exception caught during decode: %@", exception);
-		} @finally {
-			av_packet_unref(&packet);
+			av_packet_unref(packet);
+		}
+		if (result < 0) {
+			break;
 		}
 	}
 
+	av_packet_free(&packet);
+
+	// AVERROR_EOF only means the stream ended without another frame
+	if (result < 0 && result != AVERROR_EOF) {
+		NSLog(@"Decoding a frame failed: %d", result);
+	}
 	return (result >= 0);
 }
 
@@ -189,14 +192,20 @@
 		// Cast to get around rules about adding `const` more than one level deep: https://stackoverflow.com/a/5055789
 		const uint8_t *const *frameData = (const uint8_t *const *)sourceFrame->data;
 
-		// Create scale context
-		struct SwsContext *scaleContext = sws_getContext(_codecContext->width, _codecContext->height, _codecContext->pix_fmt, rgbFrame->width, rgbFrame->height, rgbFrame->format, SWS_BILINEAR, NULL, NULL, NULL);
-
-		// Scale and convert colorspace to new frame
-		result = sws_scale(scaleContext, frameData, sourceFrame->linesize, 0, _codecContext->height, rgbFrame->data, rgbFrame->linesize);
-
-		// Clean up scale context
-		sws_freeContext(scaleContext);
+		// Describe the source from the frame itself: its buffers have its size and
+		// format, which needn't match what the codec context last reported
+		struct SwsContext *scaleContext = sws_getContext(sourceFrame->width, sourceFrame->height, sourceFrame->format,
+														 rgbFrame->width, rgbFrame->height, rgbFrame->format,
+														 SWS_BILINEAR, NULL, NULL, NULL);
+		if (scaleContext) {
+			// Scale and convert colorspace to new frame
+			result = sws_scale(scaleContext, frameData, sourceFrame->linesize, 0, sourceFrame->height,
+							   rgbFrame->data, rgbFrame->linesize);
+			sws_freeContext(scaleContext);
+		} else {
+			NSLog(@"sws_getContext failed for pixel format %d", sourceFrame->format);
+			result = AVERROR(EINVAL);
+		}
 
 		if (result >= 0) {
 			frameToFree = sourceFrame;

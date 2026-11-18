@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		10E3163392F12AF956341355 /* licenses in Resources */ = {isa = PBXBuildFile; fileRef = CF0E6577750FB6561C55DB40 /* licenses */; };
+		23E8171B92C816C235C1B1B2 /* FMDB-LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = A8C4E7FED8E6976453047D72 /* FMDB-LICENSE.txt */; };
 		AA0000020000000000000001 /* Database.h in Headers */ = {isa = PBXBuildFile; fileRef = AA0000010000000000000001 /* Database.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		AA0000020000000000000002 /* Database.m in Sources */ = {isa = PBXBuildFile; fileRef = AA0000010000000000000002 /* Database.m */; };
 		AA0000020000000000000003 /* Database+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = AA0000010000000000000003 /* Database+Private.h */; };
@@ -167,6 +169,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		CF0E6577750FB6561C55DB40 /* licenses */ = {isa = PBXFileReference; lastKnownFileType = folder; path = licenses; sourceTree = "<group>"; };
+		A8C4E7FED8E6976453047D72 /* FMDB-LICENSE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "FMDB-LICENSE.txt"; sourceTree = "<group>"; };
 		AA0000010000000000000001 /* Database.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Database.h; sourceTree = "<group>"; };
 		AA0000010000000000000002 /* Database.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Database.m; sourceTree = "<group>"; };
 		AA0000010000000000000003 /* Database+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Database+Private.h"; sourceTree = "<group>"; };
@@ -583,6 +587,7 @@
 				AA0000010000000000000004 /* ResultSet.h */,
 				AA0000010000000000000005 /* ResultSet.m */,
 				AA0000010000000000000006 /* ResultSet+Private.h */,
+				A8C4E7FED8E6976453047D72 /* FMDB-LICENSE.txt */,
 			);
 			path = Database;
 			sourceTree = "<group>";
@@ -741,6 +746,7 @@
 			children = (
 				53D4B5992B51E38E00B91FA0 /* include */,
 				53D4B6342B51E38E00B91FA0 /* lib */,
+				CF0E6577750FB6561C55DB40 /* licenses */,
 			);
 			path = Dependencies;
 			sourceTree = "<group>";
@@ -1129,6 +1135,8 @@
 			files = (
 				533005DE28F784B600E59E1D /* ZENMediaPlayerControlsView.xib in Resources */,
 				531673692909C1F7003FB35A /* ZENMediaPlayerCTIView.xib in Resources */,
+				10E3163392F12AF956341355 /* licenses in Resources */,
+				23E8171B92C816C235C1B1B2 /* FMDB-LICENSE.txt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

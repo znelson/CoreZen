@@ -24,7 +24,9 @@ Usage:
 
 The output matches the layout of Dependencies/: lib/ holds the dylibs, with
 install names under @rpath and ad-hoc signatures, include/ holds the headers,
-and dependencies.resolved lists what was built and from which source.
+licenses/ holds each package's license files (and the patches CoreZen applies)
+with a summary in NOTICES.md, and dependencies.resolved lists what was built
+and from which source. CoreZen.framework bundles licenses/ as a resource.
 
 The key is a hash of this script, build_dependencies.json and its patches:
 everything that decides what the build produces. CI publishes each archive it
@@ -310,7 +312,9 @@ class Builder:
         name = package['name']
         build_dir = os.path.join(self.builds, name)
         stamp = os.path.join(build_dir, '.built')
-        stamp_data = {'package': package, 'patches': self.patches(package)}
+        # Fields that don't change what gets built, so editing them only restages
+        built_from = {k: v for k, v in package.items() if k not in ('notes', 'license', 'license_files', 'credit')}
+        stamp_data = {'package': built_from, 'patches': self.patches(package)}
         if os.path.exists(stamp) and name not in self.args.only:
             with open(stamp) as f:
                 if json.load(f) == stamp_data:
@@ -440,8 +444,72 @@ class Builder:
             for name in sorted(staged):
                 f.write(f'{name}\n')
 
+        self.stage_licenses(os.path.join(output, 'licenses'))
+
         size = sum(os.path.getsize(os.path.join(lib_out, n)) for n in staged)
         log(f'Staged {len(staged)} libraries ({size / 1048576:.1f} MB) into {output}')
+
+    def stage_licenses(self, licenses_out):
+        """Copy each package's license files, and the patches CoreZen applies to it,
+        into a folder named for the package, and summarize them in NOTICES.md.
+        CoreZen.framework bundles the whole folder, so apps ship it along with the
+        libraries."""
+        packages = self.manifest['packages']
+        os.makedirs(licenses_out)
+        for package in packages:
+            for field in ('license', 'license_files'):
+                if not package.get(field):
+                    fail(f'{package["name"]}: no {field} in {os.path.basename(MANIFEST_PATH)}')
+            source_dir = self.fetch(package)
+            package_out = os.path.join(licenses_out, package['name'])
+            for relative in package['license_files']:
+                source = os.path.join(source_dir, relative)
+                if not os.path.isfile(source):
+                    fail(f'{package["name"]}: missing license file {relative}')
+                destination = os.path.join(package_out, relative)
+                os.makedirs(os.path.dirname(destination), exist_ok=True)
+                shutil.copyfile(source, destination)
+            for patch in package.get('patches', []):
+                destination = os.path.join(package_out, 'patches', os.path.basename(patch))
+                os.makedirs(os.path.dirname(destination), exist_ok=True)
+                shutil.copyfile(os.path.join(SCRIPTS_PATH, patch), destination)
+
+        def source_of(package):
+            if 'git' in package:
+                return f'{package["git"]} at {package["tag"]} ({package["commit"]})'
+            return package['url']
+
+        lgpl = [p['name'] for p in packages if p['license'].startswith('LGPL')]
+        patched = [p for p in packages if p.get('patches')]
+        credits = [p['credit'] for p in packages if p.get('credit')]
+        lines = [
+            '# Third-party libraries in CoreZen',
+            '',
+            'CoreZen.framework contains these libraries, built from source for '
+            f'{self.arch} and macOS {self.target} or later by CoreZen\'s Scripts/build_dependencies.py. '
+            'The folder named for each one holds its license texts.',
+            '',
+            '| Library | Version | License | Source |',
+            '|---|---|---|---|',
+        ]
+        lines += [f'| {p["name"]} | {p["version"]} | {p["license"]} | {source_of(p)} |' for p in packages]
+        if lgpl:
+            lines += [
+                '',
+                '## LGPL libraries',
+                '',
+                (lgpl[0] + ' is' if len(lgpl) == 1 else f'{", ".join(lgpl[:-1])} and {lgpl[-1]} are') +
+                ' licensed under the GNU Lesser General Public License, version 2.1 or later. '
+                'CoreZen.framework links them as separate dynamic libraries, in its Frameworks folder, '
+                'so they can be replaced with modified versions. Their source code is at the addresses above.',
+            ]
+            for package in patched:
+                names = ', '.join(os.path.basename(patch) for patch in package['patches'])
+                lines += ['', f'CoreZen changes {package["name"]} with these patches, in its patches folder: {names}.']
+        if credits:
+            lines += ['', '## Credits', ''] + credits
+        with open(os.path.join(licenses_out, 'NOTICES.md'), 'w') as f:
+            f.write('\n'.join(lines) + '\n')
 
     def verify(self, lib_out, staged):
         """Every staged library must be arm64 only, built for the deployment target,

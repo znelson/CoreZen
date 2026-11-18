@@ -24,6 +24,13 @@ _**Installation:**_ Do one of these:
 
 See [`Scripts/update_instructions.md`](https://github.com/znelson/CoreZen/blob/main/Scripts/update_instructions.md) for updating them.
 
+### Third-Party Licenses
+`CoreZen.framework` contains code from other projects, under their own licenses:
+* [FMDB](https://github.com/ccgus/fmdb) (MIT), linked into `CoreZen` itself. Its license is in [`CoreZen/Database/FMDB-LICENSE.txt`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Database/FMDB-LICENSE.txt).
+* FFmpeg, mpv, libplacebo and FriBidi (LGPL 2.1 or later), FreeType (FreeType License), HarfBuzz (MIT), libass (ISC) and dav1d (BSD 2-Clause), as separate dynamic libraries. `Scripts/build_dependencies.py` collects their license texts, with a summary in `NOTICES.md`, into `Dependencies/licenses`.
+
+The framework bundles both in its `Resources` folder, as `FMDB-LICENSE.txt` and `licenses/`, so an app that embeds it ships them. Such an app should point to them, for example from its About window, and credit FreeType there as its license asks; the credit line is at the end of `NOTICES.md`.
+
 ## What's In CoreZen.framework?
 
 ### 1. Preferences

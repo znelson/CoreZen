@@ -25,6 +25,15 @@ void ZENLogAVFindBestStreamError(NSString *filePath, int returnCode, enum AVMedi
 	NSLog(@"av_find_best_stream(%@, %s) failed: %s", filePath, streamType ? streamType : "unknown", reason);
 }
 
+// A codec's name as a string, or nil if the codec or its name is missing
+static NSString *ZENCodecName(const AVCodec *codec, BOOL longName) {
+	if (!codec) {
+		return nil;
+	}
+	const char *name = longName ? codec->long_name : codec->name;
+	return name ? @(name) : nil;
+}
+
 @interface ZENLibAVInfoController () {
 	AVFormatContext *_formatContext;
 
@@ -72,7 +81,8 @@ void ZENLogAVFindBestStreamError(NSString *filePath, int returnCode, enum AVMedi
 			const int audioStreamIndex = av_find_best_stream(_formatContext, AVMEDIA_TYPE_AUDIO, -1, -1, &_audioCodec, 0);
 			if (audioStreamIndex > -1) {
 				_audioStream = _formatContext->streams[audioStreamIndex];
-			} else {
+			} else if (audioStreamIndex != AVERROR_STREAM_NOT_FOUND) {
+				// A video with no sound has no audio stream, which isn't a failure
 				ZENLogAVFindBestStreamError(mediaPath, audioStreamIndex, AVMEDIA_TYPE_AUDIO);
 			}
 		} else {
@@ -155,35 +165,19 @@ void ZENLogAVFindBestStreamError(NSString *filePath, int returnCode, enum AVMedi
 }
 
 - (NSString *)videoCodecName {
-	NSString *codec = @"Unknown";
-	if (_videoCodec) {
-		codec = [NSString stringWithCString:_videoCodec->name encoding:NSASCIIStringEncoding];
-	}
-	return codec;
+	return ZENCodecName(_videoCodec, NO);
 }
 
 - (NSString *)audioCodecName {
-	NSString *codec = @"Unknown";
-	if (_audioCodec) {
-		codec = [NSString stringWithCString:_audioCodec->name encoding:NSASCIIStringEncoding];
-	}
-	return codec;
+	return ZENCodecName(_audioCodec, NO);
 }
 
 - (NSString *)videoCodecLongName {
-	NSString *codec = @"Unknown";
-	if (_videoCodec) {
-		codec = [NSString stringWithCString:_videoCodec->long_name encoding:NSASCIIStringEncoding];
-	}
-	return codec;
+	return ZENCodecName(_videoCodec, YES);
 }
 
 - (NSString *)audioCodecLongName {
-	NSString *codec = @"Unknown";
-	if (_audioCodec) {
-		codec = [NSString stringWithCString:_audioCodec->long_name encoding:NSASCIIStringEncoding];
-	}
-	return codec;
+	return ZENCodecName(_audioCodec, YES);
 }
 
 @end

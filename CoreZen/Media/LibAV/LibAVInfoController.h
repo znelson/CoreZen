@@ -31,6 +31,8 @@ struct AVStream;
 - (NSUInteger)frameWidth;
 - (NSUInteger)frameHeight;
 
+// Codec names, or nil if the file has no stream of that kind that can be decoded, or
+// couldn't be read. See ZENMediaFile.
 - (NSString *)videoCodecName;
 - (NSString *)audioCodecName;
 

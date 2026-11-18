@@ -26,9 +26,14 @@
 - (NSUInteger)frameWidth;
 - (NSUInteger)frameHeight;
 
+// Short names of the codecs of the file's video and audio, like "h264" and "aac". nil if
+// the file has no stream of that kind that can be decoded, like the audio of a video with
+// no sound, or if the file couldn't be read.
 - (NSString *)videoCodecName;
 - (NSString *)audioCodecName;
 
+// Descriptive names of the same codecs, like "AAC (Advanced Audio Coding)". nil in the
+// same cases.
 - (NSString *)videoCodecLongName;
 - (NSString *)audioCodecLongName;
 

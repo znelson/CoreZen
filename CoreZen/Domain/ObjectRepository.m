@@ -8,8 +8,8 @@
 #import "ObjectRepository.h"
 #import "ObjectCache.h"
 #import "DatabaseTable.h"
-#import "DatabaseQueue.h"
-#import "Database.h"
+#import "DatabaseQueue+Private.h"
+#import "Database+Private.h"
 #import "ResultSet.h"
 #import "DomainCommon.h"
 
@@ -37,6 +37,13 @@
 
 // To be called on database queue, with objects that aren't cached yet.
 - (void)cacheAndStartAsyncInit:(NSArray *)objects;
+
+// Runs write in a transaction of its own. Once it has committed, and write
+// returned YES, calls saved on the database queue. Then calls completion with
+// nil, or with an error if the change wasn't saved.
+- (void)write:(BOOL (^)(ZENDatabase *database))write
+		 saved:(void (^)(void))saved
+	completion:(ZENAsyncCompletionBlock)completion;
 
 - (void)deliverObjects:(NSArray *)objects whenInitialized:(ZENFetchResultsBlock)resultsBlock;
 
@@ -275,29 +282,53 @@
 	}];
 }
 
-#pragma mark - Add
+#pragma mark - Add, Update and Delete
+
+- (void)write:(BOOL (^)(ZENDatabase *database))write
+		 saved:(void (^)(void))saved
+	completion:(ZENAsyncCompletionBlock)completion {
+	__block BOOL written = NO;
+	[self.queue transactionAsync:^(ZENDatabase *database) {
+		written = write(database);
+	}
+		result:^(NSError *error) {
+			if (!error && !written) {
+				error = ZENDatabaseErrorMake(ZENDatabaseErrorWriteFailed, @"The table couldn't write the object");
+			}
+			if (error) {
+				NSLog(@"ERROR: A write to %@ wasn't saved: %@", [[self.table class] tableName], error.localizedDescription);
+			} else {
+				// Still on the database queue, so the cache keeps step with the
+				// database for the next block that runs there
+				saved();
+			}
+			ZENCallAsyncCompletionBlockOnThreadPool(completion, error);
+		}];
+}
 
 - (void)addObject:(ZENDomainObject *)domainObject
-	   completion:(ZENAsyncContinueBlock)completion {
+	   completion:(ZENAsyncCompletionBlock)completion {
 	NSDictionary *notificationData = @{
 		ZENObjectRepositoryNotificationObjectKey: domainObject
 	};
 
-	[self.queue transactionAsync:^(ZENDatabase *database) {
-		if ([self.table insertDTO:domainObject.basicDTO database:database]) {
+	[self write:^BOOL(ZENDatabase *database) {
+		return [self.table insertDTO:domainObject.basicDTO database:database];
+	}
+		saved:^{
 			[self.cache cacheObject:domainObject];
 			ZENDeliverNotificationOnMainThread(ZENObjectRepositoryObjectAddedNotification, self, notificationData);
 		}
-		ZENCallAsyncContinueBlockOnThreadPool(completion);
-	}];
+		completion:completion];
 }
 
 - (void)addObject:(ZENDomainObject *)domainObject
-	 uiCompletion:(ZENAsyncContinueBlock)completion {
+	 uiCompletion:(ZENAsyncCompletionBlock)completion {
 	// Bounce to main thread
-	[self addObject:domainObject completion:^{
-		ZENCallAsyncContinueBlockOnMainThread(completion);
-	}];
+	[self addObject:domainObject
+		 completion:^(NSError *error) {
+			 ZENCallAsyncCompletionBlockOnMainThread(completion, error);
+		 }];
 }
 
 - (void)asyncInitAndAdd:(ZENDomainObject *)domainObject
@@ -307,17 +338,10 @@
 					   completion:^(NSError *error) {
 						   if (error) {
 							   // Don't add an object whose init failed
-							   if (completion) {
-								   completion(error);
-							   }
+							   ZENCallAsyncCompletionBlockOnThreadPool(completion, error);
 							   return;
 						   }
-						   [self addObject:domainObject
-								completion:^{
-									if (completion) {
-										completion(nil);
-									}
-								}];
+						   [self addObject:domainObject completion:completion];
 					   }];
 }
 
@@ -329,52 +353,53 @@
 			   }];
 }
 
-#pragma mark - Update
-
 - (void)updateObject:(ZENDomainObject *)domainObject
-		  completion:(ZENAsyncContinueBlock)completion {
+		  completion:(ZENAsyncCompletionBlock)completion {
 	NSDictionary *notificationData = @{
 		ZENObjectRepositoryNotificationObjectKey: domainObject
 	};
 
-	[self.queue transactionAsync:^(ZENDatabase *database) {
-		[self.table updateDTO:domainObject.basicDTO database:database];
-		ZENDeliverNotificationOnMainThread(ZENObjectRepositoryObjectUpdatedNotification, self, notificationData);
-		ZENCallAsyncContinueBlockOnThreadPool(completion);
-	}];
+	[self write:^BOOL(ZENDatabase *database) {
+		return [self.table updateDTO:domainObject.basicDTO database:database];
+	}
+		saved:^{
+			ZENDeliverNotificationOnMainThread(ZENObjectRepositoryObjectUpdatedNotification, self, notificationData);
+		}
+		completion:completion];
 }
 
 - (void)updateObject:(ZENDomainObject *)domainObject
-		uiCompletion:(ZENAsyncContinueBlock)completion {
+		uiCompletion:(ZENAsyncCompletionBlock)completion {
 	// Bounce to main thread
-	[self updateObject:domainObject completion:^{
-		ZENCallAsyncContinueBlockOnMainThread(completion);
-	}];
+	[self updateObject:domainObject
+			completion:^(NSError *error) {
+				ZENCallAsyncCompletionBlockOnMainThread(completion, error);
+			}];
 }
-
-#pragma mark - Delete
 
 - (void)deleteObject:(ZENDomainObject *)domainObject
-		  completion:(ZENAsyncContinueBlock)completion {
+		  completion:(ZENAsyncCompletionBlock)completion {
 	NSDictionary *notificationData = @{
 		ZENObjectRepositoryNotificationObjectKey: domainObject
 	};
 
-	[self.queue transactionAsync:^(ZENDatabase *database) {
-		if ([self.table deleteByIdentifier:domainObject.identifier database:database]) {
+	[self write:^BOOL(ZENDatabase *database) {
+		return [self.table deleteByIdentifier:domainObject.identifier database:database];
+	}
+		saved:^{
 			[self.cache removeObject:domainObject.identifier];
 			ZENDeliverNotificationOnMainThread(ZENObjectRepositoryObjectDeletedNotification, self, notificationData);
 		}
-		ZENCallAsyncContinueBlockOnThreadPool(completion);
-	}];
+		completion:completion];
 }
 
 - (void)deleteObject:(ZENDomainObject *)domainObject
-		uiCompletion:(ZENAsyncContinueBlock)completion {
+		uiCompletion:(ZENAsyncCompletionBlock)completion {
 	// Bounce to main thread
-	[self deleteObject:domainObject completion:^{
-		ZENCallAsyncContinueBlockOnMainThread(completion);
-	}];
+	[self deleteObject:domainObject
+			completion:^(NSError *error) {
+				ZENCallAsyncCompletionBlockOnMainThread(completion, error);
+			}];
 }
 
 #pragma mark - Notifications

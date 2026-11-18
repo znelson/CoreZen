@@ -9,6 +9,23 @@
 
 @class ZENResultSet;
 
+// Why database work didn't save its changes. Each error's description gives the
+// details, including SQLite's message when there is one.
+extern NSErrorDomain const ZENDatabaseErrorDomain;
+
+typedef NS_ERROR_ENUM(ZENDatabaseErrorDomain, ZENDatabaseErrorCode){
+	// A statement failed, so its transaction rolled back
+	ZENDatabaseErrorStatementFailed = 1,
+	// The transaction's block canceled it, so it rolled back
+	ZENDatabaseErrorTransactionCanceled = 2,
+	// SQLite couldn't commit the transaction, so it rolled back
+	ZENDatabaseErrorCommitFailed = 3,
+	// The database couldn't be opened
+	ZENDatabaseErrorNotOpen = 4,
+	// A table reported that it couldn't write, though no statement failed
+	ZENDatabaseErrorWriteFailed = 5,
+};
+
 @interface ZENDatabase : NSObject
 
 - (BOOL)executeUpdate:(NSString *)sql, ...;

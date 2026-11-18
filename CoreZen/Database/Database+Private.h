@@ -9,6 +9,9 @@
 
 @class FMDatabase;
 
+// An error in ZENDatabaseErrorDomain with description as its localized description
+NSError *ZENDatabaseErrorMake(ZENDatabaseErrorCode code, NSString *description);
+
 @interface ZENDatabase (Private)
 
 + (instancetype)databaseWithFMDatabase:(FMDatabase *)fmDatabase;
@@ -17,7 +20,7 @@
 // this fail. Deallocating also closes it.
 - (void)close;
 
-// Whoever begins a transaction ends it: with commit, unless rollbackReason says
+// Whoever begins a transaction ends it: with commit, unless rollbackError says
 // it must roll back instead. Each returns whether SQLite accepted it.
 - (BOOL)beginTransaction;
 - (BOOL)commit;
@@ -28,7 +31,7 @@
 
 // Why the open transaction must roll back instead of committing (a statement in
 // it failed, or a block canceled it), or nil if it can commit
-- (NSString *)rollbackReason;
+- (NSError *)rollbackError;
 
 // Records a failed statement, which the open transaction must roll back for.
 // ZENResultSet calls it when stepping through rows fails.

@@ -70,19 +70,25 @@ typedef enum : NSUInteger {
 // Same as above, but resultsBlock happens on the main thread.
 - (void)fetchAllObjectsForUI:(ZENFetchResultsBlock)resultsBlock;
 
-#pragma mark - Add
+#pragma mark - Add, Update and Delete
+
+// Each write is a transaction of its own. Its completion gets nil once the change
+// is saved, or an error (in ZENDatabaseErrorDomain) when it was rolled back or
+// never made. Only a saved change updates the cache and posts its notification.
+// A failed update leaves the object's own properties as the caller set them.
 
 // Runs asynchronously. Completion block happens on a thread pool.
 - (void)addObject:(ZENDomainObject *)domainObject
-	   completion:(ZENAsyncContinueBlock)completion;
+	   completion:(ZENAsyncCompletionBlock)completion;
 
 // Same as above, but uiCompletion block happens on the main thread.
 - (void)addObject:(ZENDomainObject *)domainObject
-	 uiCompletion:(ZENAsyncContinueBlock)completion;
+	 uiCompletion:(ZENAsyncCompletionBlock)completion;
 
 // Helper method to call DomainObject +asyncInit: on object before
 // adding to repository. If the object's async init fails, it isn't added, and
-// completion gets the error. Completion block happens on a thread pool.
+// completion gets the error; so does a failed add. Completion block happens on
+// a thread pool.
 - (void)asyncInitAndAdd:(ZENDomainObject *)domainObject
 			 completion:(ZENAsyncCompletionBlock)completion;
 
@@ -90,25 +96,21 @@ typedef enum : NSUInteger {
 - (void)asyncInitAndAdd:(ZENDomainObject *)domainObject
 		   uiCompletion:(ZENAsyncCompletionBlock)completion;
 
-#pragma mark - Update
-
 // Runs asynchronously. Completion block happens on a thread pool.
 - (void)updateObject:(ZENDomainObject *)domainObject
-		  completion:(ZENAsyncContinueBlock)completion;
+		  completion:(ZENAsyncCompletionBlock)completion;
 
 // Same as above, but uiCompletion block happens on the main thread.
 - (void)updateObject:(ZENDomainObject *)domainObject
-		uiCompletion:(ZENAsyncContinueBlock)completion;
-
-#pragma mark - Delete
+		uiCompletion:(ZENAsyncCompletionBlock)completion;
 
 // Runs asynchronously. Completion block happens on a thread pool.
 - (void)deleteObject:(ZENDomainObject *)domainObject
-		  completion:(ZENAsyncContinueBlock)completion;
+		  completion:(ZENAsyncCompletionBlock)completion;
 
 // Same as above, but uiCompletion block happens on the main thread.
 - (void)deleteObject:(ZENDomainObject *)domainObject
-		uiCompletion:(ZENAsyncContinueBlock)completion;
+		uiCompletion:(ZENAsyncCompletionBlock)completion;
 
 #pragma mark - Notifications
 

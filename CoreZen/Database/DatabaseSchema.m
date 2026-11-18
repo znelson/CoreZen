@@ -47,12 +47,12 @@
 		[database beginTransaction];
 	}
 	BOOL versionChanged = [self updateDatabaseSchema:database];
-	NSString *rollbackReason = database.rollbackReason;
-	if (rollbackReason) {
-		NSLog(@"ERROR: Rolling back the schema update because %@", rollbackReason);
+	NSError *rollbackError = database.rollbackError;
+	if (rollbackError) {
+		NSLog(@"ERROR: Rolling back the schema update: %@", rollbackError.localizedDescription);
 	}
 	if (ownsTransaction) {
-		if (versionChanged && !rollbackReason) {
+		if (versionChanged && !rollbackError) {
 			[database commit];
 		} else {
 			[database rollback];
@@ -91,7 +91,7 @@
 			break;
 		}
 		// Later versions build on this one, and everything rolls back anyway
-		if (database.rollbackReason) {
+		if (database.rollbackError) {
 			return NO;
 		}
 	}

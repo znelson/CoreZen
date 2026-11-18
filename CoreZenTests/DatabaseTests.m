@@ -12,6 +12,35 @@
 #import "TestDTO.h"
 #import "TestTable.h"
 
+#import <fcntl.h>
+#import <libproc.h>
+
+// How many file descriptors this process has open on the file at URL. Each
+// SQLite connection to a database file holds one.
+static NSUInteger ZENOpenDescriptorCount(NSURL *URL) {
+	char target[PATH_MAX];
+	if (!realpath(URL.fileSystemRepresentation, target)) {
+		return 0;
+	}
+	int size = proc_pidinfo(getpid(), PROC_PIDLISTFDS, 0, NULL, 0);
+	if (size <= 0) {
+		return 0;
+	}
+	struct proc_fdinfo *descriptors = malloc(size);
+	size = proc_pidinfo(getpid(), PROC_PIDLISTFDS, 0, descriptors, size);
+	NSUInteger count = 0;
+	for (int i = 0; i < size / (int)PROC_PIDLISTFD_SIZE; i++) {
+		char path[MAXPATHLEN];
+		if (descriptors[i].proc_fdtype == PROX_FDTYPE_VNODE &&
+			fcntl(descriptors[i].proc_fd, F_GETPATH, path) == 0 &&
+			strcmp(path, target) == 0) {
+			count++;
+		}
+	}
+	free(descriptors);
+	return count;
+}
+
 @interface DatabaseTests : XCTestCase
 
 @property (nonatomic, strong) ZENDatabaseQueue *queue;
@@ -366,6 +395,166 @@
 	}];
 
 	[self waitForExpectationsWithTimeout:5.0 handler:nil];
+}
+
+#pragma mark - Connection
+
+- (NSURL *)temporaryDatabaseURL {
+	NSFileManager *fileManager = NSFileManager.defaultManager;
+	NSURL *directory = [fileManager.temporaryDirectory URLByAppendingPathComponent:NSUUID.UUID.UUIDString
+																	   isDirectory:YES];
+	XCTAssertTrue([fileManager createDirectoryAtURL:directory withIntermediateDirectories:YES attributes:nil error:nil]);
+	[self addTeardownBlock:^{
+		[fileManager removeItemAtURL:directory error:nil];
+	}];
+	return [directory URLByAppendingPathComponent:@"test.db"];
+}
+
+// Rows in the table, or -1 if the query fails, as it does when there's no such table
+- (NSInteger)countRowsInTable:(NSString *)tableName database:(ZENDatabase *)database {
+	NSString *statement = [NSString stringWithFormat:@"SELECT COUNT(*) FROM %@;", tableName];
+	ZENResultSet *rs = [database executeQuery:statement];
+	NSInteger count = [rs next] ? [rs longLongIntForColumnIndex:0] : -1;
+	[rs close];
+	return count;
+}
+
+// Runs blocks on the queue from the main thread, from a background thread, and
+// asynchronously, so GCD runs them on more than one thread. Each block finds the
+// temporary table the first one made: temporary tables belong to a connection,
+// so they're only there if every block used the same one.
+- (void)useQueueFromSeveralThreads:(ZENDatabaseQueue *)queue {
+	[queue transactionSync:^(ZENDatabase *database) {
+		XCTAssertTrue([database executeUpdate:@"CREATE TEMP TABLE scratch (value INTEGER);"]);
+		XCTAssertTrue([database executeUpdate:@"INSERT INTO scratch VALUES (1);"]);
+	}];
+
+	XCTestExpectation *fetchedAsync = [self expectationWithDescription:@"async fetch"];
+	[queue fetchAsync:^(ZENDatabase *database) {
+		XCTAssertEqual([self countRowsInTable:@"scratch" database:database], 1, @"Async block used another connection");
+		[fetchedAsync fulfill];
+	}];
+
+	// Hold the queue weakly here, so this block can't keep it alive after it finishes
+	XCTestExpectation *fetchedInBackground = [self expectationWithDescription:@"background fetch"];
+	__weak ZENDatabaseQueue *weakQueue = queue;
+	dispatch_async(dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{
+		@autoreleasepool {
+			[weakQueue fetchSync:^(ZENDatabase *database) {
+				XCTAssertEqual([self countRowsInTable:@"scratch" database:database], 1,
+							   @"Background thread's block used another connection");
+			}];
+		}
+		[fetchedInBackground fulfill];
+	});
+	[self waitForExpectations:@[fetchedAsync, fetchedInBackground] timeout:5.0];
+
+	// Runs after the async block has finished and been released
+	[queue fetchSync:^(ZENDatabase *database) {
+		XCTAssertEqual([self countRowsInTable:@"scratch" database:database], 1, @"Main thread's block used another connection");
+	}];
+}
+
+- (void)testBlocksShareOneConnection {
+	[self useQueueFromSeveralThreads:self.queue];
+}
+
+- (void)testQueueOpensOneConnection {
+	NSURL *URL = [self temporaryDatabaseURL];
+	ZENDatabaseQueue *queue = [ZENDatabaseQueue databaseQueueWithURL:URL];
+	[self useQueueFromSeveralThreads:queue];
+	XCTAssertEqual(ZENOpenDescriptorCount(URL), 1u);
+	[queue shutdown];
+}
+
+- (void)testShutdownClosesTheDatabase {
+	NSURL *URL = [self temporaryDatabaseURL];
+	ZENDatabaseQueue *queue = [ZENDatabaseQueue databaseQueueWithURL:URL];
+	[self useQueueFromSeveralThreads:queue];
+	[queue shutdown];
+	XCTAssertEqual(ZENOpenDescriptorCount(URL), 0u);
+}
+
+- (void)testReleasingTheQueueClosesTheDatabase {
+	NSURL *URL = [self temporaryDatabaseURL];
+	__weak ZENDatabaseQueue *weakQueue = nil;
+	@autoreleasepool {
+		ZENDatabaseQueue *queue = [ZENDatabaseQueue databaseQueueWithURL:URL];
+		weakQueue = queue;
+		[self useQueueFromSeveralThreads:queue];
+	}
+	XCTAssertNil(weakQueue, @"Nothing should keep the queue alive once its blocks have finished");
+	XCTAssertEqual(ZENOpenDescriptorCount(URL), 0u);
+}
+
+- (void)testShutdownBlockRunsBeforeTheDatabaseCloses {
+	NSURL *URL = [self temporaryDatabaseURL];
+	ZENDatabaseQueue *queue = [ZENDatabaseQueue databaseQueueWithURL:URL];
+	[queue transactionSync:^(ZENDatabase *database) {
+		XCTAssertTrue([database executeUpdate:@"CREATE TABLE saved (value INTEGER);"]);
+	}];
+	[queue shutdown:^(ZENDatabase *database) {
+		XCTAssertTrue([database executeUpdate:@"INSERT INTO saved VALUES (1);"]);
+	}];
+	XCTAssertEqual(ZENOpenDescriptorCount(URL), 0u);
+
+	ZENDatabaseQueue *reopened = [ZENDatabaseQueue databaseQueueWithURL:URL];
+	[reopened fetchSync:^(ZENDatabase *database) {
+		XCTAssertEqual([self countRowsInTable:@"saved" database:database], 1);
+	}];
+	[reopened shutdown];
+}
+
+- (void)testBlocksAfterShutdownDoNotRun {
+	NSURL *URL = [self temporaryDatabaseURL];
+	ZENDatabaseQueue *queue = [ZENDatabaseQueue databaseQueueWithURL:URL];
+	[queue fetchSync:^(ZENDatabase *database) {
+		XCTAssertNotNil(database);
+	}];
+	[queue shutdown];
+
+	__block BOOL ran = NO;
+	[queue transactionSync:^(ZENDatabase *database) {
+		ran = YES;
+	}];
+	[queue fetchSync:^(ZENDatabase *database) {
+		ran = YES;
+	}];
+	[queue fetchAsync:^(ZENDatabase *database) {
+		ran = YES;
+	}];
+	[queue transactionAsync:^(ZENDatabase *database) {
+		ran = YES;
+	}];
+	[queue vacuumAsync];
+	XCTAssertFalse(ran);
+	XCTAssertEqual(ZENOpenDescriptorCount(URL), 0u, @"Nothing should reopen the database after shutdown");
+}
+
+- (void)testSecondShutdownDoesNotRunItsBlock {
+	NSURL *URL = [self temporaryDatabaseURL];
+	ZENDatabaseQueue *queue = [ZENDatabaseQueue databaseQueueWithURL:URL];
+	__block NSUInteger shutdownBlocks = 0;
+	[queue shutdown:^(ZENDatabase *database) {
+		XCTAssertNotNil(database);
+		shutdownBlocks++;
+	}];
+	[queue shutdown:^(ZENDatabase *database) {
+		shutdownBlocks++;
+	}];
+	XCTAssertEqual(shutdownBlocks, 1u, @"The database is closed by the time a second shutdown asks for it");
+	XCTAssertEqual(ZENOpenDescriptorCount(URL), 0u);
+}
+
+- (void)testInMemoryQueuesHaveSeparateDatabases {
+	ZENDatabaseQueue *other = [ZENDatabaseQueue databaseQueueInMemory];
+	[other fetchSync:^(ZENDatabase *database) {
+		ZENResultSet *rs = [database executeQuery:@"SELECT COUNT(*) FROM sqlite_master WHERE name = 'test_objects';"];
+		XCTAssertTrue([rs next]);
+		XCTAssertEqual([rs longLongIntForColumnIndex:0], 0, @"setUp made test_objects in the other queue's database only");
+		[rs close];
+	}];
+	[other shutdown];
 }
 
 #pragma mark - Trace Execution

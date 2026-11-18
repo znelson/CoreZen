@@ -140,10 +140,14 @@ static const NSTimeInterval kPlayerTimeout = 10.0;
 	return view;
 }
 
-// What the layer answers when Core Animation asks whether it can draw
+// What the layer answers when Core Animation asks whether it can draw, in the
+// view's context as Core Animation would ask
 - (BOOL)layerCanDraw:(ZENMediaPlayerView *)view {
 	ZENMPVViewLayer *layer = (ZENMPVViewLayer *)view.layer;
-	return [layer canDrawInCGLContext:NULL pixelFormat:NULL forLayerTime:0 displayTime:NULL];
+	return [layer canDrawInCGLContext:view.openGLContext.CGLContextObj
+						  pixelFormat:view.pixelFormat.CGLPixelFormatObj
+						 forLayerTime:0
+						  displayTime:NULL];
 }
 
 - (void)testRedrawRequestDrawsCurrentFrameWhilePaused {

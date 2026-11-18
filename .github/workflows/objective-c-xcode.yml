@@ -9,8 +9,8 @@ on:
 jobs:
   build:
     name: Build and analyse default scheme using xcodebuild command
-    # The staged Homebrew dylibs require the macOS version they were bottled for
-    # (macOS 27), so tests can only load on a runner at least that new.
+    # Xcode 27, which also built the dependency archive. Its libraries run on
+    # macOS 14 or later, so they don't tie CI to a particular macOS version.
     runs-on: xcode-27
     environment: build-and-sign
 

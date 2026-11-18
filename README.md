@@ -8,17 +8,21 @@ Written by [Zach Nelson](https://github.com/znelson). See the [LICENSE file](htt
 
 ## Getting Started
 
+`CoreZen` runs on macOS 14 or later, on Apple silicon only.
+
 ### FMDB Dependency
 `CoreZen` uses [FMDB](https://github.com/ccgus/fmdb) through Swift Package Manager and links it into `CoreZen.framework`. Xcode fetches it automatically; the exact version is pinned in `CoreZen.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved`.
 
 _**Installation:**_ Nothing to install. To fetch it ahead of a build, run `xcodebuild -resolvePackageDependencies -project CoreZen.xcodeproj -scheme CoreZen`.
 
-### mpv and libav Dependencies
-`CoreZen` links against and bundles dynamic libraries for [libmpv](https://github.com/mpv-player/mpv/blob/master/DOCS/man/libmpv.rst) and [libav](https://github.com/libav/libav#readme). The Xcode project is set up to find headers and libraries installed using [Homebrew](https://brew.sh).
+### mpv and FFmpeg Dependencies
+`CoreZen` links against and bundles dynamic libraries for [libmpv](https://github.com/mpv-player/mpv/blob/master/DOCS/man/libmpv.rst) and [FFmpeg](https://ffmpeg.org)'s libav libraries (libavcodec, libavformat, libavutil and libswscale), along with the libraries they need. `Scripts/build_dependencies.py` builds them from the sources pinned in `Scripts/build_dependencies.json`: arm64 only, for macOS 14 or later, LGPL and decode-only. The Xcode project finds their headers and libraries in `Dependencies/`, which git ignores.
 
-_**Installation:**_
-1. Run `brew install mpv ffmpeg` to install mpv and libav. 
-1. Run `Scripts/stage_dependencies.py`. This will gather mpv and libav dylibs and headers into Dependencies/lib and Dependencies/include, respectively. The `CoreZen` Xcode project will find them there.
+_**Installation:**_ Do one of these:
+* Build them: run `Scripts/build_dependencies.py --output Dependencies`. This needs only Xcode, git and Python 3, not Homebrew. The first build downloads about 45 MB of sources and takes a few minutes; later runs rebuild only what changed.
+* Download the prebuilt copy that CI uses: run `Scripts/stage_dependencies.py --download`. This needs `wget`.
+
+See [`Scripts/update_instructions.md`](https://github.com/znelson/CoreZen/blob/main/Scripts/update_instructions.md) for updating them.
 
 ## What's In CoreZen.framework?
 
@@ -58,4 +62,4 @@ _**Installation:**_
 [Classes to support reading audio and video media files](https://github.com/znelson/CoreZen/blob/main/CoreZen/Media):
 * [`ZENMediaFile`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Media/MediaFile.h) is a **_Work In Progress_**. Currently supports only basic media metadata retrieval including: video frame size, media duration, and audio and video codec names.
 
-*Note on dependencies:* [`ZENMediaFile`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Media/MediaFile.h) and other classes in `CoreZen` depend on [libmpv](https://github.com/mpv-player/mpv/blob/master/DOCS/man/libmpv.rst) and [libav](https://github.com/libav/libav#readme). [See above for installation from Homebrew.](#mpv-and-libav-dependencies)
+*Note on dependencies:* [`ZENMediaFile`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Media/MediaFile.h) and other classes in `CoreZen` depend on [libmpv](https://github.com/mpv-player/mpv/blob/master/DOCS/man/libmpv.rst) and [FFmpeg](https://ffmpeg.org). [See above.](#mpv-and-ffmpeg-dependencies)

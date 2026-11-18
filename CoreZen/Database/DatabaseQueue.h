@@ -21,9 +21,10 @@ typedef void (^ZENDatabaseBlock)(ZENDatabase *database);
 + (instancetype)databaseQueueInMemory;
 + (instancetype)databaseQueueWithURL:(NSURL *)URL;
 
-// Lets a running block finish, then runs updateBlock if there is one and closes
-// the database. Blocks that haven't started yet don't run, including async ones
-// queued before this. A second shutdown does nothing, and doesn't run its block.
+// Runs the async blocks already queued, then updateBlock if there is one, then
+// closes the database. Calls after this don't run their blocks, and neither does
+// a sync call still waiting for its turn on another thread. A second shutdown
+// does nothing, and doesn't run its block.
 - (void)shutdown;
 - (void)shutdown:(ZENDatabaseBlock)updateBlock;
 

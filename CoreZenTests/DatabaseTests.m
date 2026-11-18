@@ -557,6 +557,74 @@ static NSUInteger ZENOpenDescriptorCount(NSURL *URL) {
 	[other shutdown];
 }
 
+#pragma mark - Shutdown
+
+// Shuts the queue down while the work queueWork queues is still waiting its turn:
+// an earlier block holds the queue until shutdown has started.
+- (void)shutdownQueue:(ZENDatabaseQueue *)queue
+		 afterQueuing:(void (^)(void))queueWork
+		shutdownBlock:(ZENDatabaseBlock)shutdownBlock {
+	dispatch_semaphore_t holding = dispatch_semaphore_create(0);
+	[queue fetchAsync:^(ZENDatabase *database) {
+		dispatch_semaphore_signal(holding);
+		// Shutdown turns on its work queue's terminate token, then waits for this
+		// block. The work queue is private, so this reads the token by key path.
+		NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:5.0];
+		while (![[queue valueForKeyPath:@"workQueue.terminateToken.terminated"] boolValue] &&
+			   deadline.timeIntervalSinceNow > 0) {
+			usleep(1000);
+		}
+	}];
+	XCTAssertEqual(dispatch_semaphore_wait(holding, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC)), 0);
+	queueWork();
+	[queue shutdown:shutdownBlock];
+}
+
+- (void)testShutdownRunsWorkQueuedBeforeIt {
+	ZENDatabaseQueue *queue = self.queue;
+	self.queue = nil; // So tearDown doesn't shut it down again
+
+	__block BOOL fetched = NO;
+	__block NSInteger rowsAtShutdown = -1;
+	[self shutdownQueue:queue
+		afterQueuing:^{
+			[queue transactionAsync:^(ZENDatabase *database) {
+				XCTAssertTrue([self insertRowNamed:@"Alpha" database:database]);
+			}];
+			[queue fetchAsync:^(ZENDatabase *database) {
+				fetched = YES;
+			}];
+		}
+		shutdownBlock:^(ZENDatabase *database) {
+			rowsAtShutdown = [self countRowsInTable:@"test_objects" database:database];
+		}];
+
+	XCTAssertTrue(fetched, @"A fetch queued before shutdown should run");
+	XCTAssertEqual(rowsAtShutdown, 1, @"A transaction queued before shutdown should commit before shutdown's block runs");
+}
+
+- (void)testShutdownWithoutBlockRunsWorkQueuedBeforeIt {
+	NSURL *URL = [self temporaryDatabaseURL];
+	ZENDatabaseQueue *queue = [ZENDatabaseQueue databaseQueueWithURL:URL];
+	[queue transactionSync:^(ZENDatabase *database) {
+		XCTAssertTrue([database executeUpdate:@"CREATE TABLE saved (value INTEGER);"]);
+	}];
+	[self shutdownQueue:queue
+		   afterQueuing:^{
+			   [queue transactionAsync:^(ZENDatabase *database) {
+				   XCTAssertTrue([database executeUpdate:@"INSERT INTO saved VALUES (1);"]);
+			   }];
+		   }
+		  shutdownBlock:nil];
+
+	ZENDatabaseQueue *reopened = [ZENDatabaseQueue databaseQueueWithURL:URL];
+	[reopened fetchSync:^(ZENDatabase *database) {
+		XCTAssertEqual([self countRowsInTable:@"saved" database:database], 1,
+					   @"A transaction queued before shutdown should be saved");
+	}];
+	[reopened shutdown];
+}
+
 #pragma mark - Trace Execution
 
 // ZENDatabase keeps its FMDatabase private, so these read FMDB's setting by key path

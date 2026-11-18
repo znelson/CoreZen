@@ -13,16 +13,24 @@
 
 @import FMDB;
 
-@interface ZENDatabaseQueue ()
+@interface ZENDatabaseQueue () {
+	// The queue's one connection, and whether shutdown has closed it. Only blocks
+	// on the work queue touch these.
+	ZENDatabase *_database;
+	BOOL _databaseClosed;
+
+	// Set by the first shutdown, from whichever thread calls it
+	atomic_bool _shutdownStarted;
+}
 
 - (void)internalInit:(NSString *)queueLabel;
 - (instancetype)initInMemory;
 - (instancetype)initWithURL:(NSURL *)URL;
-- (ZENDatabase *)threadDatabase;
+- (ZENDatabase *)database;
+- (void)closeDatabase;
 - (void)runTransaction:(ZENDatabaseBlock)updateBlock;
 
 @property (nonatomic, strong, readonly) NSURL *databaseURL;
-@property (nonatomic, copy, readonly) NSString *databaseKey;
 @property (nonatomic, strong, readonly) ZENWorkQueue *workQueue;
 
 @end
@@ -40,13 +48,9 @@
 		_databaseURL = nil;
 
 		static atomic_uint_fast64_t nextIdentifier = 0;
-		uint64_t cacheID = atomic_fetch_add(&nextIdentifier, 1);
+		uint64_t queueID = atomic_fetch_add(&nextIdentifier, 1);
 
-		NSString *databaseID = [NSString stringWithFormat:@"corezen-mem-db-%llu", cacheID];
-
-		_databaseKey = [NSString stringWithFormat:@"file:%@?mode=memory&cache=shared", databaseID];
-
-		NSString *queueLabel = [NSString stringWithFormat:@"ZENDatabaseQueue-InMemory-%llu", cacheID];
+		NSString *queueLabel = [NSString stringWithFormat:@"ZENDatabaseQueue-InMemory-%llu", queueID];
 		[self internalInit:queueLabel];
 	}
 	return self;
@@ -61,7 +65,6 @@
 	if (self) {
 		NSLog(@"Database at: %@", URL);
 		_databaseURL = URL;
-		_databaseKey = URL.path;
 
 		NSString *queueLabel = [NSString stringWithFormat:@"ZENDatabaseQueue-%@", [URL lastPathComponent]];
 		[self internalInit:queueLabel];
@@ -78,34 +81,42 @@
 }
 
 - (void)shutdown:(ZENDatabaseBlock)updateBlock {
+	// A second shutdown can't run its block: the first closes the database, and
+	// the work queue would run the block on the caller's thread, not in turn
+	if (atomic_exchange(&_shutdownStarted, true)) {
+		NSLog(@"WARNING: Database queue %@ was already shut down, so its database is closed", self.workQueue.label);
+		return;
+	}
+
 	NSLog(@"Terminating database queue...");
 	[self.workQueue terminate:^{
 		if (updateBlock) {
 			@autoreleasepool {
-				ZENDatabase *database = self.threadDatabase;
-				updateBlock(database);
+				updateBlock(self.database);
 			}
 		}
+		[self closeDatabase];
 		NSLog(@"Finished terminating database queue");
 	}];
 }
 
-- (ZENDatabase *)threadDatabase {
-	// Make an instance of ZENDatabase for the thread, store it in the thread dictionary.
-	// FMDB wants a different database instance per thread, and serial queue may run on different threads.
-	// (Serial queue is guaranteed to be serial, not necessary on a single thread.)
+// Only blocks on the work queue call this. They run one at a time, but GCD may
+// run them on different threads. A connection can move between threads like
+// that; it just can't be used by two at once, which the serial queue rules out.
+- (ZENDatabase *)database {
+	if (_databaseClosed) {
+		return nil;
+	}
 
-	NSMutableDictionary *threadDictionary = NSThread.currentThread.threadDictionary;
-	ZENDatabase *database = [threadDictionary objectForKey:self.databaseKey];
-
-	if (database == nil) {
-		NSLog(@"Creating database for thread %@ at %@", [NSThread currentThread], self.databaseURL);
-
+	if (_database == nil) {
 		FMDatabase *fmdb;
 		if (self.databaseURL) {
+			NSLog(@"Opening database at %@", self.databaseURL);
 			fmdb = [FMDatabase databaseWithURL:self.databaseURL];
 		} else {
-			fmdb = [FMDatabase databaseWithPath:self.databaseKey];
+			// No path makes a private in-memory database, which lasts until it closes
+			NSLog(@"Opening database in memory");
+			fmdb = [FMDatabase databaseWithPath:nil];
 		}
 
 		if (![fmdb open]) {
@@ -113,23 +124,29 @@
 			return nil;
 		}
 
-		database = [ZENDatabase databaseWithFMDatabase:fmdb];
-		[database executeUpdate:@"PRAGMA synchronous = 1;"];
-		[database setShouldCacheStatements:YES];
-
-		[threadDictionary setObject:database forKey:self.databaseKey];
+		_database = [ZENDatabase databaseWithFMDatabase:fmdb];
+		[_database executeUpdate:@"PRAGMA synchronous = 1;"];
+		[_database setShouldCacheStatements:YES];
 	}
 
-	// Set every time, so a change also reaches databases created before it
-	[database setTraceExecution:self.traceExecution];
+	// Set every time, so a change reaches a database opened before it
+	[_database setTraceExecution:self.traceExecution];
 
-	return database;
+	return _database;
+}
+
+// Runs on the work queue, last. Releasing the queue without shutting it down also
+// closes the database, when the ZENDatabase deallocates.
+- (void)closeDatabase {
+	[_database close];
+	_database = nil;
+	_databaseClosed = YES;
 }
 
 // Runs on the work queue. Commits the block's transaction, or rolls it back when
 // the block canceled it or one of its statements failed.
 - (void)runTransaction:(ZENDatabaseBlock)updateBlock {
-	ZENDatabase *database = self.threadDatabase;
+	ZENDatabase *database = self.database;
 	if (![database beginTransaction]) {
 		NSLog(@"ERROR: Couldn't begin a transaction, so each of its statements commits on its own: %@",
 			  database.lastErrorMessage);
@@ -175,7 +192,7 @@
 	[self.workQueue async:^(ZENWorkQueueToken *canceled) {
 		if (!canceled.canceled) {
 			@autoreleasepool {
-				ZENDatabase *database = self.threadDatabase;
+				ZENDatabase *database = self.database;
 				fetchBlock(database);
 			}
 		}
@@ -185,7 +202,7 @@
 - (void)fetchSync:(ZENDatabaseBlock)fetchBlock {
 	[self.workQueue sync:^{
 		@autoreleasepool {
-			ZENDatabase *database = self.threadDatabase;
+			ZENDatabase *database = self.database;
 			fetchBlock(database);
 		}
 	}];
@@ -195,7 +212,7 @@
 	[self.workQueue async:^(ZENWorkQueueToken *canceled) {
 		if (!canceled.canceled) {
 			@autoreleasepool {
-				ZENDatabase *database = self.threadDatabase;
+				ZENDatabase *database = self.database;
 				[database executeUpdate:@"VACUUM;"];
 			}
 		}

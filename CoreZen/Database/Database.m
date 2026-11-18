@@ -30,6 +30,10 @@
 	return db;
 }
 
+- (void)close {
+	[self.fmDatabase close];
+}
+
 #pragma mark - Updates
 
 - (BOOL)executeUpdate:(NSString *)sql, ... {

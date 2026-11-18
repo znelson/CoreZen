@@ -13,6 +13,10 @@
 
 + (instancetype)databaseWithFMDatabase:(FMDatabase *)fmDatabase;
 
+// Closes the connection, and any result sets still open on it. Statements after
+// this fail. Deallocating also closes it.
+- (void)close;
+
 // Whoever begins a transaction ends it: with commit, unless rollbackReason says
 // it must roll back instead. Each returns whether SQLite accepted it.
 - (BOOL)beginTransaction;

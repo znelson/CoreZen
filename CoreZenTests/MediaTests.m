@@ -16,6 +16,11 @@
 //   silent.mp4: video.mp4's video, no audio stream
 //     ffmpeg -f lavfi -i testsrc=size=64x48:rate=10:duration=2 -c:v libx264 -pix_fmt yuv420p -g 5
 //            -movflags +faststart silent.mp4
+//   last-keyframe.mp4: 21 frames (2.1 s), keyframes exactly every 5 frames, so the
+//   last frame (at 2 s) is a keyframe alone at the end. B-frames make the decoder
+//   hold 2 frames back.
+//     ffmpeg -f lavfi -i testsrc=size=64x48:rate=10 -frames:v 21 -c:v libx264 -pix_fmt yuv420p
+//            -x264-params keyint=5:min-keyint=5:scenecut=0 -movflags +faststart last-keyframe.mp4
 
 static const NSTimeInterval kRenderTimeout = 10.0;
 
@@ -168,6 +173,32 @@ static const NSTimeInterval kRenderTimeout = 10.0;
 	for (ZENRenderedFrame *frame in frames) {
 		XCTAssertNotNil(frame.image, @"No image at %.0f%%", frame.requestedPercentage * 100);
 	}
+}
+
+// The decoder holds frames back to put B-frames in order, so a keyframe with no
+// frames after it only comes out once the decoder is told the file has ended
+- (void)testRenderLastFrameWhenItIsAKeyframe {
+	ZENMediaFile *mediaFile = [self mediaFileNamed:@"last-keyframe.mp4"];
+	ZENRenderedFrame *frame = [self renderFrameAtPercentage:1.0 ofMediaFile:mediaFile];
+
+	XCTAssertNotNil(frame.image);
+	XCTAssertEqualWithAccuracy(frame.actualSeconds, 2.0, 0.05, @"Should render the last keyframe");
+}
+
+- (void)testRenderFramesAcrossVideoEndingInKeyframe {
+	ZENMediaFile *mediaFile = [self mediaFileNamed:@"last-keyframe.mp4"];
+	NSArray<ZENRenderedFrame *> *frames = [self renderFrames:5 ofMediaFile:mediaFile];
+	XCTAssertEqual(frames.count, 5u, @"Every frame, including the one at 100%%, should render");
+}
+
+- (void)testRenderFrameAfterRenderingTheEnd {
+	ZENMediaFile *mediaFile = [self mediaFileNamed:@"last-keyframe.mp4"];
+	XCTAssertNotNil([self renderFrameAtPercentage:1.0 ofMediaFile:mediaFile].image);
+
+	// Reaching the end leaves the file's decoder drained, so this render must reset it
+	ZENRenderedFrame *frame = [self renderFrameAtPercentage:0.5 ofMediaFile:mediaFile];
+	XCTAssertNotNil(frame.image);
+	XCTAssertEqualWithAccuracy(frame.actualSeconds, 1.0, 0.05, @"Should render the keyframe at 1 s");
 }
 
 - (void)testRenderFrameFromAudioOnlyFile {

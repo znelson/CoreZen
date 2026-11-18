@@ -108,6 +108,7 @@
 		030EFFD5692EA63A973B2FE9 /* video.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 7C383F9E59E944DEF41405A3 /* video.mp4 */; };
 		3A881C011BDBA50B90143879 /* audio.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 318D307DF615F0093C6C9C47 /* audio.m4a */; };
 		7C83D0F62FF8F1D1569E4B13 /* silent.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 75E34DE8F29716419674A2D5 /* silent.mp4 */; };
+		55364405F0E577C93535A30F /* last-keyframe.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 212C13ED5A3034EA43EE5679 /* last-keyframe.mp4 */; };
 		B87FBFD38A588272C385E7BC /* MPVFunctionsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AED5F263101D1308D8C370C /* MPVFunctionsTests.m */; };
 		0E03AE27A6C781F30909CE0A /* MediaPlayerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9DE763B7E360E1D3524EB2D3 /* MediaPlayerTests.m */; };
 		A04E46CC8864C0ED866A6437 /* MediaPlayerViewTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FC1C76B108AFBE6B8C8543EC /* MediaPlayerViewTests.m */; };
@@ -277,6 +278,7 @@
 		7C383F9E59E944DEF41405A3 /* video.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = video.mp4; sourceTree = "<group>"; };
 		318D307DF615F0093C6C9C47 /* audio.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = audio.m4a; sourceTree = "<group>"; };
 		75E34DE8F29716419674A2D5 /* silent.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = silent.mp4; sourceTree = "<group>"; };
+		212C13ED5A3034EA43EE5679 /* last-keyframe.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = last-keyframe.mp4; sourceTree = "<group>"; };
 		1AED5F263101D1308D8C370C /* MPVFunctionsTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MPVFunctionsTests.m; sourceTree = "<group>"; };
 		9DE763B7E360E1D3524EB2D3 /* MediaPlayerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MediaPlayerTests.m; sourceTree = "<group>"; };
 		FC1C76B108AFBE6B8C8543EC /* MediaPlayerViewTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MediaPlayerViewTests.m; sourceTree = "<group>"; };
@@ -793,6 +795,7 @@
 				7C383F9E59E944DEF41405A3 /* video.mp4 */,
 				318D307DF615F0093C6C9C47 /* audio.m4a */,
 				75E34DE8F29716419674A2D5 /* silent.mp4 */,
+				212C13ED5A3034EA43EE5679 /* last-keyframe.mp4 */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -1150,6 +1153,7 @@
 				030EFFD5692EA63A973B2FE9 /* video.mp4 in Resources */,
 				3A881C011BDBA50B90143879 /* audio.m4a in Resources */,
 				7C83D0F62FF8F1D1569E4B13 /* silent.mp4 in Resources */,
+				55364405F0E577C93535A30F /* last-keyframe.mp4 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

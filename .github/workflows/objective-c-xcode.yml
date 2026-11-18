@@ -131,7 +131,10 @@ jobs:
 
   # When a push to main built dependencies from source and its tests passed,
   # publish them as the release dependencies-<key>. Later runs, and anyone
-  # running Scripts/fetch_dependencies.py, download them from there.
+  # running Scripts/fetch_dependencies.py, download them from there. They're
+  # prereleases so GitHub never shows one as the repository's latest release:
+  # it picks the newest full release unless one is marked latest, so
+  # --latest=false alone didn't keep them off. Prerelease downloads are public too.
   publish-dependencies:
     name: Publish dependencies built from source
     needs: build
@@ -166,4 +169,4 @@ jobs:
           } > notes.md
           gh release create "$tag" Dependencies.tar.gz Dependencies.tar.gz.sha256 \
             --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
-            --title "Dependencies $KEY" --notes-file notes.md --latest=false
+            --title "Dependencies $KEY" --notes-file notes.md --prerelease

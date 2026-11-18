@@ -448,6 +448,39 @@
 	[self waitForExpectations:@[succeeded] timeout:5.0];
 }
 
+- (void)testFetchesWaitingOnFailingInitLeaveOutObject {
+	// Later fetches find the object in the cache while its async init is still
+	// running. When that init fails, none of them should return the object.
+	ZENObjectRepository *repo = [self repositoryWithEmbryo:[ZENSlowFailingInitDomainObject class]];
+	ZENIdentifier identifier = [self insertRowsNamed:@[@"Alpha"]].firstObject.longLongValue;
+
+	XCTestExpectation *firstFetched = [self expectationWithDescription:@"first fetch"];
+	[repo fetchObjectByIdentifier:identifier
+					   completion:^(NSArray *fetchedObjects) {
+						   XCTAssertEqual(fetchedObjects.count, 0u);
+						   [firstFetched fulfill];
+					   }];
+
+	// The database queue is serial, so once this returns, the first fetch has
+	// cached the object and started its init
+	[self.queue fetchSync:^(ZENDatabase *database){}];
+
+	XCTestExpectation *fetchedByIdentifier = [self expectationWithDescription:@"fetch by identifier"];
+	[repo fetchObjectByIdentifier:identifier
+					   completion:^(NSArray *fetchedObjects) {
+						   XCTAssertEqual(fetchedObjects.count, 0u, @"Fetch by identifier returned an object whose init failed");
+						   [fetchedByIdentifier fulfill];
+					   }];
+
+	XCTestExpectation *fetchedAll = [self expectationWithDescription:@"fetch all"];
+	[repo fetchAllObjects:^(NSArray *fetchedObjects) {
+		XCTAssertEqual(fetchedObjects.count, 0u, @"Fetch all returned an object whose init failed");
+		[fetchedAll fulfill];
+	}];
+
+	[self waitForExpectations:@[firstFetched, fetchedByIdentifier, fetchedAll] timeout:5.0];
+}
+
 - (void)testAsyncInitAndAddReportsFailureWithoutAdding {
 	ZENObjectRepository *repo = [self repositoryWithEmbryo:[ZENFailableInitDomainObject class]];
 	ZENFailableInitDomainObject *failing = [[ZENFailableInitDomainObject alloc] initWithDTO:[[ZENTestDTO alloc] initWithIdentifier:ZENGetNextObjectIdentifier() name:@"Fail-Alpha"]];

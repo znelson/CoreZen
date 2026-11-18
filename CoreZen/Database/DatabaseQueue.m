@@ -29,6 +29,7 @@
 - (ZENDatabase *)database;
 - (void)closeDatabase;
 - (void)runTransaction:(ZENDatabaseBlock)updateBlock;
+- (void)runAsync:(ZENWorkQueueBlock)work;
 
 @property (nonatomic, strong, readonly) NSURL *databaseURL;
 @property (nonatomic, strong, readonly) ZENWorkQueue *workQueue;
@@ -170,13 +171,24 @@
 	}
 }
 
-- (void)transactionAsync:(ZENDatabaseBlock)updateBlock {
-	[self.workQueue async:^(ZENWorkQueueToken *canceled) {
-		if (!canceled.canceled) {
-			@autoreleasepool {
-				[self runTransaction:updateBlock];
-			}
+// Queues work that runs even when shutdown starts before its turn: shutdown's own
+// block waits behind it. The work queue's token reports shutdown as a cancel, but
+// nothing else can cancel database work, so the token goes unused.
+- (void)runAsync:(ZENWorkQueueBlock)work {
+	[self.workQueue async:^(ZENWorkQueueToken *terminated) {
+		// Queued just as shutdown started, but behind its block, so after the close
+		if (self->_databaseClosed) {
+			return;
 		}
+		@autoreleasepool {
+			work();
+		}
+	}];
+}
+
+- (void)transactionAsync:(ZENDatabaseBlock)updateBlock {
+	[self runAsync:^{
+		[self runTransaction:updateBlock];
 	}];
 }
 
@@ -189,13 +201,8 @@
 }
 
 - (void)fetchAsync:(ZENDatabaseBlock)fetchBlock {
-	[self.workQueue async:^(ZENWorkQueueToken *canceled) {
-		if (!canceled.canceled) {
-			@autoreleasepool {
-				ZENDatabase *database = self.database;
-				fetchBlock(database);
-			}
-		}
+	[self runAsync:^{
+		fetchBlock(self.database);
 	}];
 }
 
@@ -209,13 +216,8 @@
 }
 
 - (void)vacuumAsync {
-	[self.workQueue async:^(ZENWorkQueueToken *canceled) {
-		if (!canceled.canceled) {
-			@autoreleasepool {
-				ZENDatabase *database = self.database;
-				[database executeUpdate:@"VACUUM;"];
-			}
-		}
+	[self runAsync:^{
+		[self.database executeUpdate:@"VACUUM;"];
 	}];
 }
 

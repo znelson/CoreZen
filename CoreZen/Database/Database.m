@@ -15,10 +15,16 @@
 
 @interface ZENDatabase () {
 	// Why the open transaction must roll back, once something has decided it must
-	NSString *_rollbackReason;
+	NSError *_rollbackError;
 }
 @property (nonatomic, strong, readonly) FMDatabase *fmDatabase;
 @end
+
+NSErrorDomain const ZENDatabaseErrorDomain = @"ZENDatabaseErrorDomain";
+
+NSError *ZENDatabaseErrorMake(ZENDatabaseErrorCode code, NSString *description) {
+	return [NSError errorWithDomain:ZENDatabaseErrorDomain code:code userInfo:@{ NSLocalizedDescriptionKey: description }];
+}
 
 @implementation ZENDatabase
 
@@ -84,8 +90,8 @@
 		NSLog(@"WARNING: cancelTransaction called outside a transaction");
 		return;
 	}
-	if (!_rollbackReason) {
-		_rollbackReason = @"the transaction was canceled";
+	if (!_rollbackError) {
+		_rollbackError = ZENDatabaseErrorMake(ZENDatabaseErrorTransactionCanceled, @"The transaction was canceled");
 	}
 }
 
@@ -96,14 +102,15 @@
 	return handle && !sqlite3_get_autocommit(handle);
 }
 
-- (NSString *)rollbackReason {
-	return _rollbackReason;
+- (NSError *)rollbackError {
+	return _rollbackError;
 }
 
 - (void)statementFailed {
 	// Outside a transaction a failed statement has nothing to undo
-	if (!_rollbackReason && self.inTransaction) {
-		_rollbackReason = [NSString stringWithFormat:@"a statement failed: %@", self.fmDatabase.lastErrorMessage];
+	if (!_rollbackError && self.inTransaction) {
+		NSString *description = [NSString stringWithFormat:@"A statement failed: %@", self.fmDatabase.lastErrorMessage];
+		_rollbackError = ZENDatabaseErrorMake(ZENDatabaseErrorStatementFailed, description);
 	}
 }
 
@@ -116,14 +123,14 @@
 #pragma mark - Private
 
 - (BOOL)beginTransaction {
-	_rollbackReason = nil;
+	_rollbackError = nil;
 	return [self.fmDatabase beginTransaction];
 }
 
 - (BOOL)commit {
 	BOOL committed = [self.fmDatabase commit];
 	if (!self.inTransaction) {
-		_rollbackReason = nil;
+		_rollbackError = nil;
 	}
 	return committed;
 }
@@ -131,7 +138,7 @@
 - (BOOL)rollback {
 	BOOL rolledBack = [self.fmDatabase rollback];
 	if (!self.inTransaction) {
-		_rollbackReason = nil;
+		_rollbackError = nil;
 	}
 	return rolledBack;
 }

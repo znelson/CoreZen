@@ -6,6 +6,7 @@
 //
 
 #import "DatabaseQueue.h"
+#import "DatabaseQueue+Private.h"
 #import "Database+Private.h"
 #import "WorkQueue.h"
 
@@ -28,7 +29,7 @@
 - (instancetype)initWithURL:(NSURL *)URL;
 - (ZENDatabase *)database;
 - (void)closeDatabase;
-- (void)runTransaction:(ZENDatabaseBlock)updateBlock;
+- (NSError *)runTransaction:(ZENDatabaseBlock)updateBlock;
 - (void)runAsync:(ZENWorkQueueBlock)work;
 
 @property (nonatomic, strong, readonly) NSURL *databaseURL;
@@ -145,9 +146,16 @@
 }
 
 // Runs on the work queue. Commits the block's transaction, or rolls it back when
-// the block canceled it or one of its statements failed.
-- (void)runTransaction:(ZENDatabaseBlock)updateBlock {
+// the block canceled it or one of its statements failed. Returns nil once the
+// changes are saved, or an error saying why they weren't.
+- (NSError *)runTransaction:(ZENDatabaseBlock)updateBlock {
 	ZENDatabase *database = self.database;
+	if (!database) {
+		// Still run the block, which may call completions of its own
+		updateBlock(nil);
+		return ZENDatabaseErrorMake(ZENDatabaseErrorNotOpen, @"The database isn't open");
+	}
+
 	if (![database beginTransaction]) {
 		NSLog(@"ERROR: Couldn't begin a transaction, so each of its statements commits on its own: %@",
 			  database.lastErrorMessage);
@@ -156,19 +164,32 @@
 	updateBlock(database);
 
 	if (!database.inTransaction) {
-		return;
+		// The transaction never began, and what the block's statements did is saved
+		return nil;
 	}
-	NSString *rollbackReason = database.rollbackReason;
-	if (rollbackReason) {
-		NSLog(@"Rolling back a transaction because %@", rollbackReason);
+	NSError *rollbackError = database.rollbackError;
+	if (rollbackError) {
+		NSLog(@"Rolling back a transaction: %@", rollbackError.localizedDescription);
 		[database rollback];
-	} else if (![database commit]) {
-		NSLog(@"ERROR: Couldn't commit a transaction, so rolling it back: %@", database.lastErrorMessage);
+		return rollbackError;
+	}
+	if (![database commit]) {
+		NSString *description = [NSString stringWithFormat:@"Couldn't commit the transaction: %@", database.lastErrorMessage];
+		NSLog(@"ERROR: %@, so rolling it back", description);
 		// A failed commit can leave the transaction open, which would swallow the next one
 		if (database.inTransaction) {
 			[database rollback];
 		}
+		return ZENDatabaseErrorMake(ZENDatabaseErrorCommitFailed, description);
 	}
+	return nil;
+}
+
+- (void)transactionAsync:(ZENDatabaseBlock)updateBlock result:(void (^)(NSError *error))resultBlock {
+	[self runAsync:^{
+		NSError *error = [self runTransaction:updateBlock];
+		resultBlock(error);
+	}];
 }
 
 // Queues work that runs even when shutdown starts before its turn: shutdown's own

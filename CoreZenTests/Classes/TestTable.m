@@ -98,3 +98,19 @@
 }
 
 @end
+
+@implementation ZENRefusingTestTable
+
+- (BOOL)insertDTO:(ZENDataTransferObject *)dto database:(ZENDatabase *)database {
+	return NO;
+}
+
+- (BOOL)updateDTO:(ZENDataTransferObject *)dto database:(ZENDatabase *)database {
+	return NO;
+}
+
+- (BOOL)deleteByIdentifier:(ZENIdentifier)identifier database:(ZENDatabase *)database {
+	return NO;
+}
+
+@end

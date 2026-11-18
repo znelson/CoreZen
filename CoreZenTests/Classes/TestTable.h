@@ -20,3 +20,9 @@
 @interface ZENBrokenMigrationTestTable : ZENTestTable
 
 @end
+
+// Reads test_objects like ZENTestTable, but its writes report failure without
+// running a statement, as a table with checks of its own might
+@interface ZENRefusingTestTable : ZENTestTable
+
+@end

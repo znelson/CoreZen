@@ -358,6 +358,28 @@ static NSUInteger ZENOpenDescriptorCount(NSURL *URL) {
 	XCTAssertEqual([self countRows], 1u, @"Only the second transaction's insert should commit");
 }
 
+- (void)testTransactionRollsBackWhenCommitFails {
+	// SQLite checks a deferred foreign key only at COMMIT, so the statements below
+	// succeed and the commit fails
+	[self.queue fetchSync:^(ZENDatabase *database) {
+		XCTAssertTrue([database executeUpdate:@"PRAGMA foreign_keys = ON;"]);
+		XCTAssertTrue([database executeUpdate:@"CREATE TABLE parents (identifier INTEGER PRIMARY KEY);"]);
+		XCTAssertTrue([database executeUpdate:@"CREATE TABLE orphans "
+											  @"(parent INTEGER REFERENCES parents (identifier) DEFERRABLE INITIALLY DEFERRED);"]);
+	}];
+	[self.queue transactionSync:^(ZENDatabase *database) {
+		XCTAssertTrue([self insertRowNamed:@"Alpha" database:database]);
+		XCTAssertTrue([database executeUpdate:@"INSERT INTO orphans VALUES (-1);"]);
+	}];
+	XCTAssertEqual([self countRows], 0u, @"The failed commit should roll back the insert");
+
+	// The rollback ended the transaction, so the next one commits on its own
+	[self.queue transactionSync:^(ZENDatabase *database) {
+		XCTAssertTrue([self insertRowNamed:@"Beta" database:database]);
+	}];
+	XCTAssertEqual([self countRows], 1u);
+}
+
 - (void)testCancelOutsideTransactionDoesNothing {
 	[self.queue fetchSync:^(ZENDatabase *database) {
 		[database cancelTransaction];

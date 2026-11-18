@@ -4,7 +4,8 @@ CoreZen's media dependencies (FFmpeg, libmpv and the libraries they need) are bu
 pinned sources by `build_dependencies.py`, for Apple Silicon (arm64) only and a fixed minimum
 macOS: `macos_deployment_target` in `build_dependencies.json`, which must match
 `MACOSX_DEPLOYMENT_TARGET` in `CoreZen.xcodeproj`. The builds are LGPL and decode-only. Only
-Xcode (or its command line tools), git and Python 3 need to be installed; Homebrew isn't used.
+Xcode (or its command line tools), git and Python 3.10 or later need to be installed (Xcode's
+own python3 is 3.9, too old for the pinned meson); no libraries come from Homebrew.
 
 Intel/x86_64 support was dropped in November 2026, when Apple ended Intel Mac support with
 macOS 26.
@@ -38,8 +39,9 @@ This updates `project.pbxproj` to match the current contents of `Dependencies/li
 `Dependencies/include`. It replaces all library file references, header references,
 Copy Files entries, and Link Binary with Libraries entries.
 
-Libraries listed under `linked_libraries` in `dependencies.json` are added to
-Link Binary with Libraries. Use `--dry-run` to preview changes without writing.
+The libraries listed under `stage` `libraries` in `build_dependencies.json` are added to
+Link Binary with Libraries; the libraries they need are only copied. Use `--dry-run` to
+preview changes without writing.
 
 4. Build and test
 
@@ -49,24 +51,15 @@ Build and test the CoreZen scheme, and fix anything the new library versions bro
 xcodebuild test -scheme CoreZen -project ../CoreZen.xcodeproj
 ```
 
-5. Create dependency archive
+5. Open a pull request
 
-```commandline
-./stage_dependencies.py --compress
-```
+There's nothing to upload. Prebuilt dependencies are published as GitHub releases named
+`dependencies-<key>`, where the key is a hash of `build_dependencies.py`,
+`build_dependencies.json` and its patches (`./build_dependencies.py --print-key` prints it).
+Any change to those files, even a comment in the script, makes a new key.
 
-This writes `Dependencies_<date>.tar.gz` into this directory and copies
-`dependencies.resolved` here so the staged versions are tracked in git.
-
-6. Upload archive and update download URL
-
-Upload the archive to AWS. Remember to set read permissions to "world". Then set
-`download_url` in `dependencies.json` to the new archive. CI fetches it with
-`./stage_dependencies.py --download`, so the build fails until the upload is done.
-
-#### Staging from Homebrew
-
-Running `./stage_dependencies.py` with no options still stages libmpv and everything it links
-against from Homebrew (`search_paths` and `headers` in `dependencies.json`). Homebrew's bottles
-are built for recent macOS versions, so they can need a newer macOS than CoreZen's deployment
-target, which is why the source build replaced it.
+When CI finds no release for a pull request's key, it builds the dependencies from source
+before building CoreZen, and caches them so reruns don't build them again. After the pull
+request merges, the push to `main` builds them again, and once its tests pass, the
+`publish-dependencies` job creates the release with `Dependencies.tar.gz` and its `.sha256`.
+From then on, CI and `./fetch_dependencies.py` download that release.

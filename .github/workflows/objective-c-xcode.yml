@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ "main" ]
 
+# Only publish-dependencies writes to the repository
+permissions:
+  contents: read
+
 jobs:
   build:
     name: Build and analyse default scheme using xcodebuild command
@@ -13,6 +17,9 @@ jobs:
     # macOS 14 or later, so they don't tie CI to a particular macOS version.
     runs-on: xcode-27
     environment: build-and-sign
+    outputs:
+      dependencies-key: ${{ steps.dependencies.outputs.key }}
+      dependencies-published: ${{ steps.dependencies.outputs.published }}
 
     steps:
       - name: Checkout
@@ -51,9 +58,64 @@ jobs:
           security import $CERTIFICATE_PATH -P "$SECRET_MACOS_CERTIFICATE_PWD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
           security list-keychain -d user -s $KEYCHAIN_PATH
 
+      # Download the dependencies published for this checkout's key: a hash of
+      # Scripts/build_dependencies.py, build_dependencies.json and its patches.
+      # When a change to those means nothing is published yet, the steps after
+      # this build them from source, once per key.
       - name: Download Dependencies
+        id: dependencies
         run: |
-          Scripts/stage_dependencies.py --skip-prompt --download
+          key=$(Scripts/build_dependencies.py --print-key)
+          echo "key=$key" >> "$GITHUB_OUTPUT"
+          status=0
+          Scripts/fetch_dependencies.py --repository "$GITHUB_REPOSITORY" || status=$?
+          case $status in
+            0) echo "published=true" >> "$GITHUB_OUTPUT" ;;
+            2) echo "published=false" >> "$GITHUB_OUTPUT" ;;
+            *) exit $status ;;
+          esac
+
+      - name: Restore Dependencies Built Earlier
+        id: cache
+        if: steps.dependencies.outputs.published == 'false'
+        uses: actions/cache/restore@v6
+        with:
+          path: build/archive
+          key: dependencies-${{ steps.dependencies.outputs.key }}
+
+      # The build tools build_dependencies.py installs need Python 3.10 or later
+      - name: Set Up Python
+        if: steps.dependencies.outputs.published == 'false' && steps.cache.outputs.cache-hit != 'true'
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+
+      - name: Build Dependencies
+        if: steps.dependencies.outputs.published == 'false'
+        env:
+          CACHE_HIT: ${{ steps.cache.outputs.cache-hit }}
+        run: |
+          if [ "$CACHE_HIT" = "true" ]; then
+            Scripts/fetch_dependencies.py --archive build/archive/Dependencies.tar.gz
+          else
+            Scripts/build_dependencies.py --output Dependencies --archive build/archive/Dependencies.tar.gz
+          fi
+
+      # Saved right away, so a later failure doesn't mean building them again
+      - name: Cache Built Dependencies
+        if: steps.dependencies.outputs.published == 'false' && steps.cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: build/archive
+          key: dependencies-${{ steps.dependencies.outputs.key }}
+
+      - name: Upload Built Dependencies
+        if: steps.dependencies.outputs.published == 'false' && github.event_name == 'push'
+        uses: actions/upload-artifact@v7
+        with:
+          name: dependencies
+          path: build/archive
+          if-no-files-found: error
 
       - name: Build
         run: |
@@ -66,3 +128,42 @@ jobs:
       - name: Analyze
         run: |
           xcodebuild analyze -scheme CoreZen -project CoreZen.xcodeproj
+
+  # When a push to main built dependencies from source and its tests passed,
+  # publish them as the release dependencies-<key>. Later runs, and anyone
+  # running Scripts/fetch_dependencies.py, download them from there.
+  publish-dependencies:
+    name: Publish dependencies built from source
+    needs: build
+    if: github.event_name == 'push' && needs.build.outputs.dependencies-published == 'false'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download Built Dependencies
+        uses: actions/download-artifact@v8
+        with:
+          name: dependencies
+
+      - name: Create Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          KEY: ${{ needs.build.outputs.dependencies-key }}
+        run: |
+          tag="dependencies-$KEY"
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            echo "$tag is already published"
+            exit 0
+          fi
+          {
+            echo "Built by CI from $GITHUB_SHA with \`Scripts/build_dependencies.py\`."
+            echo "\`Scripts/fetch_dependencies.py\` downloads it for checkouts whose key is \`$KEY\`."
+            echo
+            echo '```'
+            tar -xzOf Dependencies.tar.gz Dependencies/dependencies.resolved
+            echo '```'
+          } > notes.md
+          gh release create "$tag" Dependencies.tar.gz Dependencies.tar.gz.sha256 \
+            --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title "Dependencies $KEY" --notes-file notes.md --latest=false

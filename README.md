@@ -19,8 +19,8 @@ _**Installation:**_ Nothing to install. To fetch it ahead of a build, run `xcode
 `CoreZen` links against and bundles dynamic libraries for [libmpv](https://github.com/mpv-player/mpv/blob/master/DOCS/man/libmpv.rst) and [FFmpeg](https://ffmpeg.org)'s libav libraries (libavcodec, libavformat, libavutil and libswscale), along with the libraries they need. `Scripts/build_dependencies.py` builds them from the sources pinned in `Scripts/build_dependencies.json`: arm64 only, for macOS 14 or later, LGPL and decode-only. The Xcode project finds their headers and libraries in `Dependencies/`, which git ignores.
 
 _**Installation:**_ Do one of these:
-* Build them: run `Scripts/build_dependencies.py --output Dependencies`. This needs only Xcode, git and Python 3, not Homebrew. The first build downloads about 45 MB of sources and takes a few minutes; later runs rebuild only what changed.
-* Download the prebuilt copy that CI uses: run `Scripts/stage_dependencies.py --download`. This needs `wget`.
+* Download them: run `Scripts/fetch_dependencies.py`. CI builds the dependencies whenever their pinned sources change and publishes each build as a [GitHub release](https://github.com/znelson/CoreZen/releases); this downloads the one that matches your checkout. It needs only Python 3, including the one that comes with Xcode.
+* Build them: run `Scripts/build_dependencies.py --output Dependencies`. This needs Xcode, git and Python 3.10 or later, but no libraries from Homebrew. Xcode's own Python is 3.9, which is too old for the build tools, so install a newer one from [python.org](https://www.python.org/downloads/macos/) or Homebrew. The first build downloads about 45 MB of sources and takes a few minutes; later runs rebuild only what changed. Build them when you change their pinned sources, since nothing is published for those until the change is merged.
 
 See [`Scripts/update_instructions.md`](https://github.com/znelson/CoreZen/blob/main/Scripts/update_instructions.md) for updating them.
 

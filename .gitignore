@@ -62,6 +62,10 @@ fastlane/test_output
 iOSInjectionProject/
 .DS_Store
 
-# output of Scripts/stage_dependencies.py
+# Python bytecode, from fetch_dependencies.py importing build_dependencies.py
+__pycache__/
+
+# Staged by Scripts/build_dependencies.py or Scripts/fetch_dependencies.py
 Dependencies/
+# Dependency archives from before they were published as GitHub releases
 Scripts/*.tar.gz

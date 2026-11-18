@@ -8,23 +8,32 @@ Everything comes from build_dependencies.json: the source of each package
 deployment target, and pinned versions of the build tools. The builds are
 LGPL and decode-only: no encoders, network protocols or GPL components.
 
-Only Xcode (or its command line tools), git and Python 3 need to be installed.
-The script creates its own virtual environment with meson, ninja, pkgconf and
-jinja2, and keeps Homebrew out of the build: PATH excludes /opt/homebrew, and
-pkg-config only sees libraries built here.
+Only Xcode (or its command line tools), git and Python 3.10 or later need to be
+installed. Xcode's own python3 is 3.9, which is too old for the pinned meson
+and pkgconf. The script creates its own virtual environment with meson, ninja,
+pkgconf and jinja2, and keeps Homebrew out of the build: PATH excludes
+/opt/homebrew, and pkg-config only sees libraries built here.
 
 Usage:
     ./build_dependencies.py                     # Build everything, stage into build/dependencies/output
     ./build_dependencies.py --output ../Dependencies
     ./build_dependencies.py --only mpv          # Rebuild one package (its dependencies must be built)
     ./build_dependencies.py --clean             # Start from scratch
+    ./build_dependencies.py --archive FILE      # Also pack the output into FILE (.tar.gz) and FILE.sha256
+    ./build_dependencies.py --print-key         # Print the key prebuilt archives are published under
 
 The output matches the layout of Dependencies/: lib/ holds the dylibs, with
 install names under @rpath and ad-hoc signatures, include/ holds the headers,
 and dependencies.resolved lists what was built and from which source.
+
+The key is a hash of this script, build_dependencies.json and its patches:
+everything that decides what the build produces. CI publishes each archive it
+builds as the GitHub release dependencies-<key>, which fetch_dependencies.py
+downloads.
 """
 
 import argparse
+import gzip
 import hashlib
 import json
 import os
@@ -38,6 +47,12 @@ SCRIPTS_PATH = os.path.dirname(os.path.abspath(__file__))
 ROOT_PATH = os.path.dirname(SCRIPTS_PATH)
 MANIFEST_PATH = os.path.join(SCRIPTS_PATH, 'build_dependencies.json')
 WORK_PATH = os.path.join(ROOT_PATH, 'build', 'dependencies')
+# Top-level directory inside an archive, which extracts in place of Dependencies/
+ARCHIVE_ROOT = 'Dependencies'
+KEY_PREFIX = '# Key: '
+# The pinned meson and pkgconf need this. fetch_dependencies.py, which imports
+# this script but doesn't build, works with older versions.
+MINIMUM_BUILD_PYTHON = (3, 10)
 
 
 ##
@@ -77,6 +92,76 @@ def sha256_of(path):
         for chunk in iter(lambda: f.read(1 << 20), b''):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+##
+def load_manifest():
+    with open(MANIFEST_PATH) as f:
+        return json.load(f)
+
+
+##
+def dependencies_key(manifest):
+    """A short hash of everything that decides what the build produces: this
+    script, the manifest and the patches it lists. Changing any of them changes
+    the key, so a prebuilt archive can never be mistaken for a different build."""
+    paths = [os.path.abspath(__file__), MANIFEST_PATH]
+    for package in manifest['packages']:
+        paths += [os.path.join(SCRIPTS_PATH, patch) for patch in package.get('patches', [])]
+    digest = hashlib.sha256()
+    for path in paths:
+        with open(path, 'rb') as f:
+            content = f.read()
+        digest.update(f'{os.path.relpath(path, SCRIPTS_PATH)}\0{len(content)}\0'.encode())
+        digest.update(content)
+    return digest.hexdigest()[:16]
+
+
+##
+def extract_tar(archive, destination, members=None):
+    """Extract a tar archive into destination. Uses tarfile's 'data' filter, which
+    refuses absolute paths, links that leave the destination and special files,
+    where Python has it. Xcode's Python 3.9.6 is older than the filter, so callers
+    must only pass archives they've verified."""
+    with tarfile.open(archive) as tar:
+        if hasattr(tarfile, 'data_filter'):
+            tar.extractall(destination, members=members(tar) if members else None, filter='data')
+        else:
+            tar.extractall(destination, members=members(tar) if members else None)
+
+
+##
+def write_archive(output, archive):
+    """Pack a staged output directory into archive (.tar.gz), under ARCHIVE_ROOT,
+    and write archive.sha256 beside it. Entries are sorted and carry no times or
+    owners, so the same files always make the same archive."""
+    entries = []
+    for directory, subdirectories, files in os.walk(output):
+        for name in subdirectories + files:
+            entries.append(os.path.relpath(os.path.join(directory, name), output))
+
+    os.makedirs(os.path.dirname(os.path.abspath(archive)), exist_ok=True)
+    with open(archive, 'wb') as raw, \
+            gzip.GzipFile(filename='', mode='wb', fileobj=raw, mtime=0) as compressed, \
+            tarfile.open(fileobj=compressed, mode='w', format=tarfile.PAX_FORMAT) as tar:
+        for relative in ['.'] + sorted(entries):
+            path = os.path.join(output, relative)
+            info = tar.gettarinfo(path, arcname=os.path.normpath(os.path.join(ARCHIVE_ROOT, relative)))
+            if not (info.isfile() or info.isdir()):
+                fail(f'Can only archive files and directories: {path}')
+            info.mtime = 0
+            info.uid = info.gid = 0
+            info.uname = info.gname = ''
+            info.mode = 0o755 if info.isdir() or os.access(path, os.X_OK) else 0o644
+            if info.isfile():
+                with open(path, 'rb') as f:
+                    tar.addfile(info, f)
+            else:
+                tar.addfile(info)
+
+    with open(archive + '.sha256', 'w') as f:
+        f.write(f'{sha256_of(archive)}  {os.path.basename(archive)}\n')
+    log(f'Wrote {archive} ({os.path.getsize(archive) / 1048576:.1f} MB) and its .sha256')
 
 
 ##
@@ -208,8 +293,7 @@ class Builder:
         staging = source_dir + '.extracting'
         shutil.rmtree(staging, ignore_errors=True)
         os.makedirs(staging)
-        with tarfile.open(archive) as tar:
-            tar.extractall(staging, filter='data')
+        extract_tar(archive, staging)
         entries = os.listdir(staging)
         if len(entries) != 1:
             fail(f'{name}: expected one top-level directory in {archive}, found {entries}')
@@ -344,6 +428,7 @@ class Builder:
 
         with open(os.path.join(output, 'dependencies.resolved'), 'w') as f:
             f.write(f'# Built by Scripts/build_dependencies.py for {self.arch}, macOS {self.target}+\n')
+            f.write(f'{KEY_PREFIX}{dependencies_key(self.manifest)}\n')
             f.write(f'# SDK: {os.path.basename(self.sdk)}\n')
             for package in self.manifest['packages']:
                 source = (f'{package["git"]} {package["tag"]} {package["commit"]}'
@@ -390,10 +475,22 @@ def main():
                         help='Rebuild only this package (repeatable)')
     parser.add_argument('--clean', action='store_true', help='Delete previous downloads and builds first')
     parser.add_argument('--jobs', type=int, help='Parallel build jobs (default: number of CPUs)')
+    parser.add_argument('--archive', metavar='FILE',
+                        help='Also pack the output into FILE (.tar.gz), with its SHA-256 in FILE.sha256')
+    parser.add_argument('--print-key', action='store_true',
+                        help='Print the key prebuilt archives are published under, and exit')
     args = parser.parse_args()
 
-    with open(MANIFEST_PATH) as f:
-        manifest = json.load(f)
+    manifest = load_manifest()
+    if args.print_key:
+        print(dependencies_key(manifest))
+        return
+
+    if sys.version_info < MINIMUM_BUILD_PYTHON:
+        fail(f'Building needs Python {".".join(map(str, MINIMUM_BUILD_PYTHON))} or later, for meson and pkgconf, '
+             f'but {sys.executable} is Python {sys.version.split()[0]}. Xcode\'s python3 is too old: install a '
+             'newer one, from python.org or Homebrew. (Scripts/fetch_dependencies.py works with Xcode\'s.)')
+
     names = [p['name'] for p in manifest['packages']]
     for name in args.only:
         if name not in names:
@@ -415,7 +512,10 @@ def main():
         if not args.only or package['name'] in args.only:
             builder.build(package)
 
-    builder.stage(os.path.abspath(args.output))
+    output = os.path.abspath(args.output)
+    builder.stage(output)
+    if args.archive:
+        write_archive(output, args.archive)
 
 
 if __name__ == '__main__':

@@ -140,7 +140,7 @@ def main():
         root_dir, 'CoreZen.xcodeproj', 'project.pbxproj')
     lib_dir = os.path.join(root_dir, 'Dependencies', 'lib')
     include_dir = os.path.join(root_dir, 'Dependencies', 'include')
-    config_path = os.path.join(scripts_dir, 'dependencies.json')
+    config_path = os.path.join(scripts_dir, 'build_dependencies.json')
 
     for path in [pbxproj_path, lib_dir, include_dir, config_path]:
         if not os.path.exists(path):
@@ -150,9 +150,10 @@ def main():
     with open(config_path) as f:
         config = json.load(f)
 
-    linked_libs = config.get('linked_libraries', [])
+    # The libraries CoreZen links directly. The ones they need are only copied.
+    linked_libs = config.get('stage', {}).get('libraries', [])
     if not linked_libs:
-        print('WARNING: No "linked_libraries" in dependencies.json')
+        print('WARNING: No "stage" "libraries" in build_dependencies.json')
         print('  No libraries will be added to Link Binary with Libraries')
 
     # --- Scan filesystem ---

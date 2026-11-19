@@ -123,7 +123,12 @@
 #pragma mark - Repository helpers
 
 - (ZENObjectRepository *)repositoryWithEmbryo:(Class<ZENDomainObject>)embryo {
-	return [[ZENObjectRepository alloc] initWithDataModel:nil
+	return [self repositoryWithEmbryo:embryo model:nil];
+}
+
+// The repository keeps only a weak reference to model
+- (ZENObjectRepository *)repositoryWithEmbryo:(Class<ZENDomainObject>)embryo model:(id<ZENDataModel>)model {
+	return [[ZENObjectRepository alloc] initWithDataModel:model
 											   tableClass:[ZENTestTable class]
 											databaseQueue:self.queue
 									   domainObjectEmbryo:embryo
@@ -204,6 +209,26 @@
 	}];
 	[self waitForExpectations:@[fetched] timeout:5.0];
 	return result;
+}
+
+- (NSArray *)fetchFromRepository:(ZENObjectRepository *)repo withQuery:(ZENRepositoryQuery)query {
+	XCTestExpectation *fetched = [self expectationWithDescription:@"fetch with query"];
+	__block NSArray *result = nil;
+	[repo fetchObjectsWithQuery:query
+					 completion:^(NSArray *fetchedObjects) {
+						 result = fetchedObjects;
+						 [fetched fulfill];
+					 }];
+	[self waitForExpectations:@[fetched] timeout:5.0];
+	return result;
+}
+
+// Fetches with a query method of the repository's table class
+- (NSArray *)fetchFromRepository:(ZENObjectRepository *)repo namesLike:(NSString *)pattern {
+	return [self fetchFromRepository:repo
+						   withQuery:^ZENResultSet *(ZENTestTable *table, ZENDatabase *database) {
+							   return [table rowsWithNamesLike:pattern database:database];
+						   }];
 }
 
 - (NSArray *)fetchObjectWithIdentifier:(ZENIdentifier)identifier fromRepository:(ZENObjectRepository *)repo {
@@ -684,6 +709,118 @@
 
 	NSArray<ZENTestDomainObject *> *objects = [self fetchAllFromRepository:repo];
 	XCTAssertEqualObjects([objects valueForKey:@"name"], (@[@"Beta"]));
+}
+
+#pragma mark - Query fetches
+
+- (void)testQueryFetchReturnsMatchingObjectsInRowOrder {
+	ZENObjectRepository *repo = self.repository;
+	[self insertRowsNamed:@[@"Apple", @"Banana", @"Avocado"]];
+
+	NSArray<ZENTestDomainObject *> *objects = [self fetchFromRepository:repo namesLike:@"A%"];
+	XCTAssertEqualObjects([objects valueForKey:@"name"], (@[@"Avocado", @"Apple"]));
+}
+
+- (void)testQueryFetchReturnsTheRepositorysObjects {
+	ZENObjectRepository *repo = self.repository;
+	ZENTestDomainObject *added = [self addObjectNamed:@"Apple" toRepository:repo];
+	[self insertRowsNamed:@[@"Avocado"]];
+
+	// The object added through the repository is the one it returns
+	NSArray<ZENTestDomainObject *> *objects = [self fetchFromRepository:repo namesLike:@"A%"];
+	XCTAssertEqual(objects.count, 2u);
+	XCTAssertEqual(objects.lastObject, added);
+
+	// The object the query made joins the cache, so other fetches return it too
+	ZENTestDomainObject *made = objects.firstObject;
+	XCTAssertEqualObjects(made.name, @"Avocado");
+	XCTAssertEqual([self fetchObjectWithIdentifier:made.identifier fromRepository:repo].firstObject, made);
+}
+
+- (void)testQueryFetchRunsAsyncInitOnce {
+	ZENObjectRepository *repo = [self repositoryWithEmbryo:[ZENSlowInitDomainObject class]];
+	ZENIdentifier identifier = [self insertRowsNamed:@[@"Apple", @"Avocado"]].firstObject.longLongValue;
+
+	// Start Apple's init with another fetch, then query while it runs
+	[repo fetchObjectByIdentifier:identifier completion:^(NSArray *fetchedObjects){}];
+	NSArray<ZENSlowInitDomainObject *> *first = [self fetchFromRepository:repo namesLike:@"A%"];
+	NSArray<ZENSlowInitDomainObject *> *second = [self fetchFromRepository:repo namesLike:@"A%"];
+
+	XCTAssertEqual(first.count, 2u);
+	XCTAssertEqualObjects(first, second, @"Second fetch should return the cached objects");
+	for (ZENSlowInitDomainObject *object in second) {
+		XCTAssertTrue(object.initialized);
+		XCTAssertEqual(object.asyncInitCount, 1, @"Cached objects shouldn't be initialized again");
+	}
+}
+
+- (void)testQueryFetchLeavesOutObjectsWhoseInitFailed {
+	ZENObjectRepository *repo = [self repositoryWithEmbryo:[ZENFailableInitDomainObject class]];
+	[self insertRowsNamed:@[@"Apple", @"Fail-Banana", @"Cherry"]];
+
+	NSArray<ZENTestDomainObject *> *objects = [self fetchFromRepository:repo namesLike:@"%"];
+	XCTAssertEqualObjects([objects valueForKey:@"name"], (@[@"Cherry", @"Apple"]));
+}
+
+- (void)testQueryFetchInitializesAnObjectOnceWhenItsRowRepeats {
+	ZENInitCountingModel *model = [ZENInitCountingModel new];
+	ZENObjectRepository *repo = [self repositoryWithEmbryo:[ZENCountedInitDomainObject class] model:model];
+	XCTestExpectation *initializedAgain = [self expectationWithDescription:@"an object initialized again"];
+	initializedAgain.inverted = YES;
+	model.repeatedInit = ^(ZENIdentifier identifier) {
+		[initializedAgain fulfill];
+	};
+
+	// A query that joins another table returns an object's row once per match.
+	// Banana has two tags, so its row comes first and again last.
+	NSArray<NSNumber *> *identifiers = [self insertRowsNamed:@[@"Apple", @"Banana"]];
+	[self.queue transactionSync:^(ZENDatabase *database) {
+		XCTAssertTrue([database executeUpdate:@"CREATE TABLE tags (object_identifier INTEGER, tag TEXT);"]);
+		NSArray *tags = @[@[identifiers[1], @"yellow"], @[identifiers[0], @"red"], @[identifiers[1], @"long"]];
+		for (NSArray *tag in tags) {
+			XCTAssertTrue([database executeUpdate:@"INSERT INTO tags (object_identifier, tag) VALUES (?, ?);" withArgumentsInArray:tag]);
+		}
+	}];
+
+	NSArray<ZENTestDomainObject *> *objects =
+		[self fetchFromRepository:repo
+						withQuery:^ZENResultSet *(ZENTestTable *table, ZENDatabase *database) {
+							return [database executeQuery:@"SELECT test_objects.identifier, name FROM test_objects "
+														  @"JOIN tags ON tags.object_identifier = test_objects.identifier "
+														  @"ORDER BY tags.rowid;"];
+						}];
+	XCTAssertEqualObjects([objects valueForKey:@"name"], (@[@"Banana", @"Apple"]));
+
+	// Without a second object for its second row, Banana has no second init. One
+	// would have started by now, so this waits only briefly to see it.
+	[self waitForExpectations:@[initializedAgain] timeout:0.5];
+}
+
+- (void)testFailedQueryFetchesNothing {
+	ZENObjectRepository *repo = self.repository;
+	[self insertRowsNamed:@[@"Apple"]];
+
+	NSArray *objects = [self fetchFromRepository:repo
+									   withQuery:^ZENResultSet *(ZENTestTable *table, ZENDatabase *database) {
+										   return [database executeQuery:@"SELECT identifier, name FROM no_such_table;"];
+									   }];
+	XCTAssertEqualObjects(objects, @[]);
+}
+
+- (void)testQueryFetchUICompletionIsOnMainThread {
+	ZENObjectRepository *repo = self.repository;
+	[self insertRowsNamed:@[@"Apple"]];
+
+	XCTestExpectation *fetched = [self expectationWithDescription:@"fetch"];
+	[repo fetchObjectsWithQuery:^ZENResultSet *(ZENTestTable *table, ZENDatabase *database) {
+		return [table rowsWithNamesLike:@"A%" database:database];
+	}
+		uiCompletion:^(NSArray *fetchedObjects) {
+			XCTAssertTrue(NSThread.isMainThread);
+			XCTAssertEqualObjects([fetchedObjects valueForKey:@"name"], @[@"Apple"]);
+			[fetched fulfill];
+		}];
+	[self waitForExpectations:@[fetched] timeout:5.0];
 }
 
 #pragma mark - Write Batches

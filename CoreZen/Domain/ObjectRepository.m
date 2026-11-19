@@ -58,12 +58,10 @@ typedef NS_ENUM(NSInteger, ZENStagedWriteKind) {
 @property (nonatomic, strong, readonly) ZENObjectCache *cache;
 @property (nonatomic, weak, readonly) id<ZENDataModel> dataModel;
 
-// Runs synchronously. To be called on database queue.
-- (id<ZENIdentifiable>)createObjectFromRow:(ZENResultSet *)row;
-
-// Runs synchronously. To be called on database queue.
-- (id<ZENIdentifiable>)fetchObjectByIdentifier:(ZENIdentifier)identifier
-									  database:(ZENDatabase *)database;
+// Runs synchronously. To be called on database queue. The objects in rows, in
+// order and each once: the cached object for a row's identifier, or else a new
+// one, which joins the cache and starts its async init. Closes rows.
+- (NSArray *)objectsFromRows:(nullable ZENResultSet *)rows;
 
 // To be called on database queue, with objects that aren't cached yet.
 - (void)cacheAndStartAsyncInit:(NSArray *)objects;
@@ -113,25 +111,38 @@ typedef NS_ENUM(NSInteger, ZENStagedWriteKind) {
 	return self;
 }
 
-#pragma mark - [private] Create
-
-- (id<ZENIdentifiable>)createObjectFromRow:(ZENResultSet *)row {
-	ZENDataTransferObject *dto = [self.table dtoFromRow:row];
-	id<ZENIdentifiable> object = [[(Class)self.embryo alloc] initWithDTO:dto];
-	return object;
-}
-
 #pragma mark - [private] Fetch
 
-- (id<ZENIdentifiable>)fetchObjectByIdentifier:(ZENIdentifier)identifier
-									  database:(ZENDatabase *)database {
-	ZENResultSet *rs = [self.table rowByIdentifier:identifier database:database];
-	id<ZENIdentifiable> object = nil;
-	if ([rs next]) {
-		object = [self createObjectFromRow:rs];
+- (NSArray *)objectsFromRows:(ZENResultSet *)rows {
+	NSMutableArray *objects = [NSMutableArray array];
+	NSMutableArray *newObjects = [NSMutableArray array];
+	NSMutableSet<NSNumber *> *identifiers = [NSMutableSet set];
+	while ([rows next]) {
+		// The identifier comes first, so finding a cached object needs no DTO
+		ZENIdentifier identifier = [rows longLongIntForColumnIndex:0];
+		if ([identifiers containsObject:@(identifier)]) {
+			// A query that joins another table can return an object's row more than
+			// once. Making a second object for it would start a second init.
+			continue;
+		}
+		[identifiers addObject:@(identifier)];
+
+		id<ZENIdentifiable> object = [self.cache cachedObject:identifier];
+		if (!object) {
+			ZENDataTransferObject *dto = [self.table dtoFromRow:rows];
+			object = [[(Class)self.embryo alloc] initWithDTO:dto];
+			[newObjects addObject:object];
+		}
+		[objects addObject:object];
 	}
-	[rs close];
-	return object;
+	[rows close];
+
+	// Only objects new to the cache need async init; cached objects already had
+	// theirs, or are still waiting on it. Objects are only made and cached here,
+	// on the database queue, so no other fetch can make a second object for one
+	// of these identifiers in the meantime.
+	[self cacheAndStartAsyncInit:newObjects];
+	return [objects copy];
 }
 
 #pragma mark - [private] Async init
@@ -250,32 +261,19 @@ typedef NS_ENUM(NSInteger, ZENStagedWriteKind) {
 
 - (void)fetchObjectByIdentifier:(ZENIdentifier)identifier
 					 completion:(ZENFetchResultsBlock)resultsBlock {
-	// Check if this object is in the cache
+	// A cached object needs no trip to the database queue
 	id<ZENIdentifiable> object = [self.cache cachedObject:identifier];
 	if (object) {
 		[self deliverObjects:@[object] whenInitialized:resultsBlock];
 		return;
 	}
 
-	// Bounce to the database queue to fetch this object
-	[self.queue fetchAsync:^(ZENDatabase *database) {
-		// Check again if this object has shown up in the cache since we looked earlier
-		id<ZENIdentifiable> object = [self.cache cachedObject:identifier];
-		if (!object) {
-			// Create the object, cache it, then start its async init. This is safe because this runs
-			// on the database queue, and we only ever create and cache objects on this queue. If there
-			// was a race, only one instance can win and cache the object. The other instance would have
-			// a cache hit just before here.
-			object = [self fetchObjectByIdentifier:identifier database:database];
-			if (!object) {
-				ZENCallFetchResultsBlockOnThreadPool(resultsBlock, @[]);
-				return;
-			}
-			[self cacheAndStartAsyncInit:@[object]];
-		}
-
-		[self deliverObjects:@[object] whenInitialized:resultsBlock];
-	}];
+	// If another fetch caches the object before this query runs, the row leads
+	// back to that one
+	[self fetchObjectsWithQuery:^ZENResultSet *(NSObject<ZENDatabaseTable> *table, ZENDatabase *database) {
+		return [table rowByIdentifier:identifier database:database];
+	}
+					 completion:resultsBlock];
 }
 
 - (void)fetchObjectByIdentifier:(ZENIdentifier)identifier
@@ -287,34 +285,11 @@ typedef NS_ENUM(NSInteger, ZENStagedWriteKind) {
 }
 
 - (void)fetchAllObjects:(ZENFetchResultsBlock)resultsBlock {
-	// We can't rely on the cache for early return like in objectByIdentifier: because we don't know
-	// the full list of the object identifiers without a query.
-	[self.queue fetchAsync:^(ZENDatabase *database) {
-		NSMutableArray *objects = [NSMutableArray array];
-		NSMutableArray *newObjects = [NSMutableArray array];
-		ZENResultSet *rs = [self.table allRows:database];
-		while ([rs next]) {
-			// Check if an object with this identifier is in the cache
-			// TODO: Consider batching all identifiers together to a single cache call
-			int64_t identifier = [rs longLongIntForColumnIndex:0];
-			id<ZENIdentifiable> object = [self.cache cachedObject:identifier];
-
-			if (!object) {
-				ZENDataTransferObject *dto = [self.table dtoFromRow:rs];
-				object = [[(Class)self.embryo alloc] initWithDTO:dto];
-				[newObjects addObject:object];
-			}
-
-			[objects addObject:object];
-		}
-		[rs close];
-
-		// Only objects new to the cache need async init; cached objects already
-		// had theirs, or are still waiting on it. See above for note on thread safety.
-		[self cacheAndStartAsyncInit:newObjects];
-
-		[self deliverObjects:[objects copy] whenInitialized:resultsBlock];
-	}];
+	// The cache can't answer this alone, since only the table knows every identifier
+	[self fetchObjectsWithQuery:^ZENResultSet *(NSObject<ZENDatabaseTable> *table, ZENDatabase *database) {
+		return [table allRows:database];
+	}
+					 completion:resultsBlock];
 }
 
 - (void)fetchAllObjectsForUI:(ZENFetchResultsBlock)resultsBlock {
@@ -322,6 +297,24 @@ typedef NS_ENUM(NSInteger, ZENStagedWriteKind) {
 	[self fetchAllObjects:^(NSArray *fetchedObjects) {
 		ZENCallFetchResultsBlockOnMainThread(resultsBlock, fetchedObjects);
 	}];
+}
+
+- (void)fetchObjectsWithQuery:(ZENRepositoryQuery)query
+				   completion:(ZENFetchResultsBlock)resultsBlock {
+	[self.queue fetchAsync:^(ZENDatabase *database) {
+		// A failed query has no rows, and FMDB has logged why
+		NSArray *objects = [self objectsFromRows:query(self.table, database)];
+		[self deliverObjects:objects whenInitialized:resultsBlock];
+	}];
+}
+
+- (void)fetchObjectsWithQuery:(ZENRepositoryQuery)query
+				 uiCompletion:(ZENFetchResultsBlock)resultsBlock {
+	// Bounce to main thread
+	[self fetchObjectsWithQuery:query
+					 completion:^(NSArray *fetchedObjects) {
+						 ZENCallFetchResultsBlockOnMainThread(resultsBlock, fetchedObjects);
+					 }];
 }
 
 #pragma mark - Add, Update and Delete

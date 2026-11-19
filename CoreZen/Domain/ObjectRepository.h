@@ -10,10 +10,17 @@
 
 @protocol ZENDataModel;
 @protocol ZENDatabaseTable;
+@class ZENDatabase;
 @class ZENDatabaseQueue;
+@class ZENResultSet;
 @class ZENRepositoryWriteBatch;
 
 NS_ASSUME_NONNULL_BEGIN
+
+// Returns the rows for a fetch, or nil if its query fails. It runs on the
+// repository's database queue, and gets the repository's table, so it can call
+// a query method of the table's own: declare the parameter as the table's class.
+typedef ZENResultSet *_Nullable (^ZENRepositoryQuery)(__kindof NSObject<ZENDatabaseTable> *table, ZENDatabase *database);
 
 typedef enum : NSUInteger {
 	ZENObjectRepositoryCacheType_Weak = 0,
@@ -53,6 +60,8 @@ typedef enum : NSUInteger {
 
 #pragma mark - Fetch
 
+// Every fetch returns the repository's one object for each identifier: the one
+// in its cache, or else a new one made from the row, which joins the cache.
 // Fetched objects are delivered only after their async init has finished. Each
 // object's performAsyncInit runs once, when the repository first creates it
 // from the database; objects already in the cache aren't initialized again.
@@ -72,6 +81,24 @@ typedef enum : NSUInteger {
 
 // Same as above, but resultsBlock happens on the main thread.
 - (void)fetchAllObjectsForUI:(ZENFetchResultsBlock)resultsBlock;
+
+// Fetches the objects in the rows query returns, such as the ones that match a
+// condition, in the order of their rows. Each object comes once, at its first
+// row. The rows need the columns the table's dtoFromRow: reads, identifier
+// first, as allRows: returns them. A failed query fetches no objects. With a
+// table class that has a rowsInFolder:database: method, for example:
+//
+//   [repository fetchObjectsWithQuery:^ZENResultSet *(MyTable *table, ZENDatabase *database) {
+//       return [table rowsInFolder:folder database:database];
+//   } completion:^(NSArray *fetchedObjects) { ... }];
+//
+// Runs asynchronously. Result callback block happens on a thread pool.
+- (void)fetchObjectsWithQuery:(ZENRepositoryQuery)query
+				   completion:(ZENFetchResultsBlock)resultsBlock;
+
+// Same as above, but uiCompletion block happens on the main thread.
+- (void)fetchObjectsWithQuery:(ZENRepositoryQuery)query
+				 uiCompletion:(ZENFetchResultsBlock)resultsBlock;
 
 #pragma mark - Add, Update and Delete
 

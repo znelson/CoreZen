@@ -8,6 +8,10 @@
 
 @interface ZENTestTable : NSObject <ZENDatabaseTable>
 
+// Rows whose name matches a LIKE pattern, by name from Z to A: a query of the
+// table's own, for repository query fetches
+- (ZENResultSet *)rowsWithNamesLike:(NSString *)pattern database:(ZENDatabase *)database;
+
 @end
 
 // Same columns as ZENTestTable, stored in a separate table

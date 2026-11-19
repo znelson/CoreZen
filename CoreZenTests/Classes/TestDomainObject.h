@@ -38,3 +38,18 @@ extern NSString *const ZENTestErrorDomain;
 @interface ZENSlowFailingInitDomainObject : ZENSlowInitDomainObject
 
 @end
+
+// The data model for ZENCountedInitDomainObjects. It calls repeatedInit when an
+// identifier's async init starts for a second time.
+@interface ZENInitCountingModel : NSObject <ZENDataModel>
+
+@property (atomic, copy) void (^repeatedInit)(ZENIdentifier identifier);
+
+- (void)countInitOf:(ZENIdentifier)identifier;
+
+@end
+
+// Its performAsyncInit: tells its model, a ZENInitCountingModel
+@interface ZENCountedInitDomainObject : ZENTestDomainObject
+
+@end

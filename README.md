@@ -39,6 +39,20 @@ CoreZen logs to the unified log, under the subsystem `com.zdnelson.CoreZen`, in 
 log stream --level info --predicate 'subsystem == "com.zdnelson.CoreZen"'
 ```
 
+### Tests
+
+Run the tests with ⌘U in Xcode, or with `xcodebuild test -scheme CoreZen -project CoreZen.xcodeproj`. CI also runs them under Thread Sanitizer, and under Address and Undefined Behavior Sanitizers, and runs the static analyzer.
+
+The summary page of each CI run shows how much of CoreZen the tests ran, file by file. To see the same on your Mac:
+
+```
+rm -rf build/Tests.xcresult
+xcodebuild test -scheme CoreZen -project CoreZen.xcodeproj -resultBundlePath build/Tests.xcresult
+Scripts/coverage_report.py build/Tests.xcresult
+```
+
+After ⌘U, Xcode's Report navigator shows it line by line.
+
 ### Versions
 
 CoreZen follows [Semantic Versioning](https://semver.org). Each release is a git tag such as `v0.1.0`, with a [GitHub release](https://github.com/znelson/CoreZen/releases) whose notes come from [`CHANGELOG.md`](https://github.com/znelson/CoreZen/blob/main/CHANGELOG.md). Until 1.0.0, a release that breaks the API raises the middle number (0.1.0 to 0.2.0), and any other release raises the last (0.1.0 to 0.1.1). At run time, the framework bundle's `CFBundleShortVersionString` is its version.

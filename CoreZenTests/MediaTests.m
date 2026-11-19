@@ -21,6 +21,14 @@
 //   hold 2 frames back.
 //     ffmpeg -f lavfi -i testsrc=size=64x48:rate=10 -frames:v 21 -c:v libx264 -pix_fmt yuv420p
 //            -x264-params keyint=5:min-keyint=5:scenecut=0 -movflags +faststart last-keyframe.mp4
+//   red-blue.mp4: 1 s, 64x32, left half red and right half blue, so a frame turned a
+//   quarter turn shows which way it went
+//     ffmpeg -f lavfi -i "color=c=red:s=32x32:r=10:d=1[l];color=c=blue:s=32x32:r=10:d=1[r];[l][r]hstack[out0]"
+//            -c:v libx264 -pix_fmt yuv420p -g 5 -movflags +faststart red-blue.mp4
+//   red-blue-rotated-90.mp4, -270, -180: red-blue.mp4 tagged to be shown turned that many
+//   degrees clockwise, as phones tag portrait video with 90. -display_rotation counts
+//   counterclockwise, so 90, 270 and 180 clockwise are -90, 90 and 180:
+//     ffmpeg -display_rotation:v:0 -90 -i red-blue.mp4 -c copy -movflags +faststart red-blue-rotated-90.mp4
 
 static const NSTimeInterval kRenderTimeout = 10.0;
 
@@ -199,6 +207,81 @@ static const NSTimeInterval kRenderTimeout = 10.0;
 	ZENRenderedFrame *frame = [self renderFrameAtPercentage:0.5 ofMediaFile:mediaFile];
 	XCTAssertNotNil(frame.image);
 	XCTAssertEqualWithAccuracy(frame.actualSeconds, 1.0, 0.05, @"Should render the keyframe at 1 s");
+}
+
+#pragma mark - Rotation
+
+// "red" or "blue": the color of image at a point given as fractions of its width
+// and height, from the top left
+- (NSString *)colorOfImage:(NSImage *)image atX:(double)x y:(double)y {
+	CGImageRef cgImage = [image CGImageForProposedRect:NULL context:nil hints:nil];
+	size_t width = CGImageGetWidth(cgImage);
+	size_t height = CGImageGetHeight(cgImage);
+	uint8_t *pixels = calloc(width * height, 4);
+	CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+	CGContextRef context = CGBitmapContextCreate(pixels, width, height, 8, width * 4, colorSpace,
+												 (CGBitmapInfo)kCGImageAlphaPremultipliedLast);
+	// A bitmap context keeps the image's top row first in memory
+	CGContextDrawImage(context, CGRectMake(0, 0, width, height), cgImage);
+	size_t column = MIN((size_t)(x * width), width - 1);
+	size_t row = MIN((size_t)(y * height), height - 1);
+	uint8_t *pixel = pixels + 4 * (row * width + column);
+	NSString *color = (pixel[0] > pixel[2]) ? @"red" : @"blue";
+	CGContextRelease(context);
+	CGColorSpaceRelease(colorSpace);
+	free(pixels);
+	return color;
+}
+
+- (void)testFrameSizeOfRotatedVideoIsAsShown {
+	// Stored as 64x32 frames
+	ZENMediaFile *unrotated = [self mediaFileNamed:@"red-blue.mp4"];
+	XCTAssertEqual(unrotated.frameWidth, 64u);
+	XCTAssertEqual(unrotated.frameHeight, 32u);
+	XCTAssertEqual(unrotated.rotationDegrees, 0u);
+
+	NSDictionary<NSString *, NSNumber *> *rotations = @{
+		@"red-blue-rotated-90.mp4": @90,
+		@"red-blue-rotated-270.mp4": @270,
+	};
+	[rotations enumerateKeysAndObjectsUsingBlock:^(NSString *name, NSNumber *rotation, BOOL *stop) {
+		ZENMediaFile *mediaFile = [self mediaFileNamed:name];
+		XCTAssertEqual(mediaFile.rotationDegrees, rotation.unsignedIntegerValue, @"%@", name);
+		XCTAssertEqual(mediaFile.frameWidth, 32u, @"%@ is shown a quarter turn round, so taller than wide", name);
+		XCTAssertEqual(mediaFile.frameHeight, 64u, @"%@", name);
+	}];
+
+	ZENMediaFile *upsideDown = [self mediaFileNamed:@"red-blue-rotated-180.mp4"];
+	XCTAssertEqual(upsideDown.rotationDegrees, 180u);
+	XCTAssertEqual(upsideDown.frameWidth, 64u);
+	XCTAssertEqual(upsideDown.frameHeight, 32u);
+
+	// Files without video have no rotation
+	XCTAssertEqual([self mediaFileNamed:@"audio.m4a"].rotationDegrees, 0u);
+	XCTAssertEqual(self.unreadableMediaFile.rotationDegrees, 0u);
+}
+
+- (void)testRenderedFramesAreUpright {
+	// name: the image's size fitted to 32x32, then where its two colors should be
+	NSDictionary<NSString *, NSArray *> *expected = @{
+		@"red-blue.mp4": @[@32, @16, @"red on the left"],
+		@"red-blue-rotated-90.mp4": @[@16, @32, @"red on top"],
+		@"red-blue-rotated-270.mp4": @[@16, @32, @"blue on top"],
+		@"red-blue-rotated-180.mp4": @[@32, @16, @"blue on the left"],
+	};
+	[expected enumerateKeysAndObjectsUsingBlock:^(NSString *name, NSArray *expectation, BOOL *stop) {
+		ZENRenderedFrame *frame = [self renderFrameAtPercentage:0.5 ofMediaFile:[self mediaFileNamed:name]];
+		XCTAssertNotNil(frame.image, @"%@", name);
+		XCTAssertEqual(frame.image.size.width, [expectation[0] doubleValue], @"%@", name);
+		XCTAssertEqual(frame.image.size.height, [expectation[1] doubleValue], @"%@", name);
+
+		BOOL tall = frame.image.size.height > frame.image.size.width;
+		NSString *first = tall ? [self colorOfImage:frame.image atX:0.5 y:0.25] : [self colorOfImage:frame.image atX:0.25 y:0.5];
+		NSString *second = tall ? [self colorOfImage:frame.image atX:0.5 y:0.75] : [self colorOfImage:frame.image atX:0.75 y:0.5];
+		NSString *found = [NSString stringWithFormat:@"%@ on %@", first, tall ? @"top" : @"the left"];
+		XCTAssertEqualObjects(found, expectation[2], @"%@", name);
+		XCTAssertNotEqualObjects(first, second, @"%@ should show both colors", name);
+	}];
 }
 
 - (void)testRenderFrameFromAudioOnlyFile {

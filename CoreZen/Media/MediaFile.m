@@ -24,6 +24,7 @@ ZENObjectCache *ZENGetWeakMediaFileCache(void) {
 @property (nonatomic) BOOL terminated;
 
 - (instancetype)initWithURL:(NSURL *)url;
+- (BOOL)turnedOnItsSide;
 
 @end
 
@@ -85,12 +86,22 @@ ZENObjectCache *ZENGetWeakMediaFileCache(void) {
 	return self.mediaInfoController.durationMicroseconds;
 }
 
+// A quarter turn swaps the stored frame's width and height
+- (BOOL)turnedOnItsSide {
+	NSUInteger rotation = self.rotationDegrees;
+	return rotation == 90 || rotation == 270;
+}
+
 - (NSUInteger)frameWidth {
-	return self.mediaInfoController.frameWidth;
+	return self.turnedOnItsSide ? self.mediaInfoController.frameHeight : self.mediaInfoController.frameWidth;
 }
 
 - (NSUInteger)frameHeight {
-	return self.mediaInfoController.frameHeight;
+	return self.turnedOnItsSide ? self.mediaInfoController.frameWidth : self.mediaInfoController.frameHeight;
+}
+
+- (NSUInteger)rotationDegrees {
+	return self.mediaInfoController.rotationDegrees;
 }
 
 - (NSString *)videoCodecName {

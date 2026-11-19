@@ -15,6 +15,7 @@
 
 #import <libavcodec/avcodec.h>
 #import <libavformat/avformat.h>
+#import <libavutil/display.h>
 
 #pragma clang diagnostic pop
 
@@ -162,6 +163,27 @@ static NSString *ZENCodecName(const AVCodec *codec, BOOL longName) {
 		height = ((NSUInteger)_videoStream->codecpar->height);
 	}
 	return height;
+}
+
+- (NSUInteger)rotationDegrees {
+	if (!_videoStream) {
+		return 0;
+	}
+	const AVCodecParameters *parameters = _videoStream->codecpar;
+	const AVPacketSideData *sideData = av_packet_side_data_get(parameters->coded_side_data, parameters->nb_coded_side_data,
+															   AV_PKT_DATA_DISPLAYMATRIX);
+	if (!sideData || sideData->size < 9 * sizeof(int32_t)) {
+		return 0;
+	}
+	// FFmpeg gives the angle counterclockwise, from -180 to 180, or NaN for a
+	// matrix that can't be undone. A matrix can also mirror the picture, which
+	// this leaves out, as it does angles between quarter turns: both are rare.
+	double counterclockwise = av_display_rotation_get((const int32_t *)sideData->data);
+	if (isnan(counterclockwise)) {
+		return 0;
+	}
+	long quarterTurns = lround(-counterclockwise / 90.0);
+	return (NSUInteger)(((quarterTurns % 4) + 4) % 4) * 90;
 }
 
 - (NSString *)videoCodecName {

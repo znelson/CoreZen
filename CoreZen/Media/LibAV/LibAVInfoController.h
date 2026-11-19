@@ -28,8 +28,12 @@ struct AVStream;
 - (NSUInteger)durationMicroseconds;
 - (double)durationSeconds;
 
+// The size of the frames as stored, before rotation
 - (NSUInteger)frameWidth;
 - (NSUInteger)frameHeight;
+
+// See ZENMediaFile
+- (NSUInteger)rotationDegrees;
 
 // Codec names, or nil if the file has no stream of that kind that can be decoded, or
 // couldn't be read. See ZENMediaFile.

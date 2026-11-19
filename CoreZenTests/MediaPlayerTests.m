@@ -252,13 +252,13 @@ static void *StatusContext = &StatusContext;
 }
 
 - (void)testMpvErrorsAreLoggedAsErrors {
-	NSDate *start = [NSDate date];
+	NSString *marker = ZENLogMarker();
 	[self.player loadFileURL:[self fileThatIsNotVideo]];
 	[self waitForStatus:ZENMediaPlayerStatusFailed];
 
 	// mpv logs why it couldn't play the file, at its error level. The reason
 	// itself is private, so it can show as <private>.
-	NSArray<OSLogEntryLog *> *errors = ZENCoreZenLogEntries(ZENLogEntriesSince(start), @"Player", OSLogEntryLogLevelError, @"mpv [cplayer] error: ");
+	NSArray<OSLogEntryLog *> *errors = ZENCoreZenLogEntries(ZENLogEntriesAfter(marker), @"Player", OSLogEntryLogLevelError, @"mpv [cplayer] error: ");
 	XCTAssertGreaterThan(errors.count, 0u);
 }
 

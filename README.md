@@ -33,7 +33,7 @@ The framework bundles both in its `Resources` folder, as `FMDB-LICENSE.txt` and 
 
 ### Logging
 
-CoreZen logs to the unified log, under the subsystem `com.zdnelson.CoreZen`, in the categories Database, Domain, Media, Player and General. Failures are errors, harmless surprises like a method called twice are default messages, and routine events like a database opening are info. Paths, URLs and mpv's messages are private, since they can name the user's files. To watch them:
+CoreZen logs to the unified log, under the subsystem `com.zdnelson.CoreZen`, in the categories Database, Domain, Media, Player and General. Failures are errors, harmless surprises like a method called twice are default messages, and routine events like a database opening are info. Paths, URLs and mpv's messages are private, since they can name the user's files. mpv's own macOS code also writes a few debug messages, such as "AppHub initialised", under its own subsystem, `io.mpv`. To watch CoreZen's:
 
 ```
 log stream --level info --predicate 'subsystem == "com.zdnelson.CoreZen"'

@@ -17,3 +17,4 @@ CoreZen's [README](https://github.com/znelson/CoreZen#readme) says how to get it
 ### Essentials
 
 - <doc:Persistence>
+- <doc:Media>

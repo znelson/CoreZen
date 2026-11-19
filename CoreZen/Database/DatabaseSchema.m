@@ -108,6 +108,8 @@
 - (void)initializeIdentifiers:(ZENDatabase *)database {
 	// Every table draws identifiers from the same global counter, so the counter
 	// must resume after the largest identifier in any table, not the last one read.
+	// It only ever moves forward: another database open in the process may have
+	// handed out larger identifiers already.
 	ZENIdentifier largestIdentifier = ZENInvalidIdentifier;
 	NSString *largestTableName = nil;
 	for (NSString *tableName in self.tableNames) {
@@ -123,8 +125,8 @@
 		[rs close];
 	}
 	if (largestTableName) {
-		NSLog(@"Setting largest identifier to %lli (from %@)", largestIdentifier, largestTableName);
-		ZENSetLargestObjectIdentifier(largestIdentifier);
+		NSLog(@"Largest identifier is %lli (in %@)", largestIdentifier, largestTableName);
+		ZENRaiseLargestObjectIdentifier(largestIdentifier);
 	}
 }
 

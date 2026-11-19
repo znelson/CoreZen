@@ -14,6 +14,15 @@
 // signed 64-bit integer, instead of switching to unsigned, because SQLite3 uses signed 64-bit integers.
 static atomic_int_fast64_t nextIdentifier = 1;
 
+void ZENRaiseLargestObjectIdentifier(ZENIdentifier identifier) {
+	// Other threads may hand out or raise identifiers meanwhile. A failed exchange
+	// reloads next, so this retries until the counter is past identifier, by this
+	// change or another thread's.
+	int_fast64_t next = atomic_load(&nextIdentifier);
+	while (next <= identifier && !atomic_compare_exchange_weak(&nextIdentifier, &next, identifier + 1)) {
+	}
+}
+
 void ZENSetLargestObjectIdentifier(ZENIdentifier identifier) {
 	atomic_store(&nextIdentifier, identifier + 1);
 }

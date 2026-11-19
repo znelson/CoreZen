@@ -8,6 +8,8 @@
 #import <XCTest/XCTest.h>
 
 @import CoreZen;
+
+#import "ObjectIdentifier+Private.h"
 #import "TestIdentifiable.h"
 
 @interface ObjectCacheTests : XCTestCase

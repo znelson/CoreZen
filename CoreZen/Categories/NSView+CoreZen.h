@@ -7,8 +7,12 @@
 
 #import <Cocoa/Cocoa.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface NSView (CoreZen)
 
 - (void)zen_addConstraintsForEqualSizes:(NSView *)other;
 
 @end
+
+NS_ASSUME_NONNULL_END

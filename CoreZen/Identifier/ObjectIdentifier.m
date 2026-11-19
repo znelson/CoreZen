@@ -5,7 +5,7 @@
 //  Created by Zach Nelson on 3/27/19.
 //
 
-#import "ObjectIdentifier.h"
+#import "ObjectIdentifier+Private.h"
 
 #import <stdatomic.h>
 

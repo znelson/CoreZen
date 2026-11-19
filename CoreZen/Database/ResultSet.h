@@ -7,6 +7,8 @@
 
 #import <Foundation/Foundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface ZENResultSet : NSObject
 
 - (BOOL)next;
@@ -14,14 +16,16 @@
 
 #pragma mark - By column index
 
+// The object getters return nil for a NULL value
+
 - (int)intForColumnIndex:(int)columnIdx;
 - (long long)longLongIntForColumnIndex:(int)columnIdx;
 - (unsigned long long)unsignedLongLongIntForColumnIndex:(int)columnIdx;
 - (double)doubleForColumnIndex:(int)columnIdx;
 - (BOOL)boolForColumnIndex:(int)columnIdx;
-- (NSString *)stringForColumnIndex:(int)columnIdx;
-- (NSData *)dataForColumnIndex:(int)columnIdx;
-- (NSDate *)dateForColumnIndex:(int)columnIdx;
+- (nullable NSString *)stringForColumnIndex:(int)columnIdx;
+- (nullable NSData *)dataForColumnIndex:(int)columnIdx;
+- (nullable NSDate *)dateForColumnIndex:(int)columnIdx;
 
 #pragma mark - By column name
 
@@ -30,8 +34,10 @@
 - (unsigned long long)unsignedLongLongIntForColumn:(NSString *)columnName;
 - (double)doubleForColumn:(NSString *)columnName;
 - (BOOL)boolForColumn:(NSString *)columnName;
-- (NSString *)stringForColumn:(NSString *)columnName;
-- (NSData *)dataForColumn:(NSString *)columnName;
-- (NSDate *)dateForColumn:(NSString *)columnName;
+- (nullable NSString *)stringForColumn:(NSString *)columnName;
+- (nullable NSData *)dataForColumn:(NSString *)columnName;
+- (nullable NSDate *)dateForColumn:(NSString *)columnName;
 
 @end
+
+NS_ASSUME_NONNULL_END

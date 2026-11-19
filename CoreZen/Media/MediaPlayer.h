@@ -10,12 +10,15 @@
 
 @class ZENMediaPlayerView;
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface ZENMediaPlayer : NSObject <ZENIdentifiable>
 
-@property (nonatomic, strong, readonly) ZENMediaPlayerView *playerView;
+// nil while no view is attached
+@property (nonatomic, strong, readonly, nullable) ZENMediaPlayerView *playerView;
 
 // Observe these properties for updates to the UI. They will only change on the main thread.
-@property (nonatomic, strong, readonly) NSURL *fileURL;
+@property (nonatomic, strong, readonly, nullable) NSURL *fileURL;
 @property (nonatomic, readonly) BOOL paused;
 @property (nonatomic, readonly) double positionPercent;
 @property (nonatomic, readonly) BOOL seeking;
@@ -43,3 +46,5 @@
 - (void)seekAbsolutePercentage:(double)percentage;
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -13,6 +13,8 @@
 
 #import <CoreZen/Identifier.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @protocol ZENDatabaseTable
 
 #pragma mark - Metadata
@@ -41,13 +43,16 @@
 
 - (ZENDataTransferObject *)dtoFromRow:(ZENResultSet *)row;
 
-- (ZENResultSet *)allRows:(ZENDatabase *)database;
+// nil if the query fails
+- (nullable ZENResultSet *)allRows:(ZENDatabase *)database;
 
-- (ZENResultSet *)rowByIdentifier:(ZENIdentifier)identifier
-						 database:(ZENDatabase *)database;
+- (nullable ZENResultSet *)rowByIdentifier:(ZENIdentifier)identifier
+								  database:(ZENDatabase *)database;
 
 #pragma mark - Count
 
 - (NSUInteger)countAllRows:(ZENDatabase *)database;
 
 @end
+
+NS_ASSUME_NONNULL_END

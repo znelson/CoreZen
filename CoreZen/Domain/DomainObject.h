@@ -10,6 +10,8 @@
 #import <CoreZen/DataTransferObject.h>
 #import <CoreZen/DomainCallbacks.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @protocol ZENDataModel
 @end
 
@@ -21,18 +23,19 @@
 // completion with nil when initialization succeeds, or with an error when it
 // fails. A repository leaves an object whose init failed out of fetch results
 // and drops it from its cache, and asyncInitAndAdd: doesn't add it.
-- (void)performAsyncInit:(id<ZENDataModel>)model
+- (void)performAsyncInit:(nullable id<ZENDataModel>)model
 			  completion:(ZENAsyncCompletionBlock)completion;
 
 @end
 
 @interface ZENDomainObject : NSObject <ZENDomainObject>
 
-@property (nonatomic, strong, readonly) ZENDataTransferObject *basicDTO;
+// nil only in a subclass that starts without one and sets it later
+@property (nonatomic, strong, readonly, nullable) ZENDataTransferObject *basicDTO;
 
 - (instancetype)initWithDTO:(ZENDataTransferObject *)dto;
 
-- (void)performAsyncInit:(id<ZENDataModel>)model
+- (void)performAsyncInit:(nullable id<ZENDataModel>)model
 			  completion:(ZENAsyncCompletionBlock)completion;
 
 // Calls performAsyncInit on a thread pool for each of the objects,
@@ -41,11 +44,13 @@
 // Completion gets nil if every object's init succeeded, or else one of the
 // errors the objects reported.
 + (void)asyncInit:(NSArray *)objects
-			model:(id<ZENDataModel>)model
-	   completion:(ZENAsyncCompletionBlock)completion;
+			model:(nullable id<ZENDataModel>)model
+	   completion:(nullable ZENAsyncCompletionBlock)completion;
 
 #pragma mark - ZENIdentifier protocol
 
 - (ZENIdentifier)identifier;
 
 @end
+
+NS_ASSUME_NONNULL_END

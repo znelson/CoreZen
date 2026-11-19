@@ -12,6 +12,8 @@
 @protocol ZENDatabaseTable;
 @class ZENDatabaseQueue;
 
+NS_ASSUME_NONNULL_BEGIN
+
 typedef enum : NSUInteger {
 	ZENObjectRepositoryCacheType_Weak = 0,
 	ZENObjectRepositoryCacheType_Strong = 1
@@ -21,7 +23,7 @@ typedef enum : NSUInteger {
 
 #pragma mark - Init
 
-- (instancetype)initWithDataModel:(id<ZENDataModel>)dataModel
+- (instancetype)initWithDataModel:(nullable id<ZENDataModel>)dataModel
 					   tableClass:(Class<ZENDatabaseTable>)tableClass
 					databaseQueue:(ZENDatabaseQueue *)databaseQueue
 			   domainObjectEmbryo:(Class<ZENDomainObject>)embryo
@@ -75,6 +77,7 @@ typedef enum : NSUInteger {
 // Each write is a transaction of its own. Its completion gets nil once the change
 // is saved, or an error (in ZENDatabaseErrorDomain) when it was rolled back or
 // never made. Only a saved change updates the cache and posts its notification.
+// The completion may be nil.
 // A failed update leaves the object's own properties as the caller set them.
 
 // Runs asynchronously. Completion block happens on a thread pool.
@@ -128,3 +131,5 @@ extern NSString *const ZENObjectRepositoryNotificationObjectKey;
 extern NSString *const ZENObjectRepositoryObjectAddedNotification;
 extern NSString *const ZENObjectRepositoryObjectUpdatedNotification;
 extern NSString *const ZENObjectRepositoryObjectDeletedNotification;
+
+NS_ASSUME_NONNULL_END

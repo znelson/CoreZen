@@ -10,10 +10,15 @@
 
 @class ZENMediaPlayer;
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface ZENMediaPlayerCTIView : ZENArchivedView
 
-@property (nonatomic, weak, readonly) ZENMediaPlayer *player;
+@property (nonatomic, weak, readonly, nullable) ZENMediaPlayer *player;
 
-- (void)attachPlayer:(ZENMediaPlayer *)player;
+// nil detaches the current player
+- (void)attachPlayer:(nullable ZENMediaPlayer *)player;
 
 @end
+
+NS_ASSUME_NONNULL_END

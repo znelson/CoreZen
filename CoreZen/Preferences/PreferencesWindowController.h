@@ -42,6 +42,8 @@
 
 #import <Cocoa/Cocoa.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface ZENPreferencesWindowController : NSWindowController
 
 - (void)setPreferenceViewControllers:(NSArray *)viewControllers;
@@ -50,3 +52,5 @@
 - (void)dismissPreferencesWindow;
 
 @end
+
+NS_ASSUME_NONNULL_END

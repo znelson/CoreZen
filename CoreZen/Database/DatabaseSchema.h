@@ -9,6 +9,8 @@
 
 @class ZENDatabase;
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface ZENDatabaseSchema : NSObject
 
 + (instancetype)schemaWithTableClasses:(NSArray *)tables;
@@ -19,3 +21,5 @@
 - (void)initializeDatabase:(ZENDatabase *)database;
 
 @end
+
+NS_ASSUME_NONNULL_END

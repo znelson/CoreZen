@@ -7,6 +7,8 @@
 
 #import <Foundation/Foundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface ZENWorkQueueToken : NSObject
 
 // WorkQueueToken begins deactivated and becomeds activated
@@ -46,8 +48,10 @@ typedef void (^ZENWorkQueueCancelBlock)(ZENWorkQueueToken *canceled);
 // This token can be used to atomically flag the work as canceled
 // The WorkQueueToken return value indicates if `block` will be called
 // (Block will not be called if the queue has been terminated)
-- (ZENWorkQueueToken *)async:(ZENWorkQueueCancelBlock)block;
+- (nullable ZENWorkQueueToken *)async:(ZENWorkQueueCancelBlock)block;
 
 - (void)terminate:(ZENWorkQueueBlock)block;
 
 @end
+
+NS_ASSUME_NONNULL_END

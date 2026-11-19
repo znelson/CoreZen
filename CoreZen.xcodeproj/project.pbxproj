@@ -23,6 +23,7 @@
 		5309C3E92885A39C00BC0AAE /* PreferencesWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5309C3E72885A39C00BC0AAE /* PreferencesWindowController.m */; };
 		5309C3EC2885A43100BC0AAE /* PreferenceViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 5309C3EA2885A43100BC0AAE /* PreferenceViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5309C3F12885A74A00BC0AAE /* ObjectIdentifier.h in Headers */ = {isa = PBXBuildFile; fileRef = 5309C3EF2885A74A00BC0AAE /* ObjectIdentifier.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		27CD0B0148EFCD080D0C9B11 /* ObjectIdentifier+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = BD5608A105C3E8FB61C7C739 /* ObjectIdentifier+Private.h */; };
 		5309C3F22885A74A00BC0AAE /* ObjectIdentifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 5309C3F02885A74A00BC0AAE /* ObjectIdentifier.m */; };
 		5309C3F52885A84400BC0AAE /* Identifier.h in Headers */ = {isa = PBXBuildFile; fileRef = 5309C3F32885A84400BC0AAE /* Identifier.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5309C3F92885A86000BC0AAE /* Identifiable.h in Headers */ = {isa = PBXBuildFile; fileRef = 5309C3F72885A86000BC0AAE /* Identifiable.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -188,6 +189,7 @@
 		5309C3E72885A39C00BC0AAE /* PreferencesWindowController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PreferencesWindowController.m; sourceTree = "<group>"; };
 		5309C3EA2885A43100BC0AAE /* PreferenceViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PreferenceViewController.h; sourceTree = "<group>"; };
 		5309C3EF2885A74A00BC0AAE /* ObjectIdentifier.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ObjectIdentifier.h; sourceTree = "<group>"; };
+		BD5608A105C3E8FB61C7C739 /* ObjectIdentifier+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ObjectIdentifier+Private.h"; sourceTree = "<group>"; };
 		5309C3F02885A74A00BC0AAE /* ObjectIdentifier.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ObjectIdentifier.m; sourceTree = "<group>"; };
 		5309C3F32885A84400BC0AAE /* Identifier.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Identifier.h; sourceTree = "<group>"; };
 		5309C3F72885A86000BC0AAE /* Identifiable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Identifiable.h; sourceTree = "<group>"; };
@@ -546,6 +548,7 @@
 				5309C3F32885A84400BC0AAE /* Identifier.h */,
 				5309C3F72885A86000BC0AAE /* Identifiable.h */,
 				5309C3EF2885A74A00BC0AAE /* ObjectIdentifier.h */,
+				BD5608A105C3E8FB61C7C739 /* ObjectIdentifier+Private.h */,
 				5309C3F02885A74A00BC0AAE /* ObjectIdentifier.m */,
 			);
 			path = Identifier;
@@ -1009,6 +1012,7 @@
 				5309C3F52885A84400BC0AAE /* Identifier.h in Headers */,
 				5309C3F92885A86000BC0AAE /* Identifiable.h in Headers */,
 				5309C3F12885A74A00BC0AAE /* ObjectIdentifier.h in Headers */,
+				27CD0B0148EFCD080D0C9B11 /* ObjectIdentifier+Private.h in Headers */,
 				5309C3EC2885A43100BC0AAE /* PreferenceViewController.h in Headers */,
 				AA0000020000000000000001 /* Database.h in Headers */,
 				AA0000020000000000000003 /* Database+Private.h in Headers */,

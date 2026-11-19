@@ -46,6 +46,9 @@ extern const char *const kMPVProperty_playlist_pos;
 extern const char *const kMPVProperty_time_pos;
 extern const char *const kMPVProperty_sid;
 
+// Command result keys
+extern const char *const kMPVResultKey_playlist_entry_id;
+
 // Property keys
 extern const char *const kMPVPropertyKey_name;
 extern const char *const kMPVPropertyKey_data;

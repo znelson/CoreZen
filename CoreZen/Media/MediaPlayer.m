@@ -35,10 +35,21 @@ typedef NS_ENUM(NSInteger, ZENSeekKind) {
 @property (nonatomic) ZENSeekKind pendingSeekKind;
 @property (nonatomic) double pendingSeekTarget;
 
+// The file loadFileURL: asked for last, and the ID mpv gave it. mpv reports the
+// files it replaces after it starts on the next one, so status only follows
+// events about this one. Main thread only.
+@property (nonatomic, strong) NSURL *loadingURL;
+@property (nonatomic) int64_t loadingEntryID;
+// The file mpv started on last, which FILE_LOADED is about
+@property (nonatomic) int64_t startedEntryID;
+
+- (void)failWithReason:(NSString *)reason;
 - (void)requestSeek:(ZENSeekKind)kind target:(double)target;
 - (void)startPendingSeek;
 
 @end
+
+NSErrorDomain const ZENMediaPlayerErrorDomain = @"ZENMediaPlayerErrorDomain";
 
 @implementation ZENMediaPlayer
 
@@ -48,6 +59,9 @@ typedef NS_ENUM(NSInteger, ZENSeekKind) {
 	self = [super init];
 	if (self) {
 		_terminated = NO;
+		_status = ZENMediaPlayerStatusIdle;
+		_loadingEntryID = -1;
+		_startedEntryID = -1;
 		_playerController = [[ZENMPVPlayerController alloc] initWithPlayer:self];
 		_identifier = _playerController.identifier;
 
@@ -104,7 +118,25 @@ typedef NS_ENUM(NSInteger, ZENSeekKind) {
 - (void)loadFileURL:(NSURL *)url {
 	// A seek still waiting from the previous file doesn't apply to this one
 	self.hasPendingSeek = NO;
-	[self.playerController openFileURL:url];
+	self.loadingURL = url;
+	self.error = nil;
+	self.status = ZENMediaPlayerStatusLoading;
+
+	NSString *failure = nil;
+	self.loadingEntryID = [self.playerController openFileURL:url failure:&failure];
+	if (self.loadingEntryID < 0) {
+		[self failWithReason:failure];
+	}
+}
+
+- (void)failWithReason:(NSString *)reason {
+	NSString *description = [NSString stringWithFormat:@"Couldn't play %@: %@", self.loadingURL.lastPathComponent, reason];
+	NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:description forKey:NSLocalizedDescriptionKey];
+	if (self.loadingURL) {
+		userInfo[NSURLErrorKey] = self.loadingURL;
+	}
+	self.error = [NSError errorWithDomain:ZENMediaPlayerErrorDomain code:ZENMediaPlayerErrorPlaybackFailed userInfo:userInfo];
+	self.status = ZENMediaPlayerStatusFailed;
 }
 
 - (void)startPlayback {
@@ -183,7 +215,14 @@ typedef NS_ENUM(NSInteger, ZENSeekKind) {
 	}
 }
 
+- (void)playerControllerDidStartFile:(int64_t)entryID {
+	self.startedEntryID = entryID;
+}
+
 - (void)playerControllerDidLoadFile {
+	if (self.startedEntryID == self.loadingEntryID) {
+		self.status = ZENMediaPlayerStatusReady;
+	}
 	[self startPendingSeek];
 }
 
@@ -193,9 +232,25 @@ typedef NS_ENUM(NSInteger, ZENSeekKind) {
 	[self startPendingSeek];
 }
 
-- (void)playerControllerDidEndFile {
+- (void)playerControllerDidEndFile:(int64_t)entryID reason:(ZENMPVEndReason)reason failure:(NSString *)failure {
 	// A seek running when the file ended won't report finishing
 	self.seeking = NO;
+
+	// The end of a file that a newer load replaced says nothing about that load
+	if (entryID != self.loadingEntryID) {
+		return;
+	}
+	switch (reason) {
+		case ZENMPVEndReasonFinished:
+			self.status = ZENMediaPlayerStatusEnded;
+			break;
+		case ZENMPVEndReasonFailed:
+			[self failWithReason:failure];
+			break;
+		case ZENMPVEndReasonStopped:
+			self.status = ZENMediaPlayerStatusIdle;
+			break;
+	}
 }
 
 @end

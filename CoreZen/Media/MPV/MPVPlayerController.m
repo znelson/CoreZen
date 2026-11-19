@@ -44,6 +44,17 @@ static void zen_mpv_wakeup(void *ctx);
 
 @end
 
+// A number property's value, or 0 while mpv has none, as when no file is loaded
+static double ZENDoubleFromNode(const mpv_node *node) {
+	if (node->format == MPV_FORMAT_DOUBLE) {
+		return node->u.double_;
+	}
+	if (node->format == MPV_FORMAT_INT64) {
+		return (double)node->u.int64;
+	}
+	return 0;
+}
+
 @implementation ZENMPVPlayerController
 
 @synthesize identifier = _identifier;
@@ -107,6 +118,8 @@ static void zen_mpv_wakeup(void *ctx);
 		mpv_observe_property(_mpvHandle, _identifier, kMPVProperty_percent_pos, MPV_FORMAT_NODE);
 		mpv_observe_property(_mpvHandle, _identifier, kMPVProperty_pause, MPV_FORMAT_NODE);
 		mpv_observe_property(_mpvHandle, _identifier, kMPVProperty_path, MPV_FORMAT_NODE);
+		mpv_observe_property(_mpvHandle, _identifier, kMPVProperty_time_pos, MPV_FORMAT_NODE);
+		mpv_observe_property(_mpvHandle, _identifier, kMPVProperty_duration, MPV_FORMAT_NODE);
 	}
 	return self;
 }
@@ -150,16 +163,33 @@ static void zen_mpv_wakeup(void *ctx);
 	return _mpvHandle;
 }
 
-- (void)openFileURL:(NSURL *)url {
+- (int64_t)openFileURL:(NSURL *)url failure:(NSString **)failure {
 	const char *loadCommand[] = {
 		kMPVCommand_loadfile,
 		url.path.fileSystemRepresentation,
 		kMPVCommandParam_replace,
 		nil
 	};
-	[self mpvCommand:loadCommand];
+	// The command's result holds the playlist entry ID mpv gives the file
+	mpv_node result = {};
+	int error = mpv_command_ret(_mpvHandle, loadCommand, &result);
+	int64_t entryID = -1;
+	if (error >= 0 && result.format == MPV_FORMAT_NODE_MAP) {
+		for (int index = 0; index < result.u.list->num; index++) {
+			mpv_node *value = result.u.list->values + index;
+			if (zen_mpv_compare_strings(kMPVResultKey_playlist_entry_id, result.u.list->keys[index]) &&
+				value->format == MPV_FORMAT_INT64) {
+				entryID = value->u.int64;
+			}
+		}
+	}
+	mpv_free_node_contents(&result);
+	if (entryID < 0 && failure) {
+		*failure = zen_mpv_to_nsstring(mpv_error_string(error < 0 ? error : MPV_ERROR_GENERIC));
+	}
 
 	[self pausePlayback];
+	return entryID;
 }
 
 - (void)startPlayback {
@@ -212,6 +242,13 @@ static void zen_mpv_wakeup(void *ctx);
 }
 
 - (void)mpvHandleEvents {
+	// mpv calls zen_mpv_wakeup whenever it has events, which can queue more of
+	// these calls behind the one that handles MPV_EVENT_SHUTDOWN and destroys the
+	// handle. Those find nothing left to handle. They run on the same serial queue
+	// as the destruction, so this check can't race with it.
+	if (!_mpvHandle) {
+		return;
+	}
 	while (true) {
 		mpv_event *event = mpv_wait_event(_mpvHandle, 0);
 		mpv_event_id eid = event->event_id;
@@ -230,9 +267,27 @@ static void zen_mpv_wakeup(void *ctx);
 				NSLog(@"MPV_EVENT_LOG_MESSAGE: [%s] <%s> %s", msg->prefix, msg->level, msg->text);
 				break;
 			}
-			case MPV_EVENT_END_FILE: {
+			case MPV_EVENT_START_FILE: {
+				int64_t entryID = ((mpv_event_start_file *)event->data)->playlist_entry_id;
 				dispatch_async(dispatch_get_main_queue(), ^{
-					[self.player playerControllerDidEndFile];
+					[self.player playerControllerDidStartFile:entryID];
+				});
+				break;
+			}
+			case MPV_EVENT_END_FILE: {
+				// Copy out what's needed: the event is only valid until the next one
+				mpv_event_end_file *end = event->data;
+				int64_t entryID = end->playlist_entry_id;
+				ZENMPVEndReason reason = ZENMPVEndReasonStopped;
+				NSString *failure = nil;
+				if (end->reason == MPV_END_FILE_REASON_EOF) {
+					reason = ZENMPVEndReasonFinished;
+				} else if (end->reason == MPV_END_FILE_REASON_ERROR) {
+					reason = ZENMPVEndReasonFailed;
+					failure = zen_mpv_to_nsstring(mpv_error_string(end->error));
+				}
+				dispatch_async(dispatch_get_main_queue(), ^{
+					[self.player playerControllerDidEndFile:entryID reason:reason failure:failure];
 				});
 				break;
 			}
@@ -296,10 +351,19 @@ static void zen_mpv_wakeup(void *ctx);
 								self.player.paused = paused;
 							});
 						} else if (zen_mpv_compare_strings(kMPVProperty_percent_pos, propertyName)) {
-							double percentPos = valueNode->u.double_;
-							// NSLog(@"Position: %f", percentPos);
+							double percentPos = ZENDoubleFromNode(valueNode);
 							dispatch_async(dispatch_get_main_queue(), ^{
 								self.player.positionPercent = percentPos;
+							});
+						} else if (zen_mpv_compare_strings(kMPVProperty_time_pos, propertyName)) {
+							double seconds = ZENDoubleFromNode(valueNode);
+							dispatch_async(dispatch_get_main_queue(), ^{
+								self.player.positionSeconds = seconds;
+							});
+						} else if (zen_mpv_compare_strings(kMPVProperty_duration, propertyName)) {
+							double seconds = ZENDoubleFromNode(valueNode);
+							dispatch_async(dispatch_get_main_queue(), ^{
+								self.player.durationSeconds = seconds;
 							});
 						} else if (zen_mpv_compare_strings(kMPVProperty_path, propertyName)) {
 							// mpv reports the path exactly as -openFileURL: passed it, a file

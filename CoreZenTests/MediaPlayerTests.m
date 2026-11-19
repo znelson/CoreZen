@@ -29,6 +29,8 @@ static BOOL ZENHasAudioOutputDevice(void) {
 
 @property (nonatomic, strong) ZENMediaPlayer *player;
 @property (nonatomic, strong) NSURL *temporaryDirectory;
+// Every status the player reports while it's recorded
+@property (nonatomic, strong) NSMutableArray<NSNumber *> *recordedStatuses;
 
 @end
 
@@ -182,6 +184,140 @@ static BOOL ZENHasAudioOutputDevice(void) {
 - (void)testSeekWithNoFileLoadedDoesNotLeaveSeekingSet {
 	[self.player seekAbsoluteSeconds:1.0];
 	XCTAssertFalse(self.player.seeking);
+}
+
+#pragma mark - Status
+
+static void *StatusContext = &StatusContext;
+
+- (void)observeValueForKeyPath:(NSString *)keyPath
+					  ofObject:(id)object
+						change:(NSDictionary<NSKeyValueChangeKey, id> *)change
+					   context:(void *)context {
+	if (context == StatusContext) {
+		[self.recordedStatuses addObject:change[NSKeyValueChangeNewKey]];
+	} else {
+		[super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+	}
+}
+
+- (void)waitForStatus:(ZENMediaPlayerStatus)status {
+	if (self.player.status != status) {
+		[self keyValueObservingExpectationForObject:self.player keyPath:@"status" expectedValue:@(status)];
+		[self waitForExpectationsWithTimeout:kPlayerTimeout handler:nil];
+	}
+}
+
+- (void)testStatusBeforeLoading {
+	XCTAssertEqual(self.player.status, ZENMediaPlayerStatusIdle);
+	XCTAssertNil(self.player.error);
+	XCTAssertEqual(self.player.positionSeconds, 0.0);
+	XCTAssertEqual(self.player.durationSeconds, 0.0);
+}
+
+- (void)testStatusIsLoadingUntilFileLoads {
+	[self.player loadFileURL:[self copyVideoNamed:@"video.mp4"]];
+	XCTAssertEqual(self.player.status, ZENMediaPlayerStatusLoading);
+	[self waitForStatus:ZENMediaPlayerStatusReady];
+	XCTAssertNil(self.player.error);
+}
+
+- (void)testMissingFileFails {
+	NSURL *url = [self.temporaryDirectory URLByAppendingPathComponent:@"missing.mp4"];
+	[self.player loadFileURL:url];
+	[self waitForStatus:ZENMediaPlayerStatusFailed];
+
+	NSError *error = self.player.error;
+	XCTAssertEqualObjects(error.domain, ZENMediaPlayerErrorDomain);
+	XCTAssertEqual(error.code, ZENMediaPlayerErrorPlaybackFailed);
+	XCTAssertEqualObjects(error.userInfo[NSURLErrorKey], url);
+	XCTAssertTrue([error.localizedDescription containsString:@"missing.mp4"], @"%@", error.localizedDescription);
+}
+
+- (void)testFileThatIsNotVideoFails {
+	NSURL *url = [self.temporaryDirectory URLByAppendingPathComponent:@"not-a-video.mp4"];
+	uint8_t bytes[4096];
+	arc4random_buf(bytes, sizeof(bytes));
+	XCTAssertTrue([[NSData dataWithBytes:bytes length:sizeof(bytes)] writeToURL:url atomically:YES]);
+
+	[self.player loadFileURL:url];
+	[self waitForStatus:ZENMediaPlayerStatusFailed];
+	XCTAssertNotNil(self.player.error);
+}
+
+- (void)testReplacingFileGoesStraightToLoading {
+	// mpv reports the file it's replacing as stopped after it starts on the next
+	// one, which mustn't make the player look stopped while the next one loads
+	[self.player loadFileURL:[self copyVideoNamed:@"first.mp4"]];
+	[self waitForStatus:ZENMediaPlayerStatusReady];
+
+	self.recordedStatuses = [NSMutableArray new];
+	[self.player addObserver:self forKeyPath:@"status" options:NSKeyValueObservingOptionNew context:StatusContext];
+	[self.player loadFileURL:[self copyVideoNamed:@"second.mp4"]];
+	[self waitForStatus:ZENMediaPlayerStatusReady];
+	// Let any event about the first file arrive, too
+	XCTestExpectation *settled = [self expectationWithDescription:@"settled"];
+	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+		[settled fulfill];
+	});
+	[self waitForExpectations:@[settled] timeout:kPlayerTimeout];
+	[self.player removeObserver:self forKeyPath:@"status" context:StatusContext];
+
+	NSArray *expected = @[@(ZENMediaPlayerStatusLoading), @(ZENMediaPlayerStatusReady)];
+	XCTAssertEqualObjects(self.recordedStatuses, expected);
+}
+
+- (void)testLoadsBackToBackEndReadyWithTheLast {
+	// mpv never starts the first, so nothing about it ever arrives
+	[self.player loadFileURL:[self copyVideoNamed:@"first.mp4"]];
+	NSURL *second = [self copyVideoNamed:@"second.mp4"];
+	[self.player loadFileURL:second];
+	[self waitForStatus:ZENMediaPlayerStatusReady];
+	[self assertFileURL:self.player.fileURL isURL:second];
+}
+
+- (void)testLoadingAnotherFileClearsTheError {
+	[self.player loadFileURL:[self.temporaryDirectory URLByAppendingPathComponent:@"missing.mp4"]];
+	[self waitForStatus:ZENMediaPlayerStatusFailed];
+
+	[self.player loadFileURL:[self copyVideoNamed:@"video.mp4"]];
+	XCTAssertNil(self.player.error);
+	[self waitForStatus:ZENMediaPlayerStatusReady];
+	XCTAssertNil(self.player.error);
+}
+
+- (void)testPlayingToTheEndEnds {
+	XCTSkipUnless(ZENHasAudioOutputDevice(), @"Playing needs mpv to play audio, and there's no audio output device");
+	[self loadFileURLReadyToSeek:[self copyVideoNamed:@"video.mp4"]];
+	[self.player seekAbsoluteSeconds:1.8];
+	[self.player startPlayback];
+	[self waitForStatus:ZENMediaPlayerStatusEnded];
+	XCTAssertNil(self.player.error);
+}
+
+#pragma mark - Time
+
+- (void)testDurationIsKnownOnceLoaded {
+	[self keyValueObservingExpectationForObject:self.player
+										keyPath:@"durationSeconds"
+										handler:^BOOL(id player, NSDictionary *change) {
+											return [player durationSeconds] > 0;
+										}];
+	[self.player loadFileURL:[self copyVideoNamed:@"video.mp4"]];
+	[self waitForExpectationsWithTimeout:kPlayerTimeout handler:nil];
+	XCTAssertEqualWithAccuracy(self.player.durationSeconds, 2.0, 0.1);
+}
+
+- (void)testPositionSecondsFollowsSeek {
+	XCTSkipUnless(ZENHasAudioOutputDevice(), @"Seeking needs mpv to play audio, and there's no audio output device");
+	[self loadFileURLReadyToSeek:[self copyVideoNamed:@"video.mp4"]];
+	[self keyValueObservingExpectationForObject:self.player
+										keyPath:@"positionSeconds"
+										handler:^BOOL(id player, NSDictionary *change) {
+											return fabs([player positionSeconds] - 1.0) < 0.15;
+										}];
+	[self.player seekAbsoluteSeconds:1.0];
+	[self waitForExpectationsWithTimeout:kPlayerTimeout handler:nil];
 }
 
 @end

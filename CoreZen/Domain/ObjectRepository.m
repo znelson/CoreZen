@@ -8,7 +8,7 @@
 #import "ObjectRepository.h"
 #import "ObjectCache.h"
 #import "DatabaseTable.h"
-#import "DatabaseQueue+Private.h"
+#import "DatabaseQueue.h"
 #import "Database+Private.h"
 #import "ResultSet.h"
 #import "DomainCommon.h"

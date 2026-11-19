@@ -419,6 +419,115 @@ static NSUInteger ZENOpenDescriptorCount(NSURL *URL) {
 	[self waitForExpectationsWithTimeout:5.0 handler:nil];
 }
 
+#pragma mark - Transaction Results
+
+// Runs updateBlock in an async transaction on queue, and returns the error its
+// result block got
+- (NSError *)resultOfTransaction:(ZENDatabaseBlock)updateBlock onQueue:(ZENDatabaseQueue *)queue {
+	XCTestExpectation *finished = [self expectationWithDescription:@"transaction result"];
+	__block NSError *result = nil;
+	[queue transactionAsync:updateBlock
+					 result:^(NSError *error) {
+						 result = error;
+						 [finished fulfill];
+					 }];
+	[self waitForExpectations:@[finished] timeout:5.0];
+	return result;
+}
+
+- (void)testTransactionResultIsNilOnceCommitted {
+	NSError *error = [self resultOfTransaction:^(ZENDatabase *database) {
+		XCTAssertTrue([self insertRowNamed:@"Alpha" database:database]);
+	}
+									   onQueue:self.queue];
+	XCTAssertNil(error);
+	XCTAssertEqual([self countRows], 1u);
+}
+
+- (void)testTransactionResultReportsAFailedStatement {
+	NSError *error = [self resultOfTransaction:^(ZENDatabase *database) {
+		XCTAssertTrue([self insertRowNamed:@"Alpha" database:database]);
+		XCTAssertFalse([database executeUpdate:@"INSERT INTO no_such_table VALUES (1);"]);
+	}
+									   onQueue:self.queue];
+	XCTAssertEqualObjects(error.domain, ZENDatabaseErrorDomain);
+	XCTAssertEqual(error.code, ZENDatabaseErrorStatementFailed);
+	XCTAssertEqual([self countRows], 0u);
+}
+
+- (void)testTransactionResultReportsACancel {
+	NSError *error = [self resultOfTransaction:^(ZENDatabase *database) {
+		XCTAssertTrue([self insertRowNamed:@"Alpha" database:database]);
+		[database cancelTransaction];
+	}
+									   onQueue:self.queue];
+	XCTAssertEqualObjects(error.domain, ZENDatabaseErrorDomain);
+	XCTAssertEqual(error.code, ZENDatabaseErrorTransactionCanceled);
+	XCTAssertEqual([self countRows], 0u);
+}
+
+- (void)testTransactionResultReportsAFailedCommit {
+	// SQLite checks a deferred foreign key only at COMMIT, so the statements below
+	// succeed and the commit fails
+	[self.queue fetchSync:^(ZENDatabase *database) {
+		XCTAssertTrue([database executeUpdate:@"PRAGMA foreign_keys = ON;"]);
+		XCTAssertTrue([database executeUpdate:@"CREATE TABLE parents (identifier INTEGER PRIMARY KEY);"]);
+		XCTAssertTrue([database executeUpdate:@"CREATE TABLE orphans "
+											  @"(parent INTEGER REFERENCES parents (identifier) DEFERRABLE INITIALLY DEFERRED);"]);
+	}];
+	NSError *error = [self resultOfTransaction:^(ZENDatabase *database) {
+		XCTAssertTrue([self insertRowNamed:@"Alpha" database:database]);
+		XCTAssertTrue([database executeUpdate:@"INSERT INTO orphans VALUES (-1);"]);
+	}
+									   onQueue:self.queue];
+	XCTAssertEqualObjects(error.domain, ZENDatabaseErrorDomain);
+	XCTAssertEqual(error.code, ZENDatabaseErrorCommitFailed);
+	XCTAssertEqual([self countRows], 0u);
+}
+
+- (void)testTransactionResultReportsADatabaseThatIsNotOpen {
+	// No database can be made in a folder that doesn't exist
+	NSURL *URL = [[self temporaryDatabaseURL].URLByDeletingLastPathComponent URLByAppendingPathComponent:@"Missing/Test.db"];
+	ZENDatabaseQueue *queue = [ZENDatabaseQueue databaseQueueWithURL:URL];
+	__block BOOL blockRan = NO;
+	NSError *error = [self resultOfTransaction:^(ZENDatabase *database) {
+		// The block still runs, without a database, so it can finish what it started
+		XCTAssertNil(database);
+		blockRan = YES;
+	}
+									   onQueue:queue];
+	[queue shutdown];
+	XCTAssertTrue(blockRan);
+	XCTAssertEqualObjects(error.domain, ZENDatabaseErrorDomain);
+	XCTAssertEqual(error.code, ZENDatabaseErrorNotOpen);
+}
+
+- (void)testTransactionResultComesBeforeLaterWork {
+	// Both run on the queue, so they don't need a lock
+	NSMutableArray<NSString *> *order = [NSMutableArray array];
+	XCTestExpectation *fetched = [self expectationWithDescription:@"fetched"];
+	[self.queue transactionAsync:^(ZENDatabase *database) {
+		[order addObject:@"transaction"];
+	}
+		result:^(NSError *error) {
+			[order addObject:@"result"];
+		}];
+	[self.queue fetchAsync:^(ZENDatabase *database) {
+		[order addObject:@"fetch"];
+		[fetched fulfill];
+	}];
+	[self waitForExpectations:@[fetched] timeout:5.0];
+	XCTAssertEqualObjects(order, (@[@"transaction", @"result", @"fetch"]));
+}
+
+- (void)testTransactionResultBlockMayBeNil {
+	[self.queue transactionAsync:^(ZENDatabase *database) {
+		XCTAssertTrue([self insertRowNamed:@"Alpha" database:database]);
+	}
+						  result:nil];
+	XCTAssertEqual([self countRows], 1u);
+}
+
 #pragma mark - Connection
 
 - (NSURL *)temporaryDatabaseURL {

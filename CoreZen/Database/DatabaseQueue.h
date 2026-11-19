@@ -33,6 +33,13 @@ typedef void (^ZENDatabaseBlock)(ZENDatabase *database);
 // database's cancelTransaction.
 - (void)transactionAsync:(ZENDatabaseBlock)updateBlock;
 - (void)transactionSync:(ZENDatabaseBlock)updateBlock;
+
+// Same as transactionAsync:, then calls resultBlock with nil once the transaction
+// has committed, or with an error (in ZENDatabaseErrorDomain) saying why nothing
+// was saved: it rolled back, or the database isn't open. resultBlock runs on the
+// queue, right after the transaction ends and before any work queued after it,
+// so it mustn't call this queue's sync methods. resultBlock may be nil.
+- (void)transactionAsync:(ZENDatabaseBlock)updateBlock result:(void (^)(NSError *error))resultBlock;
 - (void)fetchAsync:(ZENDatabaseBlock)fetchBlock;
 - (void)fetchSync:(ZENDatabaseBlock)fetchBlock;
 - (void)vacuumAsync;

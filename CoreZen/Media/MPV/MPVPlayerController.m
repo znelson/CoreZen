@@ -114,8 +114,6 @@ static void zen_mpv_wakeup(void *ctx);
 - (void)terminate {
 	mpv_unobserve_property(_mpvHandle, self.identifier);
 
-	NSLog(@"Terminating mpv player queue...");
-
 	// Send a mpv quit command, which will trigger MPV_EVENT_SHUTDOWN
 	[self mpvSimpleCommand:kMPVCommand_quit];
 
@@ -125,8 +123,6 @@ static void zen_mpv_wakeup(void *ctx);
 		pthread_cond_wait(&_playerCondition, &_playerMutex);
 	}
 	pthread_mutex_unlock(&_playerMutex);
-
-	NSLog(@"Finished terminating mpv player queue");
 
 	// Clean up mutex and condition variable
 	zen_mpv_destroy_pthread_mutex_cond(&_playerMutex, &_playerCondition);
@@ -225,7 +221,6 @@ static void zen_mpv_wakeup(void *ctx);
 			// can break out of the outer loop and let this thread return
 			break;
 		} else if (eid == MPV_EVENT_SHUTDOWN) {
-			NSLog(@"MPV_EVENT_SHUTDOWN");
 			[self destroyHandle];
 			break;
 		}
@@ -235,57 +230,25 @@ static void zen_mpv_wakeup(void *ctx);
 				NSLog(@"MPV_EVENT_LOG_MESSAGE: [%s] <%s> %s", msg->prefix, msg->level, msg->text);
 				break;
 			}
-			case MPV_EVENT_GET_PROPERTY_REPLY: {
-				NSLog(@"MPV_EVENT_GET_PROPERTY_REPLY");
-				break;
-			}
-			case MPV_EVENT_SET_PROPERTY_REPLY: {
-				NSLog(@"MPV_EVENT_SET_PROPERTY_REPLY");
-				break;
-			}
-			case MPV_EVENT_COMMAND_REPLY: {
-				NSLog(@"MPV_EVENT_COMMAND_REPLY");
-				break;
-			}
-			case MPV_EVENT_START_FILE: {
-				NSLog(@"MPV_EVENT_START_FILE");
-				break;
-			}
 			case MPV_EVENT_END_FILE: {
-				NSLog(@"MPV_EVENT_END_FILE");
 				dispatch_async(dispatch_get_main_queue(), ^{
 					[self.player playerControllerDidEndFile];
 				});
 				break;
 			}
 			case MPV_EVENT_FILE_LOADED: {
-				NSLog(@"MPV_EVENT_FILE_LOADED");
 				dispatch_async(dispatch_get_main_queue(), ^{
 					[self.player playerControllerDidLoadFile];
 				});
 				break;
 			}
-			case MPV_EVENT_CLIENT_MESSAGE: {
-				NSLog(@"MPV_EVENT_CLIENT_MESSAGE");
-				break;
-			}
-			case MPV_EVENT_VIDEO_RECONFIG: {
-				NSLog(@"MPV_EVENT_VIDEO_RECONFIG");
-				break;
-			}
-			case MPV_EVENT_AUDIO_RECONFIG: {
-				NSLog(@"MPV_EVENT_AUDIO_RECONFIG");
-				break;
-			}
 			case MPV_EVENT_SEEK: {
-				NSLog(@"MPV_EVENT_SEEK");
 				dispatch_async(dispatch_get_main_queue(), ^{
 					self.player.seeking = YES;
 				});
 				break;
 			}
 			case MPV_EVENT_PLAYBACK_RESTART: {
-				NSLog(@"MPV_EVENT_PLAYBACK_RESTART");
 				dispatch_async(dispatch_get_main_queue(), ^{
 					[self.player playerControllerDidRestartPlayback];
 				});
@@ -357,11 +320,7 @@ static void zen_mpv_wakeup(void *ctx);
 				break;
 			}
 			case MPV_EVENT_QUEUE_OVERFLOW: {
-				NSLog(@"MPV_EVENT_QUEUE_OVERFLOW");
-				break;
-			}
-			case MPV_EVENT_HOOK: {
-				NSLog(@"MPV_EVENT_HOOK");
+				NSLog(@"WARNING: mpv's event queue overflowed, so some of its events were lost");
 				break;
 			}
 			default: {

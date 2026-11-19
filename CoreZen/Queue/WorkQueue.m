@@ -185,7 +185,6 @@ typedef BOOL (^ZENWorkQueueTokenBlock)(void);
 
 	dispatch_sync(self.queue, ^{
 		block();
-		NSLog(@"Work queue %@ terminated", self.label);
 	});
 }
 

@@ -129,8 +129,6 @@ static void zen_mpv_render_context_update(void *ctx);
 
 	mpv_render_context_set_update_callback(_mpvRenderContext, NULL, NULL);
 
-	NSLog(@"Terminating mpv render queue...");
-
 	pthread_mutex_lock(&_renderMutex);
 
 	_terminated = YES;
@@ -139,8 +137,6 @@ static void zen_mpv_render_context_update(void *ctx);
 	pthread_mutex_unlock(&_renderMutex);
 
 	dispatch_sync(_renderQueue, ^{});
-
-	NSLog(@"Finished terminating mpv render queue");
 
 	mpv_render_context_free(_mpvRenderContext);
 	_mpvRenderContext = nil;

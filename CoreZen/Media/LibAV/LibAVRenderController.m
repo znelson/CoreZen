@@ -96,10 +96,8 @@
 }
 
 - (void)terminate {
-	NSLog(@"Terminating libav render queue...");
-	[self.workQueue terminate:^{
-		NSLog(@"Finished terminating libav render queue");
-	}];
+	// Waits for a render that's in progress to finish
+	[self.workQueue terminate:^{}];
 
 	if (_codecContext) {
 		avcodec_free_context(&_codecContext);

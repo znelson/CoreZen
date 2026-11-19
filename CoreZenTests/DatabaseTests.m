@@ -783,6 +783,111 @@ static NSUInteger ZENOpenDescriptorCount(NSURL *URL) {
 	[reopened shutdown];
 }
 
+#pragma mark - Write-Ahead Log
+
+// The value a pragma reports on the queue's connection
+- (NSString *)valueOfPragma:(NSString *)pragma onQueue:(ZENDatabaseQueue *)queue {
+	__block NSString *value = nil;
+	[queue fetchSync:^(ZENDatabase *database) {
+		ZENResultSet *rs = [database executeQuery:[NSString stringWithFormat:@"PRAGMA %@;", pragma]];
+		value = [rs next] ? [rs stringForColumnIndex:0] : nil;
+		[rs close];
+	}];
+	return value;
+}
+
+- (void)testDatabaseFileUsesWriteAheadLog {
+	ZENDatabaseQueue *queue = [ZENDatabaseQueue databaseQueueWithURL:[self temporaryDatabaseURL]];
+	XCTAssertEqualObjects([self valueOfPragma:@"journal_mode" onQueue:queue], @"wal");
+	XCTAssertEqualObjects([self valueOfPragma:@"synchronous" onQueue:queue], @"1", @"synchronous should be NORMAL");
+	[queue shutdown];
+}
+
+- (void)testWriteSavesWhileAnotherConnectionReads {
+	NSURL *URL = [self temporaryDatabaseURL];
+	ZENDatabaseQueue *writer = [ZENDatabaseQueue databaseQueueWithURL:URL];
+	ZENDatabaseQueue *reader = [ZENDatabaseQueue databaseQueueWithURL:URL];
+	ZENDatabaseSchema *schema = [ZENDatabaseSchema schemaWithTableClasses:@[[ZENTestTable class]]];
+	[writer transactionSync:^(ZENDatabase *database) {
+		[schema initializeDatabase:database];
+		XCTAssertTrue([self insertRowNamed:@"Alpha" database:database]);
+	}];
+
+	// The reader stops partway through a query, which keeps its read going, until
+	// the writer has finished
+	dispatch_semaphore_t reading = dispatch_semaphore_create(0);
+	dispatch_semaphore_t written = dispatch_semaphore_create(0);
+	XCTestExpectation *readFinished = [self expectationWithDescription:@"read finished"];
+	[reader fetchAsync:^(ZENDatabase *database) {
+		ZENResultSet *rs = [database executeQuery:@"SELECT name FROM test_objects;"];
+		XCTAssertTrue([rs next]);
+		dispatch_semaphore_signal(reading);
+		dispatch_semaphore_wait(written, dispatch_time(DISPATCH_TIME_NOW, 10 * NSEC_PER_SEC));
+		// A read sees the database as it was when the read began
+		XCTAssertFalse([rs next]);
+		[rs close];
+		[readFinished fulfill];
+	}];
+	XCTAssertEqual(dispatch_semaphore_wait(reading, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC)), 0);
+
+	NSError *error = [self resultOfTransaction:^(ZENDatabase *database) {
+		XCTAssertTrue([self insertRowNamed:@"Beta" database:database]);
+	}
+									   onQueue:writer];
+	dispatch_semaphore_signal(written);
+	[self waitForExpectations:@[readFinished] timeout:5.0];
+	XCTAssertNil(error, @"The write should save while the other connection reads");
+
+	// The reader's next read sees it
+	[reader fetchSync:^(ZENDatabase *database) {
+		XCTAssertEqual([self countRowsInTable:@"test_objects" database:database], 2);
+	}];
+	[writer shutdown];
+	[reader shutdown];
+}
+
+- (void)testInMemoryDatabaseKeepsItsJournal {
+	// An in-memory database can't have a write-ahead log, and doesn't need one
+	ZENDatabaseQueue *queue = [ZENDatabaseQueue databaseQueueInMemory];
+	XCTAssertEqualObjects([self valueOfPragma:@"journal_mode" onQueue:queue], @"memory");
+	[queue shutdown];
+}
+
+#pragma mark - Foreign Keys
+
+// Makes a table whose rows refer to rows of another, and adds one that refers to
+// a row that isn't there, all in the queue's first transaction. Returns its result.
+- (NSError *)addRowWithMissingReferenceOnQueue:(ZENDatabaseQueue *)queue {
+	return [self resultOfTransaction:^(ZENDatabase *database) {
+		XCTAssertTrue([database executeUpdate:@"CREATE TABLE parents (identifier INTEGER PRIMARY KEY);"]);
+		XCTAssertTrue([database executeUpdate:@"CREATE TABLE children (parent INTEGER REFERENCES parents (identifier));"]);
+		[database executeUpdate:@"INSERT INTO children VALUES (1);"];
+	}
+							 onQueue:queue];
+}
+
+- (void)testForeignKeysAreEnforcedWhenAskedFor {
+	ZENDatabaseQueue *queue = [ZENDatabaseQueue databaseQueueInMemoryWithOptions:ZENDatabaseQueueOptionForeignKeys];
+	NSError *error = [self addRowWithMissingReferenceOnQueue:queue];
+	XCTAssertEqualObjects(error.domain, ZENDatabaseErrorDomain);
+	XCTAssertEqual(error.code, ZENDatabaseErrorStatementFailed);
+	XCTAssertTrue([error.localizedDescription containsString:@"FOREIGN KEY constraint failed"], @"%@", error);
+	[queue shutdown];
+}
+
+- (void)testForeignKeysAreEnforcedInADatabaseFile {
+	ZENDatabaseQueue *queue = [ZENDatabaseQueue databaseQueueWithURL:[self temporaryDatabaseURL]
+															 options:ZENDatabaseQueueOptionForeignKeys];
+	XCTAssertEqual([self addRowWithMissingReferenceOnQueue:queue].code, ZENDatabaseErrorStatementFailed);
+	[queue shutdown];
+}
+
+- (void)testForeignKeysAreNotEnforcedByDefault {
+	ZENDatabaseQueue *queue = [ZENDatabaseQueue databaseQueueInMemory];
+	XCTAssertNil([self addRowWithMissingReferenceOnQueue:queue]);
+	[queue shutdown];
+}
+
 #pragma mark - Trace Execution
 
 // ZENDatabase keeps its FMDatabase private, so these read FMDB's setting by key path

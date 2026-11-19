@@ -892,13 +892,13 @@ static NSUInteger ZENOpenDescriptorCount(NSURL *URL) {
 #pragma mark - Logging
 
 - (void)testDatabaseLogsUnderCoreZensSubsystem {
-	NSDate *start = [NSDate date];
+	NSString *marker = ZENLogMarker();
 	ZENDatabaseQueue *queue = [ZENDatabaseQueue databaseQueueWithURL:[self temporaryDatabaseURL]];
 	[queue fetchSync:^(ZENDatabase *database) {
 		XCTAssertNil([database executeQuery:@"SELECT name FROM no_such_table;"]);
 	}];
 	[queue shutdown];
-	NSArray<OSLogEntryLog *> *entries = ZENLogEntriesSince(start);
+	NSArray<OSLogEntryLog *> *entries = ZENLogEntriesAfter(marker);
 
 	// Something routine is info, and a failure is an error, with the SQL that failed
 	XCTAssertEqual(ZENCoreZenLogEntries(entries, @"Database", OSLogEntryLogLevelInfo, @"Opening the database at").count, 1u);

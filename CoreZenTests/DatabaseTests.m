@@ -138,6 +138,15 @@ static NSUInteger ZENOpenDescriptorCount(NSURL *URL) {
 // identifier counter is reset and the schema initializes the database again.
 - (void)relaunchWithIdentifiers:(NSArray<NSArray<NSNumber *> *> *)identifiers
 					   inTables:(NSArray<Class> *)tableClasses {
+	[self openWithIdentifiers:identifiers inTables:tableClasses counterAt:0];
+}
+
+// Like relaunchWithIdentifiers:inTables:, but with the counter at counter when
+// the schema initializes the database, as if other work in the process had
+// already handed out identifiers up to counter
+- (void)openWithIdentifiers:(NSArray<NSArray<NSNumber *> *> *)identifiers
+				   inTables:(NSArray<Class> *)tableClasses
+				  counterAt:(ZENIdentifier)counter {
 	ZENDatabaseQueue *queue = [ZENDatabaseQueue databaseQueueInMemory];
 	ZENDatabaseSchema *schema = [ZENDatabaseSchema schemaWithTableClasses:tableClasses];
 	[queue fetchSync:^(ZENDatabase *database) {
@@ -153,7 +162,7 @@ static NSUInteger ZENOpenDescriptorCount(NSURL *URL) {
 		}];
 	}];
 
-	ZENSetLargestObjectIdentifier(0);
+	ZENSetLargestObjectIdentifier(counter);
 	[queue fetchSync:^(ZENDatabase *database) {
 		[schema initializeDatabase:database];
 	}];
@@ -171,6 +180,23 @@ static NSUInteger ZENOpenDescriptorCount(NSURL *URL) {
 - (void)testIdentifiersResumeAfterLargestInLastTable {
 	[self relaunchWithIdentifiers:@[@[@50], @[@99, @100]]
 						 inTables:@[[ZENTestTable class], [ZENOtherTestTable class]]];
+	XCTAssertEqual(ZENGetNextObjectIdentifier(), 101);
+}
+
+- (void)testOpeningDatabaseWithSmallerIdentifiersKeepsCounter {
+	// Another database open in the process has handed out identifiers up to 500.
+	// Opening one whose largest is 100 mustn't send the counter back, or new
+	// objects would get identifiers the other database already uses.
+	[self openWithIdentifiers:@[@[@99, @100], @[]]
+					 inTables:@[[ZENTestTable class], [ZENOtherTestTable class]]
+					counterAt:500];
+	XCTAssertEqual(ZENGetNextObjectIdentifier(), 501);
+}
+
+- (void)testOpeningDatabaseWithLargerIdentifiersRaisesCounter {
+	[self openWithIdentifiers:@[@[@99, @100], @[]]
+					 inTables:@[[ZENTestTable class], [ZENOtherTestTable class]]
+					counterAt:50];
 	XCTAssertEqual(ZENGetNextObjectIdentifier(), 101);
 }
 

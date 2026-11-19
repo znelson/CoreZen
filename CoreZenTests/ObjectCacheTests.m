@@ -40,6 +40,35 @@
 	XCTAssertEqual(nextIdentifier, 4);
 }
 
+- (void)testRaiseNeverMovesCounterBack {
+	ZENSetLargestObjectIdentifier(10);
+	ZENRaiseLargestObjectIdentifier(5);
+	XCTAssertEqual(ZENGetNextObjectIdentifier(), 11);
+
+	ZENRaiseLargestObjectIdentifier(20);
+	XCTAssertEqual(ZENGetNextObjectIdentifier(), 21);
+
+	// 21 is handed out, so the counter is already past it
+	ZENRaiseLargestObjectIdentifier(21);
+	XCTAssertEqual(ZENGetNextObjectIdentifier(), 22);
+}
+
+- (void)testConcurrentRaisesEndPastTheLargest {
+	// Raises race each other on many threads; whichever order they land in, the
+	// counter ends just past the largest
+	dispatch_apply(10000, DISPATCH_APPLY_AUTO, ^(size_t i) {
+		ZENRaiseLargestObjectIdentifier((ZENIdentifier)i);
+	});
+	XCTAssertEqual(ZENGetNextObjectIdentifier(), 10000);
+}
+
+- (void)testSetCanMoveCounterBack {
+	// Unlike a raise, a set is a reset, which tests use for predictable identifiers
+	ZENSetLargestObjectIdentifier(100);
+	ZENSetLargestObjectIdentifier(5);
+	XCTAssertEqual(ZENGetNextObjectIdentifier(), 6);
+}
+
 #pragma mark - Cache / Retrieve
 
 - (void)testNonExistingObject {

@@ -128,7 +128,16 @@ jobs:
 
       - name: Test
         run: |
-          xcodebuild test -scheme CoreZen -project CoreZen.xcodeproj
+          xcodebuild test -scheme CoreZen -project CoreZen.xcodeproj \
+            -enableCodeCoverage YES -resultBundlePath "$RUNNER_TEMP/Tests.xcresult"
+
+      # Shows how much of CoreZen the tests ran, file by file, on the run's
+      # summary page. The report goes to a file first, since a pipe would hide
+      # the script failing.
+      - name: Report Code Coverage
+        run: |
+          Scripts/coverage_report.py "$RUNNER_TEMP/Tests.xcresult" > "$RUNNER_TEMP/coverage.md"
+          cat "$RUNNER_TEMP/coverage.md" >> "$GITHUB_STEP_SUMMARY"
 
       # Test again under sanitizers, which catch bugs that tests can pass despite:
       # Thread Sanitizer finds data races, Address Sanitizer finds memory errors,

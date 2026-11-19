@@ -90,7 +90,6 @@
 		return;
 	}
 
-	NSLog(@"Terminating database queue...");
 	[self.workQueue terminate:^{
 		if (updateBlock) {
 			@autoreleasepool {
@@ -98,7 +97,6 @@
 			}
 		}
 		[self closeDatabase];
-		NSLog(@"Finished terminating database queue");
 	}];
 }
 

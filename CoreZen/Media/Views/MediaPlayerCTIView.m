@@ -148,8 +148,6 @@ static void *ObserverContext = &ObserverContext;
 }
 
 - (void)updateMediaFile:(NSURL *)url {
-	NSLog(@"MediaPlayerCTIView fileURL changed: %@", url);
-
 	// Anything still opening or rendering for an earlier file is stale from here on
 	NSUInteger generation = ++self.mediaFileGeneration;
 
@@ -193,7 +191,6 @@ static void *ObserverContext = &ObserverContext;
 			ZENMediaPlayerCTIView *strongSelf = weakSelf;
 			if (strongSelf.mediaFileGeneration == generation) {
 				strongSelf.previewFrames = frames;
-				NSLog(@"Rendered %lu frames", frames.count);
 			}
 		});
 	}];

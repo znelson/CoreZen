@@ -8,7 +8,7 @@ To note a change, add a line under Unreleased, in a group such as Added, Changed
 
 ### Added
 
-- Documentation for the persistence API, built with DocC: doc comments in its headers, which Xcode shows in Quick Help, and a Persistence article with an example.
+- Documentation for the persistence and media APIs, built with DocC: doc comments in their headers, which Xcode shows in Quick Help, and an article with examples for each.
 
 ## 0.1.0 - 2026-11-19
 

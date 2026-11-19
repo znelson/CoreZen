@@ -40,7 +40,8 @@
 - (BOOL)resizeRawFrame:(AVFrame **)frame
 			   maxSize:(NSSize)size;
 
-- (NSImage *)convertRawFrameToImage:(AVFrame *)frame;
+- (NSImage *)convertRawFrameToImage:(AVFrame *)frame
+						   rotation:(NSUInteger)rotation;
 
 @end
 
@@ -222,7 +223,33 @@
 	return success;
 }
 
-- (NSImage *)convertRawFrameToImage:(AVFrame *)frame {
+// image turned clockwise by rotation degrees, a multiple of 90
+static CGImageRef ZENCreateRotatedImage(CGImageRef image, NSUInteger rotation) CF_RETURNS_RETAINED {
+	size_t width = CGImageGetWidth(image);
+	size_t height = CGImageGetHeight(image);
+	BOOL quarterTurn = (rotation == 90 || rotation == 270);
+	size_t rotatedWidth = quarterTurn ? height : width;
+	size_t rotatedHeight = quarterTurn ? width : height;
+
+	CGContextRef context = CGBitmapContextCreate(NULL, rotatedWidth, rotatedHeight, 8, 0, CGImageGetColorSpace(image),
+												 (CGBitmapInfo)kCGImageAlphaPremultipliedLast);
+	if (!context) {
+		return CGImageRetain(image);
+	}
+	// Turn about the center. Core Graphics' y axis points up, so clockwise on screen
+	// is a negative angle. Quarter turns land every pixel on a pixel, so there's
+	// nothing to smooth.
+	CGContextSetInterpolationQuality(context, kCGInterpolationNone);
+	CGContextTranslateCTM(context, rotatedWidth / 2.0, rotatedHeight / 2.0);
+	CGContextRotateCTM(context, -(CGFloat)rotation * M_PI / 180.0);
+	CGContextDrawImage(context, CGRectMake(-(CGFloat)width / 2.0, -(CGFloat)height / 2.0, width, height), image);
+	CGImageRef rotated = CGBitmapContextCreateImage(context);
+	CGContextRelease(context);
+	return rotated;
+}
+
+- (NSImage *)convertRawFrameToImage:(AVFrame *)frame
+						   rotation:(NSUInteger)rotation {
 	CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
 
 	void *frameData = frame->data[0];
@@ -230,15 +257,24 @@
 	size_t height = frame->height;
 
 	CGContextRef bitmapContext = CGBitmapContextCreate(frameData, width, height, 8, width * 4, colorSpace, (CGBitmapInfo)kCGImageAlphaPremultipliedLast);
+	// The image keeps its own copy of the pixels, so the context can go. Unlike
+	// CFRelease, these release functions take NULL.
+	CGImageRef bitmap = bitmapContext ? CGBitmapContextCreateImage(bitmapContext) : NULL;
+	CGContextRelease(bitmapContext);
+	CGColorSpaceRelease(colorSpace);
 
-	CGImageRef bitmap = CGBitmapContextCreateImage(bitmapContext);
+	if (bitmap && rotation != 0) {
+		CGImageRef rotated = ZENCreateRotatedImage(bitmap, rotation);
+		CGImageRelease(bitmap);
+		bitmap = rotated;
+	}
+	if (!bitmap) {
+		// Core Graphics couldn't make the image, so the frame has none
+		return nil;
+	}
 
 	NSImage *image = [[NSImage alloc] initWithCGImage:bitmap size:NSZeroSize];
-
-	CFRelease(colorSpace);
-	CFRelease(bitmapContext);
-	CFRelease(bitmap);
-
+	CGImageRelease(bitmap);
 	return image;
 }
 
@@ -286,9 +322,14 @@
 		renderedFrame.actualPercentage = renderedFrame.actualTimestamp / (double)durationStreamTicks;
 		renderedFrame.actualSeconds = renderedFrame.actualPercentage * durationSeconds;
 
+		// The image is turned upright last, so a quarter turn means fitting the
+		// stored frame into the box turned on its side
+		NSUInteger rotation = infoController.rotationDegrees;
+		NSSize frameSize = (rotation == 90 || rotation == 270) ? NSMakeSize(size.height, size.width) : size;
+
 		// Resize the frame to desired size, convert to RGB
-		if ([self resizeRawFrame:&rawFrame maxSize:size]) {
-			renderedFrame.image = [self convertRawFrameToImage:rawFrame];
+		if ([self resizeRawFrame:&rawFrame maxSize:frameSize]) {
+			renderedFrame.image = [self convertRawFrameToImage:rawFrame rotation:rotation];
 		}
 	}
 

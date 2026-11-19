@@ -25,8 +25,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSUInteger)durationMicroseconds;
 
+// The video's size as it's shown, with its rotation applied, so a phone's portrait
+// video is taller than it is wide. 0 if there's no video.
 - (NSUInteger)frameWidth;
 - (NSUInteger)frameHeight;
+
+// How far the video's frames are turned clockwise to show them upright: 0, 90, 180
+// or 270 degrees. Phones store portrait video as landscape frames tagged with 90.
+// ZENFrameRenderer's images are already turned.
+- (NSUInteger)rotationDegrees;
 
 // Short names of the codecs of the file's video and audio, like "h264" and "aac". nil if
 // the file has no stream of that kind that can be decoded, like the audio of a video with

@@ -38,7 +38,8 @@
 			 timestamp:(int64_t)timestamp;
 
 - (BOOL)resizeRawFrame:(AVFrame **)frame
-			   maxSize:(NSSize)size;
+			   maxSize:(NSSize)size
+	  pixelAspectRatio:(double)pixelAspectRatio;
 
 - (NSImage *)convertRawFrameToImage:(AVFrame *)frame
 						   rotation:(NSUInteger)rotation;
@@ -156,8 +157,11 @@
 	return (result >= 0);
 }
 
+// Scales frame to fit maxSize as it's shown, with its pixels stretched to
+// pixelAspectRatio, and converts it to RGB
 - (BOOL)resizeRawFrame:(AVFrame **)frame
-			   maxSize:(NSSize)maxSize {
+			   maxSize:(NSSize)maxSize
+	  pixelAspectRatio:(double)pixelAspectRatio {
 	BOOL success = NO;
 	AVFrame *rgbFrame = av_frame_alloc();
 
@@ -167,7 +171,7 @@
 
 	AVFrame *sourceFrame = *frame;
 
-	NSSize sourceSize = NSMakeSize(sourceFrame->width, sourceFrame->height);
+	NSSize sourceSize = NSMakeSize(sourceFrame->width * pixelAspectRatio, sourceFrame->height);
 
 	if (sourceSize.width <= 0 || sourceSize.height <= 0) {
 		av_frame_free(&rgbFrame);
@@ -178,8 +182,10 @@
 	double factorY = maxSize.height / sourceSize.height;
 	double scaleFactor = fmin(factorX, factorY);
 
-	double scaledX = round(sourceSize.width * scaleFactor);
-	double scaledY = round(sourceSize.height * scaleFactor);
+	// The scaler stretches the frame as it resizes it. A very narrow or wide frame
+	// still gets at least a pixel each way.
+	double scaledX = fmax(1, round(sourceSize.width * scaleFactor));
+	double scaledY = fmax(1, round(sourceSize.height * scaleFactor));
 
 	rgbFrame->width = scaledX;
 	rgbFrame->height = scaledY;
@@ -323,12 +329,17 @@ static CGImageRef ZENCreateRotatedImage(CGImageRef image, NSUInteger rotation) C
 		renderedFrame.actualSeconds = renderedFrame.actualPercentage * durationSeconds;
 
 		// The image is turned upright last, so a quarter turn means fitting the
-		// stored frame into the box turned on its side
+		// stored frame into the box turned on its side. The stretch to the pixel
+		// aspect ratio belongs to the stored frame, so it comes first.
 		NSUInteger rotation = infoController.rotationDegrees;
 		NSSize frameSize = (rotation == 90 || rotation == 270) ? NSMakeSize(size.height, size.width) : size;
 
+		// The container's pixel aspect ratio if it has one, else the frame's
+		AVRational ratio = av_guess_sample_aspect_ratio(formatContext, (AVStream *)stream, rawFrame);
+		double pixelAspectRatio = (ratio.num > 0 && ratio.den > 0) ? av_q2d(ratio) : 1.0;
+
 		// Resize the frame to desired size, convert to RGB
-		if ([self resizeRawFrame:&rawFrame maxSize:frameSize]) {
+		if ([self resizeRawFrame:&rawFrame maxSize:frameSize pixelAspectRatio:pixelAspectRatio]) {
 			renderedFrame.image = [self convertRawFrameToImage:rawFrame rotation:rotation];
 		}
 	}

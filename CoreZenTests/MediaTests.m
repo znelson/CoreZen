@@ -29,6 +29,12 @@
 //   degrees clockwise, as phones tag portrait video with 90. -display_rotation counts
 //   counterclockwise, so 90, 270 and 180 clockwise are -90, 90 and 180:
 //     ffmpeg -display_rotation:v:0 -90 -i red-blue.mp4 -c copy -movflags +faststart red-blue-rotated-90.mp4
+//   red-blue-anamorphic.mp4: red-blue.mp4's 64x32 frames with a 2:1 sample aspect ratio,
+//   so each pixel is shown twice as wide as it's tall, and the video 128x32
+//     ffmpeg -f lavfi -i "color=c=red:s=32x32:r=10:d=1[l];color=c=blue:s=32x32:r=10:d=1[r];[l][r]hstack,setsar=2/1[out0]"
+//            -c:v libx264 -pix_fmt yuv420p -g 5 -movflags +faststart red-blue-anamorphic.mp4
+//   red-blue-anamorphic-rotated-90.mp4: that, tagged 90 clockwise like red-blue-rotated-90.mp4.
+//   The stretch applies to the stored frame, before the turn, so it's shown 32x128.
 
 static const NSTimeInterval kRenderTimeout = 10.0;
 
@@ -233,7 +239,7 @@ static const NSTimeInterval kRenderTimeout = 10.0;
 	return color;
 }
 
-- (void)testFrameSizeOfRotatedVideoIsAsShown {
+- (void)testFrameSizeIsAsShown {
 	// Stored as 64x32 frames
 	ZENMediaFile *unrotated = [self mediaFileNamed:@"red-blue.mp4"];
 	XCTAssertEqual(unrotated.frameWidth, 64u);
@@ -256,9 +262,23 @@ static const NSTimeInterval kRenderTimeout = 10.0;
 	XCTAssertEqual(upsideDown.frameWidth, 64u);
 	XCTAssertEqual(upsideDown.frameHeight, 32u);
 
+	XCTAssertEqual(unrotated.pixelAspectRatio, 1.0);
+
+	// Stretched to 128x32, then turned
+	ZENMediaFile *anamorphic = [self mediaFileNamed:@"red-blue-anamorphic.mp4"];
+	XCTAssertEqual(anamorphic.pixelAspectRatio, 2.0);
+	XCTAssertEqual(anamorphic.frameWidth, 128u);
+	XCTAssertEqual(anamorphic.frameHeight, 32u);
+	ZENMediaFile *anamorphicRotated = [self mediaFileNamed:@"red-blue-anamorphic-rotated-90.mp4"];
+	XCTAssertEqual(anamorphicRotated.pixelAspectRatio, 2.0);
+	XCTAssertEqual(anamorphicRotated.rotationDegrees, 90u);
+	XCTAssertEqual(anamorphicRotated.frameWidth, 32u);
+	XCTAssertEqual(anamorphicRotated.frameHeight, 128u);
+
 	// Files without video have no rotation
 	XCTAssertEqual([self mediaFileNamed:@"audio.m4a"].rotationDegrees, 0u);
 	XCTAssertEqual(self.unreadableMediaFile.rotationDegrees, 0u);
+	XCTAssertEqual([self mediaFileNamed:@"audio.m4a"].pixelAspectRatio, 1.0);
 }
 
 - (void)testRenderedFramesAreUpright {
@@ -268,6 +288,8 @@ static const NSTimeInterval kRenderTimeout = 10.0;
 		@"red-blue-rotated-90.mp4": @[@16, @32, @"red on top"],
 		@"red-blue-rotated-270.mp4": @[@16, @32, @"blue on top"],
 		@"red-blue-rotated-180.mp4": @[@32, @16, @"blue on the left"],
+		@"red-blue-anamorphic.mp4": @[@32, @8, @"red on the left"],
+		@"red-blue-anamorphic-rotated-90.mp4": @[@8, @32, @"red on top"],
 	};
 	[expected enumerateKeysAndObjectsUsingBlock:^(NSString *name, NSArray *expectation, BOOL *stop) {
 		ZENRenderedFrame *frame = [self renderFrameAtPercentage:0.5 ofMediaFile:[self mediaFileNamed:name]];

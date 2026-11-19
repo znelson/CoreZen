@@ -125,6 +125,19 @@ jobs:
         run: |
           xcodebuild test -scheme CoreZen -project CoreZen.xcodeproj
 
+      # Test again under sanitizers, which catch bugs that tests can pass despite:
+      # Thread Sanitizer finds data races, Address Sanitizer finds memory errors,
+      # and Undefined Behavior Sanitizer finds things like signed overflow. Thread
+      # and Address Sanitizer can't run together, hence two runs. A sanitizer's
+      # first report stops the tests, which fails the step.
+      - name: Test With Thread Sanitizer
+        run: |
+          xcodebuild test -scheme CoreZen -project CoreZen.xcodeproj -enableThreadSanitizer YES
+
+      - name: Test With Address And Undefined Behavior Sanitizers
+        run: |
+          xcodebuild test -scheme CoreZen -project CoreZen.xcodeproj -enableAddressSanitizer YES -enableUndefinedBehaviorSanitizer YES
+
       - name: Analyze
         run: |
           xcodebuild analyze -scheme CoreZen -project CoreZen.xcodeproj

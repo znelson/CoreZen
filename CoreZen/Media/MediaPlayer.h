@@ -12,6 +12,28 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+// What the player is doing with the file it was last asked to load
+typedef NS_ENUM(NSInteger, ZENMediaPlayerStatus) {
+	// No file: none has been loaded yet, or playback was stopped
+	ZENMediaPlayerStatusIdle,
+	// loadFileURL: was called, and the file hasn't loaded yet
+	ZENMediaPlayerStatusLoading,
+	// The file has loaded, and can play and seek
+	ZENMediaPlayerStatusReady,
+	// Playback reached the end of the file, which mpv then closes
+	ZENMediaPlayerStatusEnded,
+	// The file couldn't be loaded or played. error says why.
+	ZENMediaPlayerStatusFailed,
+};
+
+extern NSErrorDomain const ZENMediaPlayerErrorDomain;
+
+typedef NS_ERROR_ENUM(ZENMediaPlayerErrorDomain, ZENMediaPlayerErrorCode){
+	// mpv couldn't load or play the file. The description gives its reason, like
+	// "loading failed" for a missing file, and NSURLErrorKey the file's URL.
+	ZENMediaPlayerErrorPlaybackFailed = 1,
+};
+
 @interface ZENMediaPlayer : NSObject <ZENIdentifiable>
 
 // nil while no view is attached
@@ -22,6 +44,12 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) BOOL paused;
 @property (nonatomic, readonly) double positionPercent;
 @property (nonatomic, readonly) BOOL seeking;
+@property (nonatomic, readonly) ZENMediaPlayerStatus status;
+// Why the last file failed, while status is ZENMediaPlayerStatusFailed
+@property (nonatomic, strong, readonly, nullable) NSError *error;
+// The position and length of the file in seconds, or 0 until mpv knows them
+@property (nonatomic, readonly) double positionSeconds;
+@property (nonatomic, readonly) double durationSeconds;
 
 // Terminate and detach the player view, terminate player controller
 - (void)terminatePlayer;
@@ -29,6 +57,8 @@ NS_ASSUME_NONNULL_BEGIN
 // Call before application terminates to terminate all ZENMediaPlayer instances
 + (void)terminateAllPlayers;
 
+// Starts loading url in place of the current file, paused. status becomes
+// ZENMediaPlayerStatusLoading, then Ready or Failed.
 - (void)loadFileURL:(NSURL *)url;
 
 - (void)startPlayback;

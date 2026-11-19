@@ -46,6 +46,9 @@ const char *const kMPVProperty_playlist_pos = "playlist-pos";
 const char *const kMPVProperty_time_pos = "time-pos";
 const char *const kMPVProperty_sid = "sid";
 
+// Command result keys
+const char *const kMPVResultKey_playlist_entry_id = "playlist_entry_id";
+
 // Property keys
 const char *const kMPVPropertyKey_name = "name";
 const char *const kMPVPropertyKey_data = "data";

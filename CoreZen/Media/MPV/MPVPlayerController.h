@@ -21,6 +21,16 @@ typedef NS_ENUM(NSInteger, ZENMPVCommandResult) {
 	ZENMPVCommandResultRejected,
 };
 
+// Why mpv stopped playing a file
+typedef NS_ENUM(NSInteger, ZENMPVEndReason) {
+	// Playback reached the end of the file
+	ZENMPVEndReasonFinished,
+	// Another file replaced it, or mpv was told to stop or quit
+	ZENMPVEndReasonStopped,
+	// The file couldn't be loaded or played
+	ZENMPVEndReasonFailed,
+};
+
 @interface ZENMPVPlayerController : NSObject <ZENIdentifiable>
 
 - (instancetype)initWithPlayer:(ZENMediaPlayer *)player;
@@ -34,7 +44,10 @@ typedef NS_ENUM(NSInteger, ZENMPVCommandResult) {
 
 - (struct mpv_handle *)playerHandle;
 
-- (void)openFileURL:(NSURL *)url;
+// Starts loading url, paused, in place of the current file. Returns the ID mpv
+// gives the file, which its events carry, or -1 with failure set to mpv's reason
+// if mpv refused the command.
+- (int64_t)openFileURL:(NSURL *)url failure:(NSString **)failure;
 
 - (void)startPlayback;
 - (void)pausePlayback;

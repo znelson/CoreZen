@@ -93,3 +93,39 @@ static NSError *ZENTestInitError(ZENTestDomainObject *object) {
 }
 
 @end
+
+@implementation ZENInitCountingModel {
+	NSCountedSet<NSNumber *> *_inits;
+}
+
+- (instancetype)init {
+	self = [super init];
+	if (self) {
+		_inits = [NSCountedSet set];
+	}
+	return self;
+}
+
+- (void)countInitOf:(ZENIdentifier)identifier {
+	NSUInteger count = 0;
+	@synchronized(self) {
+		[_inits addObject:@(identifier)];
+		count = [_inits countForObject:@(identifier)];
+	}
+	void (^repeatedInit)(ZENIdentifier) = self.repeatedInit;
+	if (count > 1 && repeatedInit) {
+		repeatedInit(identifier);
+	}
+}
+
+@end
+
+@implementation ZENCountedInitDomainObject
+
+- (void)performAsyncInit:(id<ZENDataModel>)model
+			  completion:(ZENAsyncCompletionBlock)completion {
+	[(ZENInitCountingModel *)model countInitOf:self.identifier];
+	completion(nil);
+}
+
+@end

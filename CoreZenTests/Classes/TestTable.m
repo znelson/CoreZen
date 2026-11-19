@@ -60,6 +60,11 @@
 	return [database executeQuery:sql withArgumentsInArray:@[@(identifier)]];
 }
 
+- (ZENResultSet *)rowsWithNamesLike:(NSString *)pattern database:(ZENDatabase *)database {
+	NSString *sql = [NSString stringWithFormat:@"SELECT identifier, name FROM %@ WHERE name LIKE ? ORDER BY name DESC;", self.tableName];
+	return [database executeQuery:sql withArgumentsInArray:@[pattern]];
+}
+
 - (NSUInteger)countAllRows:(ZENDatabase *)database {
 	NSString *sql = [NSString stringWithFormat:@"SELECT COUNT(*) FROM %@;", self.tableName];
 	ZENResultSet *rs = [database executeQuery:sql];

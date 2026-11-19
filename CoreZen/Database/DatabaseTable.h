@@ -41,6 +41,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Read
 
+// A repository makes its objects from the rows of allRows:, rowByIdentifier: and
+// its query fetches. Their first column must be the identifier: the repository
+// reads it to find an object it already has, without making a DTO.
+
 - (ZENDataTransferObject *)dtoFromRow:(ZENResultSet *)row;
 
 // nil if the query fails

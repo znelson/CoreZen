@@ -42,6 +42,8 @@
 
 #import <Foundation/Foundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @protocol ZENPreferenceViewController
 
 // UI display name for preference window
@@ -51,10 +53,12 @@
 - (NSString *)preferenceIdentifier;
 
 // Icon to display in the preferences window menu bar
-- (NSImage *)preferenceIcon;
+- (nullable NSImage *)preferenceIcon;
 
 @optional
 
-- (NSString *)preferenceToolTip;
+- (nullable NSString *)preferenceToolTip;
 
 @end
+
+NS_ASSUME_NONNULL_END

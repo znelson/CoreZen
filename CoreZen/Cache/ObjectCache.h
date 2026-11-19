@@ -10,12 +10,15 @@
 #import <CoreZen/Identifier.h>
 @protocol ZENIdentifiable;
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface ZENObjectCache : NSObject
 
 + (instancetype)weakObjectCache;
 + (instancetype)strongObjectCache;
 
-- (id)cachedObject:(ZENIdentifier)identifier;
+// nil if nothing with this identifier is cached
+- (nullable id)cachedObject:(ZENIdentifier)identifier;
 - (void)cacheObject:(id<ZENIdentifiable>)object;
 - (void)removeObject:(ZENIdentifier)identifier;
 
@@ -23,3 +26,5 @@
 - (void)removeAllObjects;
 
 @end
+
+NS_ASSUME_NONNULL_END

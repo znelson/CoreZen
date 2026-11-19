@@ -7,6 +7,8 @@
 
 #import <Cocoa/Cocoa.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @protocol ZENArchivedView
 
 // Specifies the nib name - derived views MUST override
@@ -17,7 +19,7 @@
 - (void)setupCommon;
 
 // rootView should be connected to the nib custom view in Interface Builder
-@property (nonatomic, strong) IBOutlet NSView *rootView;
+@property (nonatomic, strong, nullable) IBOutlet NSView *rootView;
 
 @end
 
@@ -25,6 +27,8 @@
 
 - (void)setupCommon;
 
-@property (nonatomic, strong) IBOutlet NSView *rootView;
+@property (nonatomic, strong, nullable) IBOutlet NSView *rootView;
 
 @end
+
+NS_ASSUME_NONNULL_END

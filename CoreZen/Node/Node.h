@@ -8,26 +8,28 @@
 #import <Foundation/Foundation.h>
 
 @class ZENNode;
+NS_ASSUME_NONNULL_BEGIN
+
 typedef void (^ZENNodeEnumerateBlock)(id node, NSUInteger index, BOOL *stop);
 
 @interface ZENNode : NSObject <NSCopying>
 
 @property (nonatomic, readonly, strong) NSUUID *nodeID;
 
-@property (nonatomic, readonly, strong) NSString *name;
+@property (nonatomic, readonly, strong, nullable) NSString *name;
 
 // A leaf's own size, from init. A node with children is as big as they are
 // together, so a leaf's own size gives way when it gets its first child. Adding,
 // removing and moving nodes keeps every total in the tree up to date.
 @property (nonatomic, readonly) NSInteger size;
 
-@property (nonatomic, readonly, weak) ZENNode *parent;
+@property (nonatomic, readonly, weak, nullable) ZENNode *parent;
 @property (nonatomic, readonly, strong) NSArray *children;
 @property (nonatomic, readonly) NSUInteger childCount;
 @property (nonatomic, readonly) BOOL isChildless;
 
-- (instancetype)initWithName:(NSString *)name;
-- (instancetype)initWithName:(NSString *)name
+- (instancetype)initWithName:(nullable NSString *)name;
+- (instancetype)initWithName:(nullable NSString *)name
 						size:(NSInteger)size;
 
 - (id)rootNode;
@@ -58,3 +60,5 @@ typedef void (^ZENNodeEnumerateBlock)(id node, NSUInteger index, BOOL *stop);
 - (void)enumerateBreadthFirstUsingBlock:(ZENNodeEnumerateBlock)block;
 
 @end
+
+NS_ASSUME_NONNULL_END

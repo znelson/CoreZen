@@ -9,7 +9,7 @@
 #import "DatabaseTable.h"
 #import "Database+Private.h"
 #import "ResultSet.h"
-#import "ObjectIdentifier.h"
+#import "ObjectIdentifier+Private.h"
 
 @interface ZENDatabaseSchema ()
 

@@ -10,6 +10,8 @@
 @class ZENRenderedFrame;
 @class ZENWorkQueueToken;
 
+NS_ASSUME_NONNULL_BEGIN
+
 // Completion block types
 typedef void (^ZENRenderFrameResultsBlock)(ZENRenderedFrame *frame);
 typedef void (^ZENRenderFramesResultsBlock)(NSArray<ZENRenderedFrame *> *frames);
@@ -23,7 +25,7 @@ typedef NS_ENUM(NSInteger, ZENFrameRequestType) {
 @interface ZENRenderedFrame : NSObject
 
 // The rendered video frame image
-@property (nonatomic, strong) NSImage *image;
+@property (nonatomic, strong, nullable) NSImage *image;
 
 // The requested position of the frame
 @property (nonatomic) ZENFrameRequestType requestType;
@@ -53,19 +55,24 @@ typedef NS_ENUM(NSInteger, ZENFrameRequestType) {
 
 + (instancetype)frameRendererWithMediaFile:(ZENMediaFile *)mediaFile;
 
-- (ZENWorkQueueToken *)renderFrameAtSeconds:(double)seconds
-									  width:(NSUInteger)width
-									 height:(NSUInteger)height
-								 completion:(ZENRenderFrameResultsBlock)completion;
+// Each returns a token to cancel the render with, or nil if there's nothing to
+// cancel: the media file was already terminated, or renderFrames: was asked for
+// no frames. The completion is called either way.
+- (nullable ZENWorkQueueToken *)renderFrameAtSeconds:(double)seconds
+											   width:(NSUInteger)width
+											  height:(NSUInteger)height
+										  completion:(ZENRenderFrameResultsBlock)completion;
 
-- (ZENWorkQueueToken *)renderFrameAtPercentage:(double)percentage
-										 width:(NSUInteger)width
-										height:(NSUInteger)height
-									completion:(ZENRenderFrameResultsBlock)completion;
+- (nullable ZENWorkQueueToken *)renderFrameAtPercentage:(double)percentage
+												  width:(NSUInteger)width
+												 height:(NSUInteger)height
+											 completion:(ZENRenderFrameResultsBlock)completion;
 
-- (ZENWorkQueueToken *)renderFrames:(NSUInteger)count
-							  width:(NSUInteger)width
-							 height:(NSUInteger)height
-						 completion:(ZENRenderFramesResultsBlock)completion;
+- (nullable ZENWorkQueueToken *)renderFrames:(NSUInteger)count
+									   width:(NSUInteger)width
+									  height:(NSUInteger)height
+								  completion:(ZENRenderFramesResultsBlock)completion;
 
 @end
+
+NS_ASSUME_NONNULL_END

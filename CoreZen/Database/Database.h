@@ -9,6 +9,8 @@
 
 @class ZENResultSet;
 
+NS_ASSUME_NONNULL_BEGIN
+
 // Why database work didn't save its changes. Each error's description gives the
 // details, including SQLite's message when there is one.
 extern NSErrorDomain const ZENDatabaseErrorDomain;
@@ -31,8 +33,9 @@ typedef NS_ERROR_ENUM(ZENDatabaseErrorDomain, ZENDatabaseErrorCode){
 - (BOOL)executeUpdate:(NSString *)sql, ...;
 - (BOOL)executeUpdate:(NSString *)sql withArgumentsInArray:(NSArray *)arguments;
 
-- (ZENResultSet *)executeQuery:(NSString *)sql, ...;
-- (ZENResultSet *)executeQuery:(NSString *)sql withArgumentsInArray:(NSArray *)arguments;
+// nil if the query fails, which in a transaction makes it roll back
+- (nullable ZENResultSet *)executeQuery:(NSString *)sql, ...;
+- (nullable ZENResultSet *)executeQuery:(NSString *)sql withArgumentsInArray:(NSArray *)arguments;
 
 - (NSString *)lastErrorMessage;
 
@@ -43,3 +46,5 @@ typedef NS_ERROR_ENUM(ZENDatabaseErrorDomain, ZENDatabaseErrorCode){
 - (void)cancelTransaction;
 
 @end
+
+NS_ASSUME_NONNULL_END

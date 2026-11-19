@@ -7,6 +7,8 @@
 
 #import <CoreZen/DomainCallbacks.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 // Convenience macro to confirm threading assumptions
 #define ASSERT_MAIN_THREAD assert([NSThread isMainThread])
 
@@ -17,10 +19,10 @@
 // ========================================
 
 // Call a ZENAsyncContinueBlock on a thread pool
-void ZENCallAsyncContinueBlockOnThreadPool(ZENAsyncContinueBlock continueBlock);
+void ZENCallAsyncContinueBlockOnThreadPool(ZENAsyncContinueBlock _Nullable continueBlock);
 
 // Call a ZENAsyncContinueBlock on the main thread
-void ZENCallAsyncContinueBlockOnMainThread(ZENAsyncContinueBlock continueBlock);
+void ZENCallAsyncContinueBlockOnMainThread(ZENAsyncContinueBlock _Nullable continueBlock);
 
 // ========================================
 // ZENAsyncCompletionBlock
@@ -29,10 +31,10 @@ void ZENCallAsyncContinueBlockOnMainThread(ZENAsyncContinueBlock continueBlock);
 // ========================================
 
 // Call a ZENAsyncCompletionBlock on a thread pool
-void ZENCallAsyncCompletionBlockOnThreadPool(ZENAsyncCompletionBlock completionBlock, NSError *error);
+void ZENCallAsyncCompletionBlockOnThreadPool(ZENAsyncCompletionBlock _Nullable completionBlock, NSError *_Nullable error);
 
 // Call a ZENAsyncCompletionBlock on the main thread
-void ZENCallAsyncCompletionBlockOnMainThread(ZENAsyncCompletionBlock completionBlock, NSError *error);
+void ZENCallAsyncCompletionBlockOnMainThread(ZENAsyncCompletionBlock _Nullable completionBlock, NSError *_Nullable error);
 
 // ========================================
 // ZENFetchResultsBlock
@@ -41,10 +43,10 @@ void ZENCallAsyncCompletionBlockOnMainThread(ZENAsyncCompletionBlock completionB
 // ========================================
 
 // Call a ZENFetchResultsBlock on a thread pool
-void ZENCallFetchResultsBlockOnThreadPool(ZENFetchResultsBlock fetchResultsBlock, NSArray *fetchedObjects);
+void ZENCallFetchResultsBlockOnThreadPool(ZENFetchResultsBlock _Nullable fetchResultsBlock, NSArray *fetchedObjects);
 
 // Call a ZENFetchResultsBlock on the main thread
-void ZENCallFetchResultsBlockOnMainThread(ZENFetchResultsBlock fetchResultsBlock, NSArray *fetchedObjects);
+void ZENCallFetchResultsBlockOnMainThread(ZENFetchResultsBlock _Nullable fetchResultsBlock, NSArray *fetchedObjects);
 
 // ========================================
 // ZENAsyncCountCompletionBlock
@@ -52,15 +54,17 @@ void ZENCallFetchResultsBlockOnMainThread(ZENFetchResultsBlock fetchResultsBlock
 //     - NSUInteger count
 // ========================================
 
-// Call a ZENAsyncCountCompletionBlock on the main thread
-void ZENCallAsyncCountCompletionBlockOnThreadPool(ZENAsyncCountCompletionBlock countBlock, NSUInteger count);
+// Call a ZENAsyncCountCompletionBlock on a thread pool
+void ZENCallAsyncCountCompletionBlockOnThreadPool(ZENAsyncCountCompletionBlock _Nullable countBlock, NSUInteger count);
 
 // Call a ZENAsyncCountCompletionBlock on the main thread
-void ZENCallAsyncCountCompletionBlockOnMainThread(ZENAsyncCountCompletionBlock countBlock, NSUInteger count);
+void ZENCallAsyncCountCompletionBlockOnMainThread(ZENAsyncCountCompletionBlock _Nullable countBlock, NSUInteger count);
 
 // ========================================
 // Notifications
 // ========================================
 
 // Deliver a notification on the main thread
-void ZENDeliverNotificationOnMainThread(NSString *notification, id sender, NSDictionary *userData);
+void ZENDeliverNotificationOnMainThread(NSString *notification, id _Nullable sender, NSDictionary *_Nullable userData);
+
+NS_ASSUME_NONNULL_END

@@ -9,7 +9,10 @@
 
 @class ZENDatabase;
 
-typedef void (^ZENDatabaseBlock)(ZENDatabase *database);
+NS_ASSUME_NONNULL_BEGIN
+
+// database is nil only if the queue couldn't open its database
+typedef void (^ZENDatabaseBlock)(ZENDatabase *_Nullable database);
 
 // Runs blocks on a database one at a time, in the order they're queued. Every
 // block gets the queue's one connection, which opens when a block first needs it
@@ -26,7 +29,7 @@ typedef void (^ZENDatabaseBlock)(ZENDatabase *database);
 // a sync call still waiting for its turn on another thread. A second shutdown
 // does nothing, and doesn't run its block.
 - (void)shutdown;
-- (void)shutdown:(ZENDatabaseBlock)updateBlock;
+- (void)shutdown:(nullable ZENDatabaseBlock)updateBlock;
 
 // Run a block in a transaction, which commits when the block returns. It rolls
 // back instead if any statement in it fails, or if the block calls the
@@ -39,7 +42,7 @@ typedef void (^ZENDatabaseBlock)(ZENDatabase *database);
 // was saved: it rolled back, or the database isn't open. resultBlock runs on the
 // queue, right after the transaction ends and before any work queued after it,
 // so it mustn't call this queue's sync methods. resultBlock may be nil.
-- (void)transactionAsync:(ZENDatabaseBlock)updateBlock result:(void (^)(NSError *error))resultBlock;
+- (void)transactionAsync:(ZENDatabaseBlock)updateBlock result:(nullable void (^)(NSError *_Nullable error))resultBlock;
 - (void)fetchAsync:(ZENDatabaseBlock)fetchBlock;
 - (void)fetchSync:(ZENDatabaseBlock)fetchBlock;
 - (void)vacuumAsync;
@@ -49,3 +52,5 @@ typedef void (^ZENDatabaseBlock)(ZENDatabase *database);
 @property (atomic) BOOL traceExecution;
 
 @end
+
+NS_ASSUME_NONNULL_END

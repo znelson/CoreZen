@@ -5,7 +5,7 @@
 //  Created by Zach Nelson on 5/21/19.
 //
 
-#import "DatabaseQueue.h"
+#import "DatabaseQueue+Private.h"
 #import "Database+Private.h"
 #import "WorkQueue.h"
 

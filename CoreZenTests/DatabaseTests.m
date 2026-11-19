@@ -11,6 +11,7 @@
 
 #import "TestDTO.h"
 #import "TestTable.h"
+#import "DatabaseQueue+Private.h"
 
 #import <fcntl.h>
 #import <libproc.h>

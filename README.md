@@ -53,6 +53,10 @@ Scripts/coverage_report.py build/Tests.xcresult
 
 After ⌘U, Xcode's Report navigator shows it line by line.
 
+### Documentation
+
+The public headers document the API in `///` comments, which Xcode shows in Quick Help when you Option-click a name. Product > Build Documentation builds them into Xcode's documentation window, with the articles in `CoreZen/CoreZen.docc`. From the command line, `xcodebuild docbuild -scheme CoreZen -project CoreZen.xcodeproj` builds `CoreZen.doccarchive`, which opens in Xcode. CI builds the documentation too, and fails on a DocC warning, such as a link to a symbol that doesn't exist.
+
 ### Versions
 
 CoreZen follows [Semantic Versioning](https://semver.org). Each release is a git tag such as `v0.1.0`, with a [GitHub release](https://github.com/znelson/CoreZen/releases) whose notes come from [`CHANGELOG.md`](https://github.com/znelson/CoreZen/blob/main/CHANGELOG.md). Until 1.0.0, a release that breaks the API raises the middle number (0.1.0 to 0.2.0), and any other release raises the last (0.1.0 to 0.1.1). At run time, the framework bundle's `CFBundleShortVersionString` is its version.

@@ -12,6 +12,7 @@
 		AA0000020000000000000001 /* Database.h in Headers */ = {isa = PBXBuildFile; fileRef = AA0000010000000000000001 /* Database.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		AA0000020000000000000002 /* Database.m in Sources */ = {isa = PBXBuildFile; fileRef = AA0000010000000000000002 /* Database.m */; };
 		AA0000020000000000000003 /* Database+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = AA0000010000000000000003 /* Database+Private.h */; };
+		A8338574948AFF6E750545D9 /* DatabaseQueue+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 5E28AE48C63EEA87C575E6BF /* DatabaseQueue+Private.h */; };
 		AA0000020000000000000004 /* ResultSet.h in Headers */ = {isa = PBXBuildFile; fileRef = AA0000010000000000000004 /* ResultSet.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		AA0000020000000000000005 /* ResultSet.m in Sources */ = {isa = PBXBuildFile; fileRef = AA0000010000000000000005 /* ResultSet.m */; };
 		AA0000020000000000000006 /* ResultSet+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = AA0000010000000000000006 /* ResultSet+Private.h */; };
@@ -177,6 +178,7 @@
 		AA0000010000000000000001 /* Database.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Database.h; sourceTree = "<group>"; };
 		AA0000010000000000000002 /* Database.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Database.m; sourceTree = "<group>"; };
 		AA0000010000000000000003 /* Database+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Database+Private.h"; sourceTree = "<group>"; };
+		5E28AE48C63EEA87C575E6BF /* DatabaseQueue+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "DatabaseQueue+Private.h"; sourceTree = "<group>"; };
 		AA0000010000000000000004 /* ResultSet.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ResultSet.h; sourceTree = "<group>"; };
 		AA0000010000000000000005 /* ResultSet.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ResultSet.m; sourceTree = "<group>"; };
 		AA0000010000000000000006 /* ResultSet+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ResultSet+Private.h"; sourceTree = "<group>"; };
@@ -584,6 +586,7 @@
 				AA0000010000000000000001 /* Database.h */,
 				AA0000010000000000000002 /* Database.m */,
 				AA0000010000000000000003 /* Database+Private.h */,
+				5E28AE48C63EEA87C575E6BF /* DatabaseQueue+Private.h */,
 				5309C4122885C86500BC0AAE /* DatabaseQueue.h */,
 				5309C4132885C86500BC0AAE /* DatabaseQueue.m */,
 				5309C4232885CDA500BC0AAE /* DatabaseSchema.h */,
@@ -1016,6 +1019,7 @@
 				5309C3EC2885A43100BC0AAE /* PreferenceViewController.h in Headers */,
 				AA0000020000000000000001 /* Database.h in Headers */,
 				AA0000020000000000000003 /* Database+Private.h in Headers */,
+				A8338574948AFF6E750545D9 /* DatabaseQueue+Private.h in Headers */,
 				5309C4252885CDA500BC0AAE /* DatabaseSchema.h in Headers */,
 				5309C4292885D19400BC0AAE /* DatabaseTable.h in Headers */,
 				AA0000020000000000000004 /* ResultSet.h in Headers */,

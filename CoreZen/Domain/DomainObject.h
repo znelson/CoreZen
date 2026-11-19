@@ -38,6 +38,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)performAsyncInit:(nullable id<ZENDataModel>)model
 			  completion:(ZENAsyncCompletionBlock)completion;
 
+// Called once a repository has saved a change to the object's DTO: after an
+// update in a write batch has put its values in, or after updateObject: has
+// saved the object. An object that keeps state worked out from its DTO brings
+// it up to date here. It runs on the database queue, before observers are told
+// about the change, so it should be quick. Does nothing by default.
+- (void)didUpdateDTO;
+
 // Calls performAsyncInit on a thread pool for each of the objects,
 // then completion block after, also on thread pool. Only the first call to
 // each object's performAsyncInit completion counts; later calls are ignored.

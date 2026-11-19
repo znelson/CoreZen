@@ -15,6 +15,36 @@
 
 #import <os/lock.h>
 
+typedef NS_ENUM(NSInteger, ZENStagedWriteKind) {
+	ZENStagedWriteKindAdd,
+	ZENStagedWriteKindUpdate,
+	ZENStagedWriteKindDelete,
+};
+
+// One write in a batch
+@interface ZENStagedWrite : NSObject
+
+@property (nonatomic) ZENStagedWriteKind kind;
+@property (nonatomic, strong) ZENObjectRepository *repository;
+@property (nonatomic) ZENIdentifier identifier;
+// The object to add
+@property (nonatomic, strong) ZENDomainObject *object;
+// How to change the DTO of the object to update
+@property (nonatomic, copy) void (^change)(__kindof ZENDataTransferObject *dto);
+
+@end
+
+@implementation ZENStagedWrite
+@end
+
+@interface ZENRepositoryWriteBatch ()
+
+@property (nonatomic, strong, readonly) NSMutableArray<ZENStagedWrite *> *writes;
+
+- (instancetype)initForStaging;
+
+@end
+
 @interface ZENObjectRepository () {
 	// Objects whose async init is still running, by identifier. A fetch that
 	// finds one of them in the cache waits on its group before returning it.
@@ -46,6 +76,18 @@
 	completion:(ZENAsyncCompletionBlock)completion;
 
 - (void)deliverObjects:(NSArray *)objects whenInitialized:(ZENFetchResultsBlock)resultsBlock;
+
+// Runs synchronously. To be called on database queue. The DTO in the row with this
+// identifier, or nil if there isn't one.
+- (ZENDataTransferObject *)dtoWithIdentifier:(ZENIdentifier)identifier
+									database:(ZENDatabase *)database;
+
+// Makes one of a batch's writes, inside its transaction on the database queue.
+// Returns what to do once the batch is saved, or nil, with *error set, if the
+// table couldn't make the write.
+- (void (^)(void))makeStagedWrite:(ZENStagedWrite *)write
+						 database:(ZENDatabase *)database
+							error:(NSError **)error;
 
 @end
 
@@ -363,6 +405,7 @@
 		return [self.table updateDTO:domainObject.basicDTO database:database];
 	}
 		saved:^{
+			[domainObject didUpdateDTO];
 			ZENDeliverNotificationOnMainThread(ZENObjectRepositoryObjectUpdatedNotification, self, notificationData);
 		}
 		completion:completion];
@@ -402,6 +445,154 @@
 			}];
 }
 
+#pragma mark - Write Batches
+
++ (void)performWrites:(void(NS_NOESCAPE ^)(ZENRepositoryWriteBatch *batch))build
+		   completion:(ZENAsyncCompletionBlock)completion {
+	ZENRepositoryWriteBatch *batch = [[ZENRepositoryWriteBatch alloc] initForStaging];
+	build(batch);
+	NSArray<ZENStagedWrite *> *writes = [batch.writes copy];
+	if (writes.count == 0) {
+		ZENCallAsyncCompletionBlockOnThreadPool(completion, nil);
+		return;
+	}
+
+	// One transaction needs one database, and each object gets one write
+	ZENDatabaseQueue *queue = writes.firstObject.repository.queue;
+	NSMutableSet<NSString *> *writtenObjects = [NSMutableSet set];
+	for (ZENStagedWrite *write in writes) {
+		NSString *tableName = [[write.repository.table class] tableName];
+		NSString *writtenObject = [NSString stringWithFormat:@"%@ %lld", tableName, write.identifier];
+		NSString *description = nil;
+		if (write.repository.queue != queue) {
+			description = @"The repositories in a write batch don't share a database queue";
+		} else if ([writtenObjects containsObject:writtenObject]) {
+			description = [NSString stringWithFormat:@"A write batch has more than one write for object %lld in %@", write.identifier, tableName];
+		}
+		if (description) {
+			NSLog(@"ERROR: %@", description);
+			ZENCallAsyncCompletionBlockOnThreadPool(completion, ZENDatabaseErrorMake(ZENDatabaseErrorWriteFailed, description));
+			return;
+		}
+		[writtenObjects addObject:writtenObject];
+	}
+
+	// Filled in on the database queue, inside the transaction, and used once it's saved
+	NSMutableArray<void (^)(void)> *savedBlocks = [NSMutableArray arrayWithCapacity:writes.count];
+	__block NSError *writeError = nil;
+	[queue transactionAsync:^(ZENDatabase *database) {
+		for (ZENStagedWrite *write in writes) {
+			void (^saved)(void) = [write.repository makeStagedWrite:write database:database error:&writeError];
+			if (!saved) {
+				// Undo the batch's earlier writes too
+				[database cancelTransaction];
+				return;
+			}
+			[savedBlocks addObject:saved];
+		}
+	}
+		result:^(NSError *error) {
+			// A failed statement explains itself. Otherwise a table didn't make a write,
+			// which canceled the transaction.
+			if (writeError && (!error || error.code == ZENDatabaseErrorTransactionCanceled)) {
+				error = writeError;
+			}
+			if (error) {
+				NSLog(@"ERROR: A write batch wasn't saved: %@", error.localizedDescription);
+				ZENCallAsyncCompletionBlockOnThreadPool(completion, error);
+				return;
+			}
+			// Still on the database queue, so caches keep step with the database for
+			// the next block that runs there
+			for (void (^saved)(void) in savedBlocks) {
+				saved();
+			}
+			ZENCallAsyncCompletionBlockOnThreadPool(completion, nil);
+		}];
+}
+
++ (void)performWrites:(void(NS_NOESCAPE ^)(ZENRepositoryWriteBatch *batch))build
+		 uiCompletion:(ZENAsyncCompletionBlock)completion {
+	[self performWrites:build
+			 completion:^(NSError *error) {
+				 ZENCallAsyncCompletionBlockOnMainThread(completion, error);
+			 }];
+}
+
+- (ZENDataTransferObject *)dtoWithIdentifier:(ZENIdentifier)identifier
+									database:(ZENDatabase *)database {
+	ZENResultSet *rs = [self.table rowByIdentifier:identifier database:database];
+	ZENDataTransferObject *dto = [rs next] ? [self.table dtoFromRow:rs] : nil;
+	[rs close];
+	return dto;
+}
+
+- (void (^)(void))makeStagedWrite:(ZENStagedWrite *)write
+						 database:(ZENDatabase *)database
+							error:(NSError **)error {
+	NSString *tableName = [[self.table class] tableName];
+	switch (write.kind) {
+		case ZENStagedWriteKindAdd: {
+			ZENDomainObject *object = write.object;
+			if (![self.table insertDTO:object.basicDTO database:database]) {
+				if (error) {
+					*error = ZENDatabaseErrorMake(ZENDatabaseErrorWriteFailed, [NSString stringWithFormat:@"%@ couldn't add object %lld", tableName, write.identifier]);
+				}
+				return nil;
+			}
+			return ^{
+				[self.cache cacheObject:object];
+				ZENDeliverNotificationOnMainThread(ZENObjectRepositoryObjectAddedNotification, self, @{ ZENObjectRepositoryNotificationObjectKey: object });
+			};
+		}
+		case ZENStagedWriteKindUpdate: {
+			// Objects are only made and cached on the database queue, so whether this
+			// one is loaded can't change before the batch is saved
+			ZENDomainObject *object = [self.cache cachedObject:write.identifier];
+			ZENDataTransferObject *dto = [object.basicDTO copy] ?: [self dtoWithIdentifier:write.identifier database:database];
+			if (!dto) {
+				if (error) {
+					*error = ZENDatabaseErrorMake(ZENDatabaseErrorWriteFailed, [NSString stringWithFormat:@"%@ has no object %lld to update", tableName, write.identifier]);
+				}
+				return nil;
+			}
+			write.change(dto);
+			if (![self.table updateDTO:dto database:database]) {
+				if (error) {
+					*error = ZENDatabaseErrorMake(ZENDatabaseErrorWriteFailed, [NSString stringWithFormat:@"%@ couldn't update object %lld", tableName, write.identifier]);
+				}
+				return nil;
+			}
+			if (!object) {
+				// Only the row changes; a later fetch loads the new values
+				return ^{
+				};
+			}
+			return ^{
+				[object.basicDTO takeValuesFromDTO:dto];
+				[object didUpdateDTO];
+				ZENDeliverNotificationOnMainThread(ZENObjectRepositoryObjectUpdatedNotification, self, @{ ZENObjectRepositoryNotificationObjectKey: object });
+			};
+		}
+		case ZENStagedWriteKindDelete: {
+			if (![self.table deleteByIdentifier:write.identifier database:database]) {
+				if (error) {
+					*error = ZENDatabaseErrorMake(ZENDatabaseErrorWriteFailed, [NSString stringWithFormat:@"%@ couldn't delete object %lld", tableName, write.identifier]);
+				}
+				return nil;
+			}
+			return ^{
+				ZENDomainObject *object = [self.cache cachedObject:write.identifier];
+				if (object) {
+					[self.cache removeObject:write.identifier];
+					ZENDeliverNotificationOnMainThread(ZENObjectRepositoryObjectDeletedNotification, self, @{ ZENObjectRepositoryNotificationObjectKey: object });
+				}
+			};
+		}
+	}
+	return nil;
+}
+
 #pragma mark - Notifications
 
 - (void)zen_addObserver:(id)observer
@@ -423,3 +614,45 @@ NSString *const ZENObjectRepositoryNotificationObjectKey = @"ZENObjectRepository
 NSString *const ZENObjectRepositoryObjectAddedNotification = @"ZENObjectRepositoryObjectAddedNotification";
 NSString *const ZENObjectRepositoryObjectUpdatedNotification = @"ZENObjectRepositoryObjectUpdatedNotification";
 NSString *const ZENObjectRepositoryObjectDeletedNotification = @"ZENObjectRepositoryObjectDeletedNotification";
+
+#pragma mark - ZENRepositoryWriteBatch
+
+@implementation ZENRepositoryWriteBatch
+
+- (instancetype)initForStaging {
+	self = [super init];
+	if (self) {
+		_writes = [NSMutableArray array];
+	}
+	return self;
+}
+
+- (void)addObject:(ZENDomainObject *)domainObject toRepository:(ZENObjectRepository *)repository {
+	ZENStagedWrite *write = [ZENStagedWrite new];
+	write.kind = ZENStagedWriteKindAdd;
+	write.repository = repository;
+	write.identifier = domainObject.identifier;
+	write.object = domainObject;
+	[self.writes addObject:write];
+}
+
+- (void)updateObjectWithIdentifier:(ZENIdentifier)identifier
+					  inRepository:(ZENObjectRepository *)repository
+							change:(void (^)(__kindof ZENDataTransferObject *dto))change {
+	ZENStagedWrite *write = [ZENStagedWrite new];
+	write.kind = ZENStagedWriteKindUpdate;
+	write.repository = repository;
+	write.identifier = identifier;
+	write.change = change;
+	[self.writes addObject:write];
+}
+
+- (void)deleteObjectWithIdentifier:(ZENIdentifier)identifier fromRepository:(ZENObjectRepository *)repository {
+	ZENStagedWrite *write = [ZENStagedWrite new];
+	write.kind = ZENStagedWriteKindDelete;
+	write.repository = repository;
+	write.identifier = identifier;
+	[self.writes addObject:write];
+}
+
+@end

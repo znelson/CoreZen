@@ -7,7 +7,10 @@
 
 @interface ZENTestDomainObject : ZENDomainObject
 
+// From the DTO's name, and kept up to date by didUpdateDTO
 @property (nonatomic, copy, readonly) NSString *name;
+// How many times didUpdateDTO has run
+@property (atomic, readonly) NSUInteger dtoUpdateCount;
 
 @end
 

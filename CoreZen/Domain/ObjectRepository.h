@@ -11,6 +11,7 @@
 @protocol ZENDataModel;
 @protocol ZENDatabaseTable;
 @class ZENDatabaseQueue;
+@class ZENRepositoryWriteBatch;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -115,6 +116,22 @@ typedef enum : NSUInteger {
 - (void)deleteObject:(ZENDomainObject *)domainObject
 		uiCompletion:(ZENAsyncCompletionBlock)completion;
 
+#pragma mark - Write Batches
+
+// Saves several writes, to objects in one or more repositories, in one
+// transaction. build stages them on the calling thread, before this returns.
+// Completion gets nil once they're all saved: each repository has updated its
+// cache and posted its notifications, in the order the writes were staged. Or it
+// gets an error (in ZENDatabaseErrorDomain), and nothing has changed, in the
+// database or in memory. Every repository in a batch must share one database
+// queue. The completion may be nil. Completion block happens on a thread pool.
++ (void)performWrites:(void(NS_NOESCAPE ^)(ZENRepositoryWriteBatch *batch))build
+		   completion:(nullable ZENAsyncCompletionBlock)completion;
+
+// Same as above, but uiCompletion block happens on the main thread.
++ (void)performWrites:(void(NS_NOESCAPE ^)(ZENRepositoryWriteBatch *batch))build
+		 uiCompletion:(nullable ZENAsyncCompletionBlock)completion;
+
 #pragma mark - Notifications
 
 // Notifications are delivered on the main thread
@@ -122,6 +139,32 @@ typedef enum : NSUInteger {
 			   selector:(SEL)selector;
 
 - (void)zen_removeObserver:(id)observer;
+
+@end
+
+// The writes for one +[ZENObjectRepository performWrites:completion:]. Stage at
+// most one write for each object; a second one makes the batch fail.
+@interface ZENRepositoryWriteBatch : NSObject
+
+- (instancetype)init NS_UNAVAILABLE;
+
+// Adds an object that's initialized already: its async init, if it has one, is
+// done. Once saved, the repository caches it and posts it as added.
+- (void)addObject:(ZENDomainObject *)domainObject toRepository:(ZENObjectRepository *)repository;
+
+// Updates the object with this identifier, whether or not it's loaded. change
+// gets a copy of its DTO to change: the loaded object's, or else one read from
+// the database. It runs on the database queue, inside the transaction. Once
+// saved, a loaded object's DTO takes the copy's values, its didUpdateDTO runs,
+// and the repository posts it as updated. One that isn't loaded is only changed
+// in the database. An identifier with no object makes the batch fail.
+- (void)updateObjectWithIdentifier:(ZENIdentifier)identifier
+					  inRepository:(ZENObjectRepository *)repository
+							change:(void (^)(__kindof ZENDataTransferObject *dto))change;
+
+// Deletes the object with this identifier. Once saved, a loaded object leaves
+// the cache, and the repository posts it as deleted.
+- (void)deleteObjectWithIdentifier:(ZENIdentifier)identifier fromRepository:(ZENObjectRepository *)repository;
 
 @end
 

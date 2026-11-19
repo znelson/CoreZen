@@ -80,6 +80,9 @@
 	}
 }
 
+- (void)didUpdateDTO {
+}
+
 - (ZENIdentifier)identifier {
 	return self.basicDTO.identifier;
 }

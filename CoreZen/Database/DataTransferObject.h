@@ -10,9 +10,16 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface ZENDataTransferObject : NSObject <ZENIdentifiable>
+// A DTO's values are the properties its subclass declares. Copying one copies
+// them all, so a copy can be changed without changing the original, and its
+// values put back with takeValuesFromDTO:.
+@interface ZENDataTransferObject : NSObject <ZENIdentifiable, NSCopying>
 
 - (instancetype)initWithIdentifier:(ZENIdentifier)identifier;
+
+// Sets every property the subclass declares to dto's value for it. dto must be
+// of the same class. Read-only properties are left alone, like the identifier.
+- (void)takeValuesFromDTO:(ZENDataTransferObject *)dto;
 
 @end
 

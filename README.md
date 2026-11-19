@@ -33,40 +33,53 @@ The framework bundles both in its `Resources` folder, as `FMDB-LICENSE.txt` and 
 
 ## What's In CoreZen.framework?
 
-### 1. Preferences
-[Create dynamic preference windows](https://github.com/znelson/CoreZen/tree/main/CoreZen/Preferences), inspired by [`CCNPreferencesWindowController`](https://github.com/phranck/CCNPreferencesWindowController).
+`CoreZen` has three parts: a persistence layer for a domain model stored in SQLite, media playback and frame rendering built on mpv and FFmpeg, and smaller AppKit and Foundation helpers. The public headers say which values can be `nil`.
 
-### 2. Foundation Categories
-[Categories to add functionality to Foundation classes](https://github.com/znelson/CoreZen/blob/main/CoreZen/Categories):
-* [`NSFileManager+CoreZen`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Categories/NSFileManager%2BCoreZen.h): get application support directory path and executable name
-* [`NSNumber+CoreZen`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Categories/NSNumber%2BCoreZen.h): generate a random integer
-* [`NSURL+CoreZen`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Categories/NSURL%2BCoreZen.h): find volume details from a URL or volume UUID, get relative paths between URLs, find a URL file size
+### 1. Persistence
 
-### 3. Domain Data Modeling and Persistence
+A domain model stored in SQLite: a table class for each table, plain data objects for its rows, domain objects built from those, and repositories that load, cache and save the domain objects asynchronously. It's built on [FMDB](https://github.com/ccgus/fmdb). [See above.](#fmdb-dependency)
 
-#### I. Object Identifiers
-[`ZENIdentifier`](https://github.com/znelson/CoreZen/tree/main/CoreZen/Identifier/Identifier.h) is an _(atomically unique increasing)_ 64-bit integer identifier and the [`ZENIdentifiable`](https://github.com/znelson/CoreZen/tree/main/CoreZen/Identifier/Identifiable.h) protocol is for objects with such an identifier.
+#### Identifiers
+* [`ZENIdentifier`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Identifier/Identifier.h) is a 64-bit integer identifier, and the [`ZENIdentifiable`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Identifier/Identifiable.h) protocol is for objects that have one.
+* [`ZENGetNextObjectIdentifier()`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Identifier/ObjectIdentifier.h) hands out identifiers from one counter for the whole process, shared by every table, so an identifier is unique across every database the process opens. When `ZENDatabaseSchema` initializes a database, it moves the counter past the largest identifier stored there.
 
-#### II. Object Cache
-[`ZENObjectCache`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Cache/ObjectCache.h) is a thread safe object cache for [`ZENIdentifiable`](https://github.com/znelson/CoreZen/tree/main/CoreZen/Identifier/Identifiable.h) objects, configurable to hold either weak or strong refs to cached objects.
+#### Database
+* [`ZENDatabaseQueue`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Database/DatabaseQueue.h) runs blocks on a database one at a time, synchronously or asynchronously. Each queue has one SQLite connection, so anything that belongs to a connection, like a temporary table, lasts from one block to the next.
+  * A transaction block commits when it returns, or rolls back if any statement in it fails or it calls `cancelTransaction`.
+  * `shutdown:` runs the async work already queued, then a final block of your own, then closes the database. Work queued after that doesn't run.
+  * An in-memory queue has a database of its own, which is handy for tests.
+* [`ZENDatabase`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Database/Database.h) and [`ZENResultSet`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Database/ResultSet.h) run statements and read their results, wrapping FMDB's classes.
+* A class for each table conforms to [`ZENDatabaseTable`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Database/DatabaseTable.h): it creates and migrates the table, and inserts, updates, deletes, reads and counts its rows as [`ZENDataTransferObject`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Database/DataTransferObject.h)s. A data transfer object (DTO) holds one row's values in properties its subclass declares, and can be copied.
+* [`ZENDatabaseSchema`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Database/DatabaseSchema.h) brings a database up to the latest version of every table's schema, in one transaction, and records the version in SQLite's `user_version`. A migration that fails rolls back entirely, so it runs again the next time.
+* When changes aren't saved, errors in `ZENDatabaseErrorDomain` (declared in [`Database.h`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Database/Database.h)) say why: a statement failed, the transaction was canceled, the commit failed, the database couldn't be opened, or a table refused the write.
 
-#### III. Database
-[Helper classes around FMDB and sqlite3](https://github.com/znelson/CoreZen/tree/main/CoreZen/Database), including: 
-* [`ZENDatabaseQueue`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Database/DatabaseQueue.h) is a database queue with both blocking and async execution options, and shutdown mechanics to handle outstanding async work. ([`FMDatabaseQueue` offers only blocking methods.](https://ccgus.github.io/fmdb/html/Classes/FMDatabaseQueue.html) [`ZENDatabaseQueue`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Database/DatabaseQueue.h) still works with [FMDB](https://github.com/ccgus/fmdb) [`FMDatabase`](https://ccgus.github.io/fmdb/html/Classes/FMDatabase.html) instances and standard sqlite3 databases.)
-* [`ZENDataTransferObject`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Database/DataTransferObject.h) is a [`ZENIdentifiable`](https://github.com/znelson/CoreZen/tree/main/CoreZen/Identifier/Identifiable.h) object to build [DTOs](https://en.wikipedia.org/wiki/Data_transfer_object). [`ZENDataTransferObject`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Database/DataTransferObject.h) serves as a base class for simple data storage objects which may be serialized (including to and from an sqlite3 database).
-* The [`ZENDatabaseTable`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Database/DatabaseTable.h) protocol to abstract the [FMDB](https://github.com/ccgus/fmdb) work for create, read, update, and delete operations on [`ZENDataTransferObject`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Database/DataTransferObject.h)s on an sqlite3 database table.
-* [`ZENDatabaseSchema`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Database/DatabaseSchema.h) performs simple dynamic database schema updates based an array of [`ZENDatabaseTable`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Database/DatabaseTable.h) objects.
+#### Domain Objects
+* [`ZENDomainObject`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Domain/DomainObject.h) is built around a DTO. A subclass can override `performAsyncInit:completion:` to finish setting itself up after it's created or loaded, such as checking a file on disk, reading media metadata, or fetching related objects, and report an error if that fails. `+asyncInit:model:completion:` runs it for several objects at once on a thread pool.
+* [`ZENObjectRepository`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Domain/ObjectRepository.h) combines a table, a database queue and a [`ZENObjectCache`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Cache/ObjectCache.h), which holds its objects weakly or strongly.
+  * Each identifier has one object in memory, so every part of an app sees the same one.
+  * Fetches deliver objects only once their async init has finished. Init runs once per object, and an object whose init fails is left out.
+  * Add, update and delete are each a transaction of their own, and their completion reports `nil` once the change is saved, or the error. Only a saved change updates the cache and posts `ZENObjectRepositoryObjectAddedNotification`, `...UpdatedNotification` or `...DeletedNotification`, on the main thread.
+  * `+performWrites:completion:` saves several writes, to objects in one or more repositories that share a database queue, in one transaction: all of them or none.
+  * Every method is asynchronous. Each has a variant that calls back on the main thread (`uiCompletion:` or `ForUI`).
 
-*Note on dependencies:* [`ZENDatabaseQueue`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Database/DatabaseQueue.h) and other classes in `CoreZen` depend on [FMDB](https://github.com/ccgus/fmdb), which Swift Package Manager provides. [See above.](#fmdb-dependency)
+### 2. Media
 
-#### IV. Domain Objects
+Playback with [libmpv](https://github.com/mpv-player/mpv/blob/master/DOCS/man/libmpv.rst), and file details and frames with [FFmpeg](https://ffmpeg.org)'s libav libraries. [See above.](#mpv-and-ffmpeg-dependencies)
 
-[Helper classes to build a domain model](https://github.com/znelson/CoreZen/tree/main/CoreZen/Domain), including:
-* [`ZENDomainObject`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Domain/DomainObject.h) is a [`ZENIdentifiable`](https://github.com/znelson/CoreZen/tree/main/CoreZen/Identifier/Identifiable.h) object built around a [`ZENDataTransferObject`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Database/DataTransferObject.h), allowing asynchronous initialization after initial creation or retrieval from database (or other serialization). Subclasses overriding `performAsyncInit:completion:` can do work such as checking a file's existence on disk, reading media file metadata, or even _fetching other objects from the database (which themselves can then perform asynchronous initialization work)_. [`ZENDomainObject`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Domain/DomainObject.h) allows async init to be performed on an array of objects at once, and will automatically distribute the work using [dispatch queues](https://developer.apple.com/documentation/dispatch/1453057-dispatch_async).
-* [`ZENObjectRepository`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Domain/ObjectRepository.h) is an object repository combining a [`ZENDatabaseQueue`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Database/DatabaseQueue.h) and a [`ZENDatabaseTable`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Database/DatabaseTable.h) for object persistence, with a strong or weak [`ZENObjectCache`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Cache/ObjectCache.h). [`ZENObjectRepository`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Domain/ObjectRepository.h) exposes [`ZENDomainObjects`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Domain/DomainObject.h) while hiding the details of storing and retrieving object [`ZENDataTransferObjects`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Database/DataTransferObject.h) through [`ZENDatabaseTable`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Database/DatabaseTable.h). [`ZENObjectRepository`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Domain/ObjectRepository.h) also hides the complexity of asynchronously initializing the domain objects after retrieval, and caches domain objects in its [`ZENObjectCache`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Cache/ObjectCache.h) to avoid repeated async initialization costs.
+* [`ZENMediaPlayer`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Media/MediaPlayer.h) plays a file with mpv. Its `fileURL`, `paused`, `positionPercent` and `seeking` properties change only on the main thread, so a UI can observe them. Seeks run one at a time, and one requested before the file has loaded waits for it.
+* [`ZENMediaPlayerView`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Media/Views/MediaPlayerView.h) shows a player's video. It's an `NSOpenGLView`, because OpenGL is the only GPU rendering mpv's render API offers on macOS. [`ZENMediaPlayerControlsView`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Media/Views/MediaPlayerControlsView.h) has play/pause, frame step and skip buttons, and [`ZENMediaPlayerCTIView`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Media/Views/MediaPlayerCTIView.h) is a timeline that shows and sets the position, and previews the frame under the pointer.
+* [`ZENMediaFile`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Media/MediaFile.h) reads a file's duration, frame size and codec names.
+* [`ZENFrameRenderer`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Media/FrameRenderer.h) renders a file's frames as `NSImage`s for thumbnails: one at a given time or percentage, or several spread across the file. It shows the keyframe at or before each time, which is fast, and reports which time that was. A render can be canceled.
+* An app should call `+[ZENMediaPlayer terminateAllPlayers]` and `+[ZENMediaFile terminateAllMediaFiles]` before it quits.
 
-### 4. Media
-[Classes to support reading audio and video media files](https://github.com/znelson/CoreZen/blob/main/CoreZen/Media):
-* [`ZENMediaFile`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Media/MediaFile.h) is a **_Work In Progress_**. Currently supports only basic media metadata retrieval including: video frame size, media duration, and audio and video codec names.
+### 3. Utilities
 
-*Note on dependencies:* [`ZENMediaFile`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Media/MediaFile.h) and other classes in `CoreZen` depend on [libmpv](https://github.com/mpv-player/mpv/blob/master/DOCS/man/libmpv.rst) and [FFmpeg](https://ffmpeg.org). [See above.](#mpv-and-ffmpeg-dependencies)
+* [`ZENWorkQueue`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Queue/WorkQueue.h) is a serial queue whose async work can be canceled through the token it returns. Terminating it runs a final block after the current work; blocks still waiting see that they're canceled, and later ones don't run.
+* [`ZENNode`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Node/Node.h) is a tree of named nodes with sizes. A leaf has its own size and a node with children is as big as they are together, and every total stays up to date as nodes are added, removed and moved. Nodes can be enumerated depth first or breadth first, and copied.
+* [`ZENPreferencesWindowController`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Preferences/PreferencesWindowController.h) builds a preferences window with a toolbar item for each view controller that conforms to [`ZENPreferenceViewController`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Preferences/PreferenceViewController.h). It's adapted from [`CCNPreferencesWindowController`](https://github.com/phranck/CCNPreferencesWindowController).
+* [`ZENArchivedView`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Views/ArchivedView.h) is a view that loads its contents from a nib its subclass names.
+* Categories on Foundation and AppKit classes:
+  * [`NSFileManager+CoreZen`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Categories/NSFileManager%2BCoreZen.h): find or create a standard folder, like the app's own folder in Application Support, and get the app's executable name.
+  * [`NSURL+CoreZen`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Categories/NSURL%2BCoreZen.h): find a URL's volume name, URL and UUID, or a volume by its UUID; get the path from one URL to another and back; get a file's size.
+  * [`NSView+CoreZen`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Categories/NSView%2BCoreZen.h): add constraints that make a subview fill a view.
+  * [`NSNumber+CoreZen`](https://github.com/znelson/CoreZen/blob/main/CoreZen/Categories/NSNumber%2BCoreZen.h): generate a random integer.

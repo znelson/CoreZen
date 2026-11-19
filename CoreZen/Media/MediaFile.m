@@ -25,6 +25,7 @@ ZENObjectCache *ZENGetWeakMediaFileCache(void) {
 
 - (instancetype)initWithURL:(NSURL *)url;
 - (BOOL)turnedOnItsSide;
+- (NSUInteger)stretchedFrameWidth;
 
 @end
 
@@ -92,12 +93,22 @@ ZENObjectCache *ZENGetWeakMediaFileCache(void) {
 	return rotation == 90 || rotation == 270;
 }
 
+// The stored frame's width as shown: its pixels stretched to their aspect ratio.
+// The height stays as stored, as video players show it.
+- (NSUInteger)stretchedFrameWidth {
+	return (NSUInteger)lround(self.mediaInfoController.frameWidth * self.pixelAspectRatio);
+}
+
 - (NSUInteger)frameWidth {
-	return self.turnedOnItsSide ? self.mediaInfoController.frameHeight : self.mediaInfoController.frameWidth;
+	return self.turnedOnItsSide ? self.mediaInfoController.frameHeight : self.stretchedFrameWidth;
 }
 
 - (NSUInteger)frameHeight {
-	return self.turnedOnItsSide ? self.mediaInfoController.frameWidth : self.mediaInfoController.frameHeight;
+	return self.turnedOnItsSide ? self.stretchedFrameWidth : self.mediaInfoController.frameHeight;
+}
+
+- (double)pixelAspectRatio {
+	return self.mediaInfoController.pixelAspectRatio;
 }
 
 - (NSUInteger)rotationDegrees {

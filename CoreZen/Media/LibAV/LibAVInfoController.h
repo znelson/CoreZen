@@ -34,6 +34,7 @@ struct AVStream;
 
 // See ZENMediaFile
 - (NSUInteger)rotationDegrees;
+- (double)pixelAspectRatio;
 
 // Codec names, or nil if the file has no stream of that kind that can be decoded, or
 // couldn't be read. See ZENMediaFile.

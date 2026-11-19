@@ -165,6 +165,15 @@ static NSString *ZENCodecName(const AVCodec *codec, BOOL longName) {
 	return height;
 }
 
+- (double)pixelAspectRatio {
+	if (!_videoStream) {
+		return 1.0;
+	}
+	// The container's ratio if it has one, else the codec's. 0:1 means unknown.
+	AVRational ratio = av_guess_sample_aspect_ratio(_formatContext, (AVStream *)_videoStream, NULL);
+	return (ratio.num > 0 && ratio.den > 0) ? av_q2d(ratio) : 1.0;
+}
+
 - (NSUInteger)rotationDegrees {
 	if (!_videoStream) {
 		return 0;

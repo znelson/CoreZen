@@ -8,6 +8,7 @@
 #import "Database.h"
 #import "Database+Private.h"
 #import "ResultSet+Private.h"
+#import "Log.h"
 
 #import <sqlite3.h>
 
@@ -48,7 +49,7 @@ NSError *ZENDatabaseErrorMake(ZENDatabaseErrorCode code, NSString *description) 
 	BOOL result = [self.fmDatabase executeUpdate:sql withVAList:args];
 	va_end(args);
 	if (!result) {
-		[self statementFailed];
+		[self statementFailed:sql];
 	}
 	return result;
 }
@@ -56,16 +57,16 @@ NSError *ZENDatabaseErrorMake(ZENDatabaseErrorCode code, NSString *description) 
 - (BOOL)executeUpdate:(NSString *)sql withArgumentsInArray:(NSArray *)arguments {
 	BOOL result = [self.fmDatabase executeUpdate:sql withArgumentsInArray:arguments];
 	if (!result) {
-		[self statementFailed];
+		[self statementFailed:sql];
 	}
 	return result;
 }
 
 #pragma mark - Queries
 
-- (ZENResultSet *)wrapResultSet:(FMResultSet *)rs {
+- (ZENResultSet *)wrapResultSet:(FMResultSet *)rs sql:(NSString *)sql {
 	if (!rs) {
-		[self statementFailed];
+		[self statementFailed:sql];
 		return nil;
 	}
 	return [ZENResultSet resultSetWithFMResultSet:rs database:self];
@@ -76,18 +77,18 @@ NSError *ZENDatabaseErrorMake(ZENDatabaseErrorCode code, NSString *description) 
 	va_start(args, sql);
 	FMResultSet *rs = [self.fmDatabase executeQuery:sql withVAList:args];
 	va_end(args);
-	return [self wrapResultSet:rs];
+	return [self wrapResultSet:rs sql:sql];
 }
 
 - (ZENResultSet *)executeQuery:(NSString *)sql withArgumentsInArray:(NSArray *)arguments {
-	return [self wrapResultSet:[self.fmDatabase executeQuery:sql withArgumentsInArray:arguments]];
+	return [self wrapResultSet:[self.fmDatabase executeQuery:sql withArgumentsInArray:arguments] sql:sql];
 }
 
 #pragma mark - Transactions
 
 - (void)cancelTransaction {
 	if (!self.inTransaction) {
-		NSLog(@"WARNING: cancelTransaction called outside a transaction");
+		os_log(ZENLogDatabase(), "cancelTransaction was called outside a transaction, so it did nothing");
 		return;
 	}
 	if (!_rollbackError) {
@@ -106,7 +107,11 @@ NSError *ZENDatabaseErrorMake(ZENDatabaseErrorCode code, NSString *description) 
 	return _rollbackError;
 }
 
-- (void)statementFailed {
+- (void)statementFailed:(NSString *)sql {
+	// FMDB's own logging of this is off, so the message goes under CoreZen's
+	// subsystem. The statement's values are bound separately, so it holds only SQL.
+	os_log_error(ZENLogDatabase(), "A statement failed: %{public}@\n%{public}@", self.fmDatabase.lastErrorMessage, sql);
+
 	// Outside a transaction a failed statement has nothing to undo
 	if (!_rollbackError && self.inTransaction) {
 		NSString *description = [NSString stringWithFormat:@"A statement failed: %@", self.fmDatabase.lastErrorMessage];

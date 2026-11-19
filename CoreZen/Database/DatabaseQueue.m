@@ -8,6 +8,7 @@
 #import "DatabaseQueue+Private.h"
 #import "Database+Private.h"
 #import "ResultSet.h"
+#import "Log.h"
 #import "WorkQueue.h"
 
 #import <stdatomic.h>
@@ -48,7 +49,6 @@
 - (instancetype)initInMemoryWithOptions:(ZENDatabaseQueueOptions)options {
 	self = [super init];
 	if (self) {
-		NSLog(@"Database in memory");
 		_databaseURL = nil;
 		_options = options;
 
@@ -72,7 +72,6 @@
 - (instancetype)initWithURL:(NSURL *)URL options:(ZENDatabaseQueueOptions)options {
 	self = [super init];
 	if (self) {
-		NSLog(@"Database at: %@", URL);
 		_databaseURL = URL;
 		_options = options;
 
@@ -98,7 +97,7 @@
 	// A second shutdown can't run its block: the first closes the database, and
 	// the work queue would run the block on the caller's thread, not in turn
 	if (atomic_exchange(&_shutdownStarted, true)) {
-		NSLog(@"WARNING: Database queue %@ was already shut down, so its database is closed", self.workQueue.label);
+		os_log(ZENLogDatabase(), "Database queue %@ was already shut down, so this shutdown did nothing", self.workQueue.label);
 		return;
 	}
 
@@ -123,16 +122,18 @@
 	if (_database == nil) {
 		FMDatabase *fmdb;
 		if (self.databaseURL) {
-			NSLog(@"Opening database at %@", self.databaseURL);
+			os_log_info(ZENLogDatabase(), "Opening the database at %@", self.databaseURL.path);
 			fmdb = [FMDatabase databaseWithURL:self.databaseURL];
 		} else {
 			// No path makes a private in-memory database, which lasts until it closes
-			NSLog(@"Opening database in memory");
+			os_log_info(ZENLogDatabase(), "Opening a database in memory");
 			fmdb = [FMDatabase databaseWithPath:nil];
 		}
 
+		// CoreZen logs failed statements itself, along with the rest of its messages
+		fmdb.logsErrors = NO;
 		if (![fmdb open]) {
-			NSLog(@"ERROR: Failed to open database at %@", self.databaseURL);
+			os_log_error(ZENLogDatabase(), "Couldn't open the database at %@: %{public}@", self.databaseURL.path, fmdb.lastErrorMessage);
 			return nil;
 		}
 
@@ -156,8 +157,8 @@
 		NSString *mode = [rs next] ? [rs stringForColumnIndex:0] : nil;
 		[rs close];
 		if (![mode isEqualToString:@"wal"]) {
-			NSLog(@"WARNING: %@ couldn't switch to a write-ahead log, so it keeps its %@ journal",
-				  self.databaseURL.lastPathComponent, mode ?: @"current");
+			os_log(ZENLogDatabase(), "%@ couldn't switch to a write-ahead log, so it keeps its %{public}@ journal",
+				   self.databaseURL.lastPathComponent, mode ?: @"current");
 		}
 	}
 
@@ -194,8 +195,8 @@
 	}
 
 	if (![database beginTransaction]) {
-		NSLog(@"ERROR: Couldn't begin a transaction, so each of its statements commits on its own: %@",
-			  database.lastErrorMessage);
+		os_log_error(ZENLogDatabase(), "Couldn't begin a transaction, so each of its statements commits on its own: %{public}@",
+					 database.lastErrorMessage);
 	}
 
 	updateBlock(database);
@@ -206,13 +207,18 @@
 	}
 	NSError *rollbackError = database.rollbackError;
 	if (rollbackError) {
-		NSLog(@"Rolling back a transaction: %@", rollbackError.localizedDescription);
+		// A canceled transaction is rolled back on purpose; anything else is a failure
+		if (rollbackError.code == ZENDatabaseErrorTransactionCanceled) {
+			os_log_info(ZENLogDatabase(), "Rolling back a transaction: %{public}@", rollbackError.localizedDescription);
+		} else {
+			os_log_error(ZENLogDatabase(), "Rolling back a transaction: %{public}@", rollbackError.localizedDescription);
+		}
 		[database rollback];
 		return rollbackError;
 	}
 	if (![database commit]) {
 		NSString *description = [NSString stringWithFormat:@"Couldn't commit the transaction: %@", database.lastErrorMessage];
-		NSLog(@"ERROR: %@, so rolling it back", description);
+		os_log_error(ZENLogDatabase(), "%{public}@, so rolling it back", description);
 		// A failed commit can leave the transaction open, which would swallow the next one
 		if (database.inTransaction) {
 			[database rollback];

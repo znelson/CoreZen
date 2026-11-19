@@ -33,9 +33,9 @@ NSError *ZENDatabaseErrorMake(ZENDatabaseErrorCode code, NSString *description);
 // it failed, or a block canceled it), or nil if it can commit
 - (NSError *)rollbackError;
 
-// Records a failed statement, which the open transaction must roll back for.
+// Logs a failed statement, and records it, so the open transaction rolls back.
 // ZENResultSet calls it when stepping through rows fails.
-- (void)statementFailed;
+- (void)statementFailed:(NSString *)sql;
 
 - (void)setShouldCacheStatements:(BOOL)value;
 - (void)setTraceExecution:(BOOL)value;

@@ -11,6 +11,7 @@
 
 #import "TestDTO.h"
 #import "TestTable.h"
+#import "TestLog.h"
 #import "DatabaseQueue+Private.h"
 
 #import <fcntl.h>
@@ -886,6 +887,27 @@ static NSUInteger ZENOpenDescriptorCount(NSURL *URL) {
 	ZENDatabaseQueue *queue = [ZENDatabaseQueue databaseQueueInMemory];
 	XCTAssertNil([self addRowWithMissingReferenceOnQueue:queue]);
 	[queue shutdown];
+}
+
+#pragma mark - Logging
+
+- (void)testDatabaseLogsUnderCoreZensSubsystem {
+	NSDate *start = [NSDate date];
+	ZENDatabaseQueue *queue = [ZENDatabaseQueue databaseQueueWithURL:[self temporaryDatabaseURL]];
+	[queue fetchSync:^(ZENDatabase *database) {
+		XCTAssertNil([database executeQuery:@"SELECT name FROM no_such_table;"]);
+	}];
+	[queue shutdown];
+	NSArray<OSLogEntryLog *> *entries = ZENLogEntriesSince(start);
+
+	// Something routine is info, and a failure is an error, with the SQL that failed
+	XCTAssertEqual(ZENCoreZenLogEntries(entries, @"Database", OSLogEntryLogLevelInfo, @"Opening the database at").count, 1u);
+	NSString *failure = @"A statement failed: no such table: no_such_table\nSELECT name FROM no_such_table;";
+	XCTAssertEqual(ZENCoreZenLogEntries(entries, @"Database", OSLogEntryLogLevelError, failure).count, 1u);
+
+	// FMDB doesn't log the failure a second time
+	NSPredicate *fmdbErrors = [NSPredicate predicateWithFormat:@"composedMessage BEGINSWITH 'DB Error'"];
+	XCTAssertEqual([entries filteredArrayUsingPredicate:fmdbErrors].count, 0u);
 }
 
 #pragma mark - Trace Execution

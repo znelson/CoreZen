@@ -9,6 +9,7 @@
 #import "MPVFunctions.h"
 #import "MPVConstants.h"
 #import "MediaPlayer+Private.h"
+#import "Log.h"
 
 #import <stdatomic.h>
 
@@ -88,7 +89,7 @@ static double ZENDoubleFromNode(const mpv_node *node) {
 		// Create MPV handle (initialization happens after configuration)
 		_mpvHandle = mpv_create();
 		if (!_mpvHandle) {
-			NSLog(@"ERROR: mpv_create() failed");
+			os_log_error(ZENLogPlayer(), "mpv_create failed");
 			return nil;
 		}
 
@@ -223,10 +224,15 @@ static double ZENDoubleFromNode(const mpv_node *node) {
 	if (error >= 0) {
 		return ZENMPVCommandResultAccepted;
 	}
-	NSLog(@"mpv seek %s %s failed: %s", targetArgument, flags, mpv_error_string(error));
 	// mpv reports a seek before the file has loaded as a generic command error,
 	// and a bad target such as NaN as an invalid parameter
-	return (error == MPV_ERROR_COMMAND) ? ZENMPVCommandResultNotReady : ZENMPVCommandResultRejected;
+	if (error == MPV_ERROR_COMMAND) {
+		// The player tries it again once the file has loaded
+		os_log_info(ZENLogPlayer(), "mpv isn't ready for seek %{public}s %{public}s: %{public}s", targetArgument, flags, mpv_error_string(error));
+		return ZENMPVCommandResultNotReady;
+	}
+	os_log(ZENLogPlayer(), "mpv rejected seek %{public}s %{public}s: %{public}s", targetArgument, flags, mpv_error_string(error));
+	return ZENMPVCommandResultRejected;
 }
 
 - (ZENMPVCommandResult)seekBySeconds:(double)seconds {
@@ -264,7 +270,12 @@ static double ZENDoubleFromNode(const mpv_node *node) {
 		switch (eid) {
 			case MPV_EVENT_LOG_MESSAGE: {
 				mpv_event_log_message *msg = event->data;
-				NSLog(@"MPV_EVENT_LOG_MESSAGE: [%s] <%s> %s", msg->prefix, msg->level, msg->text);
+				// Fatal and error messages are errors, and warnings are worth noticing. The
+				// text can name the file, so it's private. (The log drops its final newline.)
+				os_log_type_t type = (msg->log_level <= MPV_LOG_LEVEL_ERROR)  ? OS_LOG_TYPE_ERROR
+									 : (msg->log_level <= MPV_LOG_LEVEL_WARN) ? OS_LOG_TYPE_DEFAULT
+																			  : OS_LOG_TYPE_INFO;
+				os_log_with_type(ZENLogPlayer(), type, "mpv [%{public}s] %{public}s: %s", msg->prefix, msg->level, msg->text);
 				break;
 			}
 			case MPV_EVENT_START_FILE: {
@@ -340,13 +351,9 @@ static double ZENDoubleFromNode(const mpv_node *node) {
 						}
 					}
 
-					// mpv_event_property *property = event->data;
-					// NSLog(@"MPV_EVENT_PROPERTY_CHANGE (%llu): %s", observerID, property->name);
-
 					if (propertyName && valueNode && observerID == self.identifier) {
 						if (zen_mpv_compare_strings(kMPVProperty_pause, propertyName)) {
 							BOOL paused = (BOOL)valueNode->u.flag;
-							// NSLog(@"Paused: %d", paused);
 							dispatch_async(dispatch_get_main_queue(), ^{
 								self.player.paused = paused;
 							});
@@ -370,7 +377,6 @@ static double ZENDoubleFromNode(const mpv_node *node) {
 							// system representation, so convert it back the same way
 							if (valueNode->format == MPV_FORMAT_STRING && valueNode->u.string) {
 								NSURL *url = [NSURL fileURLWithFileSystemRepresentation:valueNode->u.string isDirectory:NO relativeToURL:nil];
-								// NSLog(@"Path: %@", url);
 								dispatch_async(dispatch_get_main_queue(), ^{
 									self.player.fileURL = url;
 								});
@@ -384,7 +390,7 @@ static double ZENDoubleFromNode(const mpv_node *node) {
 				break;
 			}
 			case MPV_EVENT_QUEUE_OVERFLOW: {
-				NSLog(@"WARNING: mpv's event queue overflowed, so some of its events were lost");
+				os_log(ZENLogPlayer(), "mpv's event queue overflowed, so some of its events were lost");
 				break;
 			}
 			default: {

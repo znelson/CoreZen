@@ -9,6 +9,7 @@
 #import "LibAVInfoController.h"
 #import "LibAVRenderController.h"
 #import "ObjectCache.h"
+#import "Log.h"
 
 ZENObjectCache *ZENGetWeakMediaFileCache(void) {
 	static ZENObjectCache *cache = nil;
@@ -49,7 +50,7 @@ ZENObjectCache *ZENGetWeakMediaFileCache(void) {
 
 - (void)dealloc {
 	if (!self.terminated) {
-		NSLog(@"WARNING: ZENMediaFile -terminateMediaFile was not called before -dealloc (%@)", self.fileURL);
+		os_log(ZENLogMedia(), "terminateMediaFile wasn't called before the media file for %@ was released", self.fileURL.path);
 		[self terminateMediaFile];
 	}
 }
@@ -61,7 +62,7 @@ ZENObjectCache *ZENGetWeakMediaFileCache(void) {
 
 - (void)terminateMediaFile {
 	if (self.terminated) {
-		NSLog(@"WARNING: ZENMediaFile -terminateMediaFile called more than once (%@)", self.fileURL);
+		os_log(ZENLogMedia(), "terminateMediaFile was called more than once for %@", self.fileURL.path);
 	} else {
 		// mediaInfoController owns the lazily created frameRenderController
 		// and will terminate it here if it was ever created

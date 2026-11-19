@@ -9,6 +9,7 @@
 #import "MediaPlayerView+Private.h"
 #import "MPVPlayerController.h"
 #import "ObjectCache.h"
+#import "Log.h"
 
 ZENObjectCache *ZENGetWeakMediaPlayerCache(void) {
 	static ZENObjectCache *cache = nil;
@@ -73,14 +74,14 @@ NSErrorDomain const ZENMediaPlayerErrorDomain = @"ZENMediaPlayerErrorDomain";
 
 - (void)dealloc {
 	if (!self.terminated) {
-		NSLog(@"WARNING: ZENMediaPlayer -terminatePlayer was not called before -dealloc (%@)", self.fileURL);
+		os_log(ZENLogPlayer(), "terminatePlayer wasn't called before the player for %@ was released", self.fileURL.path);
 		[self terminatePlayer];
 	}
 }
 
 - (void)terminatePlayer {
 	if (self.terminated) {
-		NSLog(@"WARNING: ZENMediaPlayer -terminatePlayer called more than once (%@)", self.fileURL);
+		os_log(ZENLogPlayer(), "terminatePlayer was called more than once for %@", self.fileURL.path);
 	} else {
 		if (self.playerView) {
 			[self.playerView terminatePlayerView];

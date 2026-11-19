@@ -8,6 +8,7 @@
 #import "DomainObject.h"
 #import "DomainCommon.h"
 #import "WorkQueue.h"
+#import "Log.h"
 
 @interface ZENDomainObject ()
 
@@ -61,7 +62,8 @@
 										}
 										dispatch_group_leave(group);
 									} else {
-										NSLog(@"WARNING: %@ called its performAsyncInit: completion more than once", domainObject);
+										os_log(ZENLogDomain(), "%{public}@ %lld called its performAsyncInit: completion more than once",
+											   NSStringFromClass([domainObject class]), domainObject.identifier);
 									}
 								}];
 		});

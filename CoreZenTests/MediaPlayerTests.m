@@ -8,6 +8,8 @@
 @import CoreAudio;
 @import CoreZen;
 
+#import "TestLog.h"
+
 static const NSTimeInterval kPlayerTimeout = 10.0;
 
 // Without a player view mpv has no video output, so it can only play the
@@ -234,15 +236,30 @@ static void *StatusContext = &StatusContext;
 	XCTAssertTrue([error.localizedDescription containsString:@"missing.mp4"], @"%@", error.localizedDescription);
 }
 
-- (void)testFileThatIsNotVideoFails {
+// A file of random bytes, with a video's name
+- (NSURL *)fileThatIsNotVideo {
 	NSURL *url = [self.temporaryDirectory URLByAppendingPathComponent:@"not-a-video.mp4"];
 	uint8_t bytes[4096];
 	arc4random_buf(bytes, sizeof(bytes));
 	XCTAssertTrue([[NSData dataWithBytes:bytes length:sizeof(bytes)] writeToURL:url atomically:YES]);
+	return url;
+}
 
-	[self.player loadFileURL:url];
+- (void)testFileThatIsNotVideoFails {
+	[self.player loadFileURL:[self fileThatIsNotVideo]];
 	[self waitForStatus:ZENMediaPlayerStatusFailed];
 	XCTAssertNotNil(self.player.error);
+}
+
+- (void)testMpvErrorsAreLoggedAsErrors {
+	NSDate *start = [NSDate date];
+	[self.player loadFileURL:[self fileThatIsNotVideo]];
+	[self waitForStatus:ZENMediaPlayerStatusFailed];
+
+	// mpv logs why it couldn't play the file, at its error level. The reason
+	// itself is private, so it can show as <private>.
+	NSArray<OSLogEntryLog *> *errors = ZENCoreZenLogEntries(ZENLogEntriesSince(start), @"Player", OSLogEntryLogLevelError, @"mpv [cplayer] error: ");
+	XCTAssertGreaterThan(errors.count, 0u);
 }
 
 - (void)testReplacingFileGoesStraightToLoading {

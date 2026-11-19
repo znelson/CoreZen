@@ -6,6 +6,7 @@
 //
 
 #import "NSFileManager+CoreZen.h"
+#import "Log.h"
 
 @implementation NSFileManager (CoreZen)
 
@@ -41,7 +42,7 @@
 	NSError *error;
 	NSURL *url = [self zen_findOrCreateURLForDirectory:NSApplicationSupportDirectory inDomain:NSUserDomainMask appendPathComponent:executableName create:YES error:&error];
 	if (!url) {
-		NSLog(@"Unable to find or create application support directory: %@", error);
+		os_log_error(ZENLogGeneral(), "Couldn't find or create the application support folder: %@", error.localizedDescription);
 	}
 	return url;
 }

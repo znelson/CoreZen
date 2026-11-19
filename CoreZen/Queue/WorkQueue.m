@@ -6,6 +6,7 @@
 //
 
 #import "WorkQueue+Private.h"
+#import "Log.h"
 
 #import <stdatomic.h>
 
@@ -178,7 +179,7 @@ typedef BOOL (^ZENWorkQueueTokenBlock)(void);
 
 - (void)terminate:(ZENWorkQueueBlock)block {
 	if (![self.terminateToken terminate]) {
-		NSLog(@"WARNING: ZENWorkQueue %@ terminated more than once", self.label);
+		os_log(ZENLogGeneral(), "Work queue %@ was terminated more than once", self.label);
 		block();
 		return;
 	}

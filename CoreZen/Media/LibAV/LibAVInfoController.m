@@ -7,6 +7,7 @@
 
 #import "LibAVInfoController.h"
 #import "LibAVRenderController.h"
+#import "Log.h"
 
 #import <stdatomic.h>
 
@@ -21,9 +22,8 @@
 
 void ZENLogAVFindBestStreamError(NSString *filePath, int returnCode, enum AVMediaType mediaType) {
 	const char *streamType = av_get_media_type_string(mediaType);
-	char reason[AV_ERROR_MAX_STRING_SIZE];
-	av_strerror(returnCode, reason, sizeof(reason));
-	NSLog(@"av_find_best_stream(%@, %s) failed: %s", filePath, streamType ? streamType : "unknown", reason);
+	os_log_error(ZENLogMedia(), "Couldn't find the best %{public}s stream in %@: %{public}s (%d)",
+				 streamType ? streamType : "unknown", filePath, av_err2str(returnCode), returnCode);
 }
 
 // A codec's name as a string, or nil if the codec or its name is missing
@@ -87,13 +87,13 @@ static NSString *ZENCodecName(const AVCodec *codec, BOOL longName) {
 				ZENLogAVFindBestStreamError(mediaPath, audioStreamIndex, AVMEDIA_TYPE_AUDIO);
 			}
 		} else {
-			NSLog(@"avformat_find_stream_info(%@) failed, result: %d", mediaPath, result);
+			os_log_error(ZENLogMedia(), "avformat_find_stream_info failed for %@: %{public}s (%d)", mediaPath, av_err2str(result), result);
 		}
 	} else {
 		// avformat_open_input() documentation:
 		// Note that a user-supplied AVFormatContext will be freed on failure.
 		_formatContext = NULL;
-		NSLog(@"avformat_open_input(%@) failed, result: %d", mediaPath, result);
+		os_log_error(ZENLogMedia(), "avformat_open_input failed for %@: %{public}s (%d)", mediaPath, av_err2str(result), result);
 	}
 }
 

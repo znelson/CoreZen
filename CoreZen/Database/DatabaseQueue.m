@@ -6,7 +6,6 @@
 //
 
 #import "DatabaseQueue.h"
-#import "DatabaseQueue+Private.h"
 #import "Database+Private.h"
 #import "WorkQueue.h"
 
@@ -186,7 +185,9 @@
 - (void)transactionAsync:(ZENDatabaseBlock)updateBlock result:(void (^)(NSError *error))resultBlock {
 	[self runAsync:^{
 		NSError *error = [self runTransaction:updateBlock];
-		resultBlock(error);
+		if (resultBlock) {
+			resultBlock(error);
+		}
 	}];
 }
 

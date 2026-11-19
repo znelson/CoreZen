@@ -12,6 +12,7 @@
 #import "Database+Private.h"
 #import "ResultSet.h"
 #import "DomainCommon.h"
+#import "Log.h"
 
 #import <os/lock.h>
 
@@ -167,7 +168,8 @@ typedef NS_ENUM(NSInteger, ZENStagedWriteKind) {
 							if (error) {
 								// Drop the object, so fetches leave it out. A later fetch creates it
 								// again from the database and retries its init.
-								NSLog(@"Async init failed for %@: %@", object, error);
+								os_log(ZENLogDomain(), "Async init failed for %{public}@ %lld, so fetches leave it out: %@",
+									   NSStringFromClass([object class]), object.identifier, error.localizedDescription);
 								if ([self.cache cachedObject:object.identifier] == object) {
 									[self.cache removeObject:object.identifier];
 								}
@@ -331,7 +333,7 @@ typedef NS_ENUM(NSInteger, ZENStagedWriteKind) {
 				error = ZENDatabaseErrorMake(ZENDatabaseErrorWriteFailed, @"The table couldn't write the object");
 			}
 			if (error) {
-				NSLog(@"ERROR: A write to %@ wasn't saved: %@", [[self.table class] tableName], error.localizedDescription);
+				os_log_error(ZENLogDomain(), "A write to %{public}@ wasn't saved: %{public}@", [[self.table class] tableName], error.localizedDescription);
 			} else {
 				// Still on the database queue, so the cache keeps step with the
 				// database for the next block that runs there
@@ -463,7 +465,7 @@ typedef NS_ENUM(NSInteger, ZENStagedWriteKind) {
 			description = [NSString stringWithFormat:@"A write batch has more than one write for object %lld in %@", write.identifier, tableName];
 		}
 		if (description) {
-			NSLog(@"ERROR: %@", description);
+			os_log_error(ZENLogDomain(), "%{public}@", description);
 			ZENCallAsyncCompletionBlockOnThreadPool(completion, ZENDatabaseErrorMake(ZENDatabaseErrorWriteFailed, description));
 			return;
 		}
@@ -491,7 +493,7 @@ typedef NS_ENUM(NSInteger, ZENStagedWriteKind) {
 				error = writeError;
 			}
 			if (error) {
-				NSLog(@"ERROR: A write batch wasn't saved: %@", error.localizedDescription);
+				os_log_error(ZENLogDomain(), "A write batch wasn't saved: %{public}@", error.localizedDescription);
 				ZENCallAsyncCompletionBlockOnThreadPool(completion, error);
 				return;
 			}

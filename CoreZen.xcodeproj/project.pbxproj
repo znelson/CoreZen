@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		DD0000020000000000000001 /* Log.h in Headers */ = {isa = PBXBuildFile; fileRef = DD0000010000000000000001 /* Log.h */; };
+		DD0000020000000000000002 /* Log.m in Sources */ = {isa = PBXBuildFile; fileRef = DD0000010000000000000002 /* Log.m */; };
+		DD0000020000000000000004 /* TestLog.m in Sources */ = {isa = PBXBuildFile; fileRef = DD0000010000000000000004 /* TestLog.m */; };
 		10E3163392F12AF956341355 /* licenses in Resources */ = {isa = PBXBuildFile; fileRef = CF0E6577750FB6561C55DB40 /* licenses */; };
 		23E8171B92C816C235C1B1B2 /* FMDB-LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = A8C4E7FED8E6976453047D72 /* FMDB-LICENSE.txt */; };
 		AA0000020000000000000001 /* Database.h in Headers */ = {isa = PBXBuildFile; fileRef = AA0000010000000000000001 /* Database.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -186,6 +189,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		DD0000010000000000000001 /* Log.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Log.h; sourceTree = "<group>"; };
+		DD0000010000000000000002 /* Log.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Log.m; sourceTree = "<group>"; };
+		DD0000010000000000000003 /* TestLog.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestLog.h; sourceTree = "<group>"; };
+		DD0000010000000000000004 /* TestLog.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestLog.m; sourceTree = "<group>"; };
 		CF0E6577750FB6561C55DB40 /* licenses */ = {isa = PBXFileReference; lastKnownFileType = folder; path = licenses; sourceTree = "<group>"; };
 		A8C4E7FED8E6976453047D72 /* FMDB-LICENSE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "FMDB-LICENSE.txt"; sourceTree = "<group>"; };
 		AA0000010000000000000001 /* Database.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Database.h; sourceTree = "<group>"; };
@@ -500,6 +507,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		DD0000030000000000000001 /* Logging */ = {
+			isa = PBXGroup;
+			children = (
+				DD0000010000000000000001 /* Log.h */,
+				DD0000010000000000000002 /* Log.m */,
+			);
+			path = Logging;
+			sourceTree = "<group>";
+		};
 		5309C39F2885A1DC00BC0AAE = {
 			isa = PBXGroup;
 			children = (
@@ -528,6 +544,7 @@
 				5309C4112885B66000BC0AAE /* Database */,
 				538E05002885DCD300CE9DE7 /* Domain */,
 				5309C3EE2885A6C800BC0AAE /* Identifier */,
+				DD0000030000000000000001 /* Logging */,
 				5350F8BF2886192E00F8CA68 /* Media */,
 				5350FB0328889E5F00F8CA68 /* Node */,
 				5309C3E52885A37900BC0AAE /* Preferences */,
@@ -703,6 +720,8 @@
 				538E052D2885FB5400CE9DE7 /* TestIdentifiable.m */,
 				CC00000128860A0000000006 /* TestTable.h */,
 				CC00000128860A0000000007 /* TestTable.m */,
+				DD0000010000000000000003 /* TestLog.h */,
+				DD0000010000000000000004 /* TestLog.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -1063,6 +1082,7 @@
 				5309C4292885D19400BC0AAE /* DatabaseTable.h in Headers */,
 				AA0000020000000000000004 /* ResultSet.h in Headers */,
 				AA0000020000000000000006 /* ResultSet+Private.h in Headers */,
+				DD0000020000000000000001 /* Log.h in Headers */,
 				5350F8C22886194200F8CA68 /* MediaFile.h in Headers */,
 				5309C3E82885A39C00BC0AAE /* PreferencesWindowController.h in Headers */,
 				538E05072885DD1D00CE9DE7 /* DomainCallbacks.h in Headers */,
@@ -1227,6 +1247,7 @@
 				5309C3E92885A39C00BC0AAE /* PreferencesWindowController.m in Sources */,
 				53964F0B288C4C48007B53EC /* MPVPlayerController.m in Sources */,
 				5331FE622922AD8700C15950 /* WorkQueue.m in Sources */,
+				DD0000020000000000000002 /* Log.m in Sources */,
 				5309C4222885CB1400BC0AAE /* DataTransferObject.m in Sources */,
 				5386706C28BFE16300FB15EB /* MediaPlayerControlsView.m in Sources */,
 				5396531D288CD19C007B53EC /* MediaPlayerView.m in Sources */,
@@ -1277,6 +1298,7 @@
 				CC00000228860A0000000006 /* TestDomainObject.m in Sources */,
 				538E052E2885FB5400CE9DE7 /* TestIdentifiable.m in Sources */,
 				CC00000228860A0000000005 /* TestTable.m in Sources */,
+				DD0000020000000000000004 /* TestLog.m in Sources */,
 				0313158D2D7374094EFBE6DC /* MediaTests.m in Sources */,
 				B87FBFD38A588272C385E7BC /* MPVFunctionsTests.m in Sources */,
 				0E03AE27A6C781F30909CE0A /* MediaPlayerTests.m in Sources */,

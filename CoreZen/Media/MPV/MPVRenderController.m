@@ -10,6 +10,7 @@
 #import "MPVFunctions.h"
 #import "MediaPlayer+Private.h"
 #import "MediaPlayerView+Private.h"
+#import "Log.h"
 
 @import Darwin.POSIX.pthread;
 @import OpenGL.GL;
@@ -111,7 +112,7 @@ static void zen_mpv_render_context_update(void *ctx);
 
 	int error = mpv_render_context_create(&_mpvRenderContext, self.mpvHandleFromPlayerView, renderParams);
 	if (error < 0) {
-		NSLog(@"ERROR: mpv_render_context_create failed: %d", error);
+		os_log_error(ZENLogPlayer(), "mpv_render_context_create failed: %{public}s (%d)", mpv_error_string(error), error);
 		[self.playerView unlockViewContext];
 		return;
 	}

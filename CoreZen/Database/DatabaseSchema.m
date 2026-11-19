@@ -10,6 +10,7 @@
 #import "Database+Private.h"
 #import "ResultSet.h"
 #import "ObjectIdentifier+Private.h"
+#import "Log.h"
 
 @interface ZENDatabaseSchema ()
 
@@ -49,7 +50,7 @@
 	BOOL versionChanged = [self updateDatabaseSchema:database];
 	NSError *rollbackError = database.rollbackError;
 	if (rollbackError) {
-		NSLog(@"ERROR: Rolling back the schema update: %@", rollbackError.localizedDescription);
+		os_log_error(ZENLogDatabase(), "Rolling back the schema update: %{public}@", rollbackError.localizedDescription);
 	}
 	if (ownsTransaction) {
 		if (versionChanged && !rollbackError) {
@@ -98,7 +99,7 @@
 
 	BOOL versionChanged = (schemaVersion != startingVersion);
 	if (versionChanged) {
-		NSLog(@"Schema updated from version %lu to %lu", startingVersion, schemaVersion);
+		os_log_info(ZENLogDatabase(), "Schema updated from version %lu to %lu", startingVersion, schemaVersion);
 		NSString *statement = [NSString stringWithFormat:@"PRAGMA user_version = %lu", schemaVersion];
 		[database executeUpdate:statement];
 	}
@@ -125,7 +126,7 @@
 		[rs close];
 	}
 	if (largestTableName) {
-		NSLog(@"Largest identifier is %lli (in %@)", largestIdentifier, largestTableName);
+		os_log_info(ZENLogDatabase(), "Largest identifier is %lli (in %{public}@)", largestIdentifier, largestTableName);
 		ZENRaiseLargestObjectIdentifier(largestIdentifier);
 	}
 }

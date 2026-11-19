@@ -8,6 +8,7 @@
 #import "LibAVRenderController.h"
 #import "LibAVInfoController.h"
 #import "WorkQueue.h"
+#import "Log.h"
 
 @import Cocoa;
 
@@ -57,18 +58,18 @@
 - (void)avInitWithCodec:(const AVCodec *)codec
 				 stream:(const AVStream *)stream {
 	if (!codec || !stream) {
-		NSLog(@"avInitWithCodec: codec or stream is NULL");
+		os_log_error(ZENLogMedia(), "Can't render frames without a video codec and stream");
 		return;
 	}
 	AVCodecContext *codecContext = avcodec_alloc_context3(codec);
 	if (!codecContext) {
-		NSLog(@"avcodec_alloc_context3 failed");
+		os_log_error(ZENLogMedia(), "avcodec_alloc_context3 failed");
 		return;
 	}
 	avcodec_parameters_to_context(codecContext, stream->codecpar);
 
 	if (codecContext->pix_fmt < 0 || codecContext->pix_fmt >= AV_PIX_FMT_NB) {
-		NSLog(@"Video codec pixel format is invalid");
+		os_log_error(ZENLogMedia(), "The video codec's pixel format is invalid");
 		avcodec_free_context(&codecContext);
 		return;
 	}
@@ -78,7 +79,7 @@
 
 	int result = avcodec_open2(codecContext, codec, NULL);
 	if (result < 0) {
-		NSLog(@"avcodec_open2 failed, result: %d", result);
+		os_log_error(ZENLogMedia(), "avcodec_open2 failed: %{public}s (%d)", av_err2str(result), result);
 		avcodec_free_context(&codecContext);
 		return;
 	}
@@ -120,7 +121,7 @@
 
 	int result = av_seek_frame(formatContext, streamIndex, timestamp, AVSEEK_FLAG_BACKWARD);
 	if (result < 0) {
-		NSLog(@"av_seek_frame failed: %d", result);
+		os_log_error(ZENLogMedia(), "av_seek_frame failed: %{public}s (%d)", av_err2str(result), result);
 		return NO;
 	}
 
@@ -130,7 +131,7 @@
 
 	AVPacket *packet = av_packet_alloc();
 	if (!packet) {
-		NSLog(@"av_packet_alloc failed");
+		os_log_error(ZENLogMedia(), "av_packet_alloc failed");
 		return NO;
 	}
 
@@ -157,7 +158,7 @@
 
 	// AVERROR_EOF only means the stream ended without another frame
 	if (result < 0 && result != AVERROR_EOF) {
-		NSLog(@"Decoding a frame failed: %d", result);
+		os_log_error(ZENLogMedia(), "Decoding a frame failed: %{public}s (%d)", av_err2str(result), result);
 	}
 	return (result >= 0);
 }
@@ -223,10 +224,10 @@
 			success = YES;
 
 		} else {
-			NSLog(@"sws_scale_frame failed: %d", result);
+			os_log_error(ZENLogMedia(), "sws_scale_frame failed: %{public}s (%d)", av_err2str(result), result);
 		}
 	} else {
-		NSLog(@"av_frame_get_buffer failed: %d", result);
+		os_log_error(ZENLogMedia(), "av_frame_get_buffer failed: %{public}s (%d)", av_err2str(result), result);
 	}
 
 	av_frame_free(&frameToFree);

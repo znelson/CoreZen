@@ -31,6 +31,14 @@ See [`Scripts/update_instructions.md`](https://github.com/znelson/CoreZen/blob/m
 
 The framework bundles both in its `Resources` folder, as `FMDB-LICENSE.txt` and `licenses/`, so an app that embeds it ships them. Such an app should point to them, for example from its About window, and credit FreeType there as its license asks; the credit line is at the end of `NOTICES.md`.
 
+### Logging
+
+CoreZen logs to the unified log, under the subsystem `com.zdnelson.CoreZen`, in the categories Database, Domain, Media, Player and General. Failures are errors, harmless surprises like a method called twice are default messages, and routine events like a database opening are info. Paths, URLs and mpv's messages are private, since they can name the user's files. To watch them:
+
+```
+log stream --level info --predicate 'subsystem == "com.zdnelson.CoreZen"'
+```
+
 ## What's In CoreZen.framework?
 
 `CoreZen` has three parts: a persistence layer for a domain model stored in SQLite, media playback and frame rendering built on mpv and FFmpeg, and smaller AppKit and Foundation helpers. The public headers say which values can be `nil`.

@@ -32,7 +32,7 @@
 	NSError *error = nil;
 	BOOL hasRow = [self.fmResultSet nextWithError:&error];
 	if (!hasRow && error) {
-		[self.database statementFailed];
+		[self.database statementFailed:self.fmResultSet.query ?: @""];
 	}
 	return hasRow;
 }

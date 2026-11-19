@@ -117,6 +117,13 @@
 		C11551AB7868F3097ACA3BB8 /* red-blue-rotated-180.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 1B673A9CEA7C3EC0D330D9A6 /* red-blue-rotated-180.mp4 */; };
 		99F7C3854FFB7E69E4D57346 /* red-blue-anamorphic.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 01F3CB1C5E87F3209336D3CA /* red-blue-anamorphic.mp4 */; };
 		65616A3FCF09AC524A9A877D /* red-blue-anamorphic-rotated-90.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = BCF4B72A9F9D4B15BFEC5DD3 /* red-blue-anamorphic-rotated-90.mp4 */; };
+		7D9C54A9C52D8B94FF4CAE31 /* orange-bt601.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 0517E51E1D5B059188A7FA9B /* orange-bt601.mp4 */; };
+		2623360BDD91C945E1D479AF /* orange-bt709.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = B38297CD841701D2A0F46001 /* orange-bt709.mp4 */; };
+		0D7C79A42F5CFD04098240C6 /* orange-hd-untagged.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = DE100280E9E8C5324DF7055D /* orange-hd-untagged.mp4 */; };
+		77B963983B1E3BA427D0B853 /* gray-full-range.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 79B5A92427AED5494826503C /* gray-full-range.mp4 */; };
+		901E50B57A695500966B3157 /* gray-full-range-10bit.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 0E15157A57BCB07C20342957 /* gray-full-range-10bit.mp4 */; };
+		A7E45A8CFEC87B18426B5406 /* gray-hdr10.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 960ECFD5E9E6975667645917 /* gray-hdr10.mp4 */; };
+		188B2E20445017EDC628D13F /* gray-hlg.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 84132720D30447C3756904D0 /* gray-hlg.mp4 */; };
 		B87FBFD38A588272C385E7BC /* MPVFunctionsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AED5F263101D1308D8C370C /* MPVFunctionsTests.m */; };
 		0E03AE27A6C781F30909CE0A /* MediaPlayerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9DE763B7E360E1D3524EB2D3 /* MediaPlayerTests.m */; };
 		A04E46CC8864C0ED866A6437 /* MediaPlayerViewTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FC1C76B108AFBE6B8C8543EC /* MediaPlayerViewTests.m */; };
@@ -295,6 +302,13 @@
 		1B673A9CEA7C3EC0D330D9A6 /* red-blue-rotated-180.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "red-blue-rotated-180.mp4"; sourceTree = "<group>"; };
 		01F3CB1C5E87F3209336D3CA /* red-blue-anamorphic.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "red-blue-anamorphic.mp4"; sourceTree = "<group>"; };
 		BCF4B72A9F9D4B15BFEC5DD3 /* red-blue-anamorphic-rotated-90.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "red-blue-anamorphic-rotated-90.mp4"; sourceTree = "<group>"; };
+		0517E51E1D5B059188A7FA9B /* orange-bt601.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "orange-bt601.mp4"; sourceTree = "<group>"; };
+		B38297CD841701D2A0F46001 /* orange-bt709.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "orange-bt709.mp4"; sourceTree = "<group>"; };
+		DE100280E9E8C5324DF7055D /* orange-hd-untagged.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "orange-hd-untagged.mp4"; sourceTree = "<group>"; };
+		79B5A92427AED5494826503C /* gray-full-range.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "gray-full-range.mp4"; sourceTree = "<group>"; };
+		0E15157A57BCB07C20342957 /* gray-full-range-10bit.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "gray-full-range-10bit.mp4"; sourceTree = "<group>"; };
+		960ECFD5E9E6975667645917 /* gray-hdr10.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "gray-hdr10.mp4"; sourceTree = "<group>"; };
+		84132720D30447C3756904D0 /* gray-hlg.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "gray-hlg.mp4"; sourceTree = "<group>"; };
 		1AED5F263101D1308D8C370C /* MPVFunctionsTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MPVFunctionsTests.m; sourceTree = "<group>"; };
 		9DE763B7E360E1D3524EB2D3 /* MediaPlayerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MediaPlayerTests.m; sourceTree = "<group>"; };
 		FC1C76B108AFBE6B8C8543EC /* MediaPlayerViewTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MediaPlayerViewTests.m; sourceTree = "<group>"; };
@@ -820,6 +834,13 @@
 				1B673A9CEA7C3EC0D330D9A6 /* red-blue-rotated-180.mp4 */,
 				01F3CB1C5E87F3209336D3CA /* red-blue-anamorphic.mp4 */,
 				BCF4B72A9F9D4B15BFEC5DD3 /* red-blue-anamorphic-rotated-90.mp4 */,
+				0517E51E1D5B059188A7FA9B /* orange-bt601.mp4 */,
+				B38297CD841701D2A0F46001 /* orange-bt709.mp4 */,
+				DE100280E9E8C5324DF7055D /* orange-hd-untagged.mp4 */,
+				79B5A92427AED5494826503C /* gray-full-range.mp4 */,
+				0E15157A57BCB07C20342957 /* gray-full-range-10bit.mp4 */,
+				960ECFD5E9E6975667645917 /* gray-hdr10.mp4 */,
+				84132720D30447C3756904D0 /* gray-hlg.mp4 */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -1186,6 +1207,13 @@
 				C11551AB7868F3097ACA3BB8 /* red-blue-rotated-180.mp4 in Resources */,
 				99F7C3854FFB7E69E4D57346 /* red-blue-anamorphic.mp4 in Resources */,
 				65616A3FCF09AC524A9A877D /* red-blue-anamorphic-rotated-90.mp4 in Resources */,
+				7D9C54A9C52D8B94FF4CAE31 /* orange-bt601.mp4 in Resources */,
+				2623360BDD91C945E1D479AF /* orange-bt709.mp4 in Resources */,
+				0D7C79A42F5CFD04098240C6 /* orange-hd-untagged.mp4 in Resources */,
+				77B963983B1E3BA427D0B853 /* gray-full-range.mp4 in Resources */,
+				901E50B57A695500966B3157 /* gray-full-range-10bit.mp4 in Resources */,
+				A7E45A8CFEC87B18426B5406 /* gray-hdr10.mp4 in Resources */,
+				188B2E20445017EDC628D13F /* gray-hlg.mp4 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

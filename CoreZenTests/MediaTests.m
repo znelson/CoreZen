@@ -35,6 +35,32 @@
 //            -c:v libx264 -pix_fmt yuv420p -g 5 -movflags +faststart red-blue-anamorphic.mp4
 //   red-blue-anamorphic-rotated-90.mp4: that, tagged 90 clockwise like red-blue-rotated-90.mp4.
 //   The stretch applies to the stored frame, before the turn, so it's shown 32x128.
+//   Solid colors, each made from a known RGB color, stored in ways that need converting
+//   differently to show that color again:
+//   orange-bt601.mp4 and orange-bt709.mp4: orange (220, 120, 40), converted to YUV with
+//   standard definition's BT.601 matrix or HD's BT.709 one, and tagged with it
+//     ffmpeg -f lavfi -i "color=c=0xDC7828:s=64x64:r=10:d=1,format=rgb24"
+//            -vf "scale=out_color_matrix=bt709:out_range=tv,format=yuv420p" -colorspace bt709
+//            -color_primaries bt709 -color_trc bt709 -color_range tv -c:v libx264 -g 5
+//            -movflags +faststart orange-bt709.mp4
+//     (bt601 and smpte170m in place of bt709 for orange-bt601.mp4)
+//   orange-hd-untagged.mp4: the same at 1280x720 with BT.709, but with no tags, which
+//   players read as BT.709 because the video is HD
+//     (as above, with s=1280x720, setparams=colorspace=unknown:color_primaries=unknown:
+//      color_trc=unknown added to -vf, and no tag options)
+//   gray-full-range.mp4 and gray-full-range-10bit.mp4: gray (220, 220, 220) using the full
+//   range of values rather than video's usual 16-235, in 8-bit and 10-bit
+//     ffmpeg -f lavfi -i "color=c=0xDCDCDC:s=64x64:r=10:d=1,format=rgb48"
+//            -vf "scale=out_color_matrix=bt709:out_range=pc,format=yuv420p10le" -colorspace bt709
+//            -color_range pc -c:v libx264 -g 5 -movflags +faststart gray-full-range-10bit.mp4
+//   gray-hdr10.mp4 and gray-hlg.mp4: HDR gray at reference white, which SDR shows as white:
+//   203 nits in PQ (10-bit code 572), or 75% in HLG (code 721)
+//     ffmpeg -f lavfi -i "color=c=gray:s=64x64:r=10:d=1,format=yuv420p10le"
+//            -vf "geq=lum=572:cb=512:cr=512,setparams=colorspace=bt2020nc:color_primaries=bt2020:
+//            color_trc=smpte2084:range=tv" -c:v libx265 -pix_fmt yuv420p10le -x265-params
+//            "colorprim=bt2020:transfer=smpte2084:colormatrix=bt2020nc:range=limited"
+//            -g 5 -tag:v hvc1 -movflags +faststart gray-hdr10.mp4
+//     (lum=721 and arib-std-b67 in place of smpte2084 for gray-hlg.mp4)
 
 static const NSTimeInterval kRenderTimeout = 10.0;
 
@@ -217,14 +243,15 @@ static const NSTimeInterval kRenderTimeout = 10.0;
 
 #pragma mark - Rotation
 
-// "red" or "blue": the color of image at a point given as fractions of its width
-// and height, from the top left
-- (NSString *)colorOfImage:(NSImage *)image atX:(double)x y:(double)y {
+// The red, green and blue values of image, from 0 to 255 in sRGB, at a point given
+// as fractions of its width and height from the top left
+- (NSArray<NSNumber *> *)rgbOfImage:(NSImage *)image atX:(double)x y:(double)y {
 	CGImageRef cgImage = [image CGImageForProposedRect:NULL context:nil hints:nil];
 	size_t width = CGImageGetWidth(cgImage);
 	size_t height = CGImageGetHeight(cgImage);
 	uint8_t *pixels = calloc(width * height, 4);
-	CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+	// An image already in sRGB is drawn into an sRGB context unchanged
+	CGColorSpaceRef colorSpace = CGColorSpaceCreateWithName(kCGColorSpaceSRGB);
 	CGContextRef context = CGBitmapContextCreate(pixels, width, height, 8, width * 4, colorSpace,
 												 (CGBitmapInfo)kCGImageAlphaPremultipliedLast);
 	// A bitmap context keeps the image's top row first in memory
@@ -232,11 +259,17 @@ static const NSTimeInterval kRenderTimeout = 10.0;
 	size_t column = MIN((size_t)(x * width), width - 1);
 	size_t row = MIN((size_t)(y * height), height - 1);
 	uint8_t *pixel = pixels + 4 * (row * width + column);
-	NSString *color = (pixel[0] > pixel[2]) ? @"red" : @"blue";
+	NSArray<NSNumber *> *rgb = @[@(pixel[0]), @(pixel[1]), @(pixel[2])];
 	CGContextRelease(context);
 	CGColorSpaceRelease(colorSpace);
 	free(pixels);
-	return color;
+	return rgb;
+}
+
+// "red" or "blue": whichever there's more of in image at that point
+- (NSString *)colorOfImage:(NSImage *)image atX:(double)x y:(double)y {
+	NSArray<NSNumber *> *rgb = [self rgbOfImage:image atX:x y:y];
+	return (rgb[0].intValue > rgb[2].intValue) ? @"red" : @"blue";
 }
 
 - (void)testFrameSizeIsAsShown {
@@ -304,6 +337,43 @@ static const NSTimeInterval kRenderTimeout = 10.0;
 		XCTAssertEqualObjects(found, expectation[2], @"%@", name);
 		XCTAssertNotEqualObjects(first, second, @"%@ should show both colors", name);
 	}];
+}
+
+#pragma mark - Color
+
+// Each fixture is a solid color made from a known RGB color, and its frame should
+// show that color, however the file stores it
+- (void)testRenderedFramesShowTheirSourceColors {
+	NSArray *orange = @[@220, @120, @40];
+	NSArray *gray = @[@220, @220, @220];
+	NSArray *white = @[@255, @255, @255];
+	NSDictionary<NSString *, NSArray *> *expected = @{
+		@"orange-bt601.mp4": orange,
+		@"orange-bt709.mp4": orange,
+		@"orange-hd-untagged.mp4": orange,
+		@"gray-full-range.mp4": gray,
+		@"gray-full-range-10bit.mp4": gray,
+		@"gray-hdr10.mp4": white,
+		@"gray-hlg.mp4": white,
+	};
+	[expected enumerateKeysAndObjectsUsingBlock:^(NSString *name, NSArray<NSNumber *> *color, BOOL *stop) {
+		ZENRenderedFrame *frame = [self renderFrameAtPercentage:0.5 ofMediaFile:[self mediaFileNamed:name]];
+		XCTAssertNotNil(frame.image, @"%@", name);
+		NSArray<NSNumber *> *rgb = [self rgbOfImage:frame.image atX:0.5 y:0.5];
+		// Compression and scaling move values a little
+		for (NSUInteger channel = 0; channel < 3; channel++) {
+			XCTAssertEqualWithAccuracy(rgb[channel].doubleValue, color[channel].doubleValue, 8,
+									   @"%@ is %@ but should be %@", name, rgb, color);
+		}
+	}];
+}
+
+- (void)testRenderedFramesAreTaggedSRGB {
+	// So macOS shows them as intended on displays with wider color, too
+	ZENRenderedFrame *frame = [self renderFrameAtPercentage:0.5 ofMediaFile:[self mediaFileNamed:@"orange-bt709.mp4"]];
+	CGImageRef cgImage = [frame.image CGImageForProposedRect:NULL context:nil hints:nil];
+	NSString *name = (__bridge_transfer NSString *)CGColorSpaceCopyName(CGImageGetColorSpace(cgImage));
+	XCTAssertEqualObjects(name, (__bridge NSString *)kCGColorSpaceSRGB);
 }
 
 - (void)testRenderFrameFromAudioOnlyFile {

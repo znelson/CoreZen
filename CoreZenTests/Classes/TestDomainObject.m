@@ -17,6 +17,14 @@
 	return self;
 }
 
+- (void)didUpdateDTO {
+	[super didUpdateDTO];
+	_name = [((ZENTestDTO *)self.basicDTO).name copy];
+	@synchronized(self) {
+		_dtoUpdateCount += 1;
+	}
+}
+
 @end
 
 static const NSTimeInterval kSlowInitDelay = 0.2;

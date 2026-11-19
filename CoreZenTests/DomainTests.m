@@ -11,6 +11,25 @@
 #import "TestTable.h"
 #import "TestDomainObject.h"
 
+// A DTO with values of several kinds, and one worked out from the others
+@interface ZENTestRichDTO : ZENTestDTO
+
+@property (nonatomic) NSUInteger count;
+@property (nonatomic) double ratio;
+@property (nonatomic, strong) NSDate *date;
+@property (nonatomic, copy) NSString *note;
+@property (nonatomic, readonly) NSString *summary;
+
+@end
+
+@implementation ZENTestRichDTO
+
+- (NSString *)summary {
+	return [NSString stringWithFormat:@"%@ %lu", self.name, (unsigned long)self.count];
+}
+
+@end
+
 @interface DomainTests : XCTestCase
 
 @property (nonatomic, strong) ZENDatabaseQueue *queue;
@@ -53,6 +72,36 @@
 }
 
 #pragma mark - DomainObject
+
+- (void)testDTOCopyHasItsOwnValues {
+	ZENTestRichDTO *dto = [[ZENTestRichDTO alloc] initWithIdentifier:7 name:@"Original"];
+	dto.count = 3;
+	dto.ratio = 0.5;
+	dto.date = [NSDate dateWithTimeIntervalSince1970:100];
+
+	// Every value the subclass and its superclasses declare, including a nil one
+	ZENTestRichDTO *copy = [dto copy];
+	XCTAssertNotEqual(copy, dto);
+	XCTAssertEqual(copy.identifier, 7);
+	XCTAssertEqualObjects(copy.name, @"Original");
+	XCTAssertEqual(copy.count, 3u);
+	XCTAssertEqual(copy.ratio, 0.5);
+	XCTAssertEqualObjects(copy.date, dto.date);
+	XCTAssertNil(copy.note);
+	XCTAssertEqualObjects(copy.summary, @"Original 3");
+
+	// Changing the copy leaves the original alone, until its values are put back
+	copy.name = @"Changed";
+	copy.count = 4;
+	copy.note = @"Noted";
+	XCTAssertEqualObjects(dto.name, @"Original");
+	XCTAssertEqual(dto.count, 3u);
+	[dto takeValuesFromDTO:copy];
+	XCTAssertEqualObjects(dto.name, @"Changed");
+	XCTAssertEqual(dto.count, 4u);
+	XCTAssertEqualObjects(dto.note, @"Noted");
+	XCTAssertEqual(dto.identifier, 7);
+}
 
 - (void)testDomainObjectCreationFromDTO {
 	ZENTestDTO *dto = [[ZENTestDTO alloc] initWithIdentifier:10 name:@"Hello"];
@@ -635,6 +684,250 @@
 
 	NSArray<ZENTestDomainObject *> *objects = [self fetchAllFromRepository:repo];
 	XCTAssertEqualObjects([objects valueForKey:@"name"], (@[@"Beta"]));
+}
+
+#pragma mark - Write Batches
+
+// Saves the writes build stages, and returns the batch's error, or nil once it's saved
+- (NSError *)performWrites:(void(NS_NOESCAPE ^)(ZENRepositoryWriteBatch *batch))build {
+	XCTestExpectation *finished = [self expectationWithDescription:@"batch"];
+	__block NSError *result = nil;
+	[ZENObjectRepository performWrites:build
+							completion:^(NSError *error) {
+								result = error;
+								[finished fulfill];
+							}];
+	[self waitForExpectations:@[finished] timeout:5.0];
+	return result;
+}
+
+// A repository for a second table, on the same database queue
+- (ZENObjectRepository *)otherRepository {
+	[self.queue transactionSync:^(ZENDatabase *database) {
+		[ZENOtherTestTable updateSchema:database version:1];
+	}];
+	return [[ZENObjectRepository alloc] initWithDataModel:nil
+											   tableClass:[ZENOtherTestTable class]
+											databaseQueue:self.queue
+									   domainObjectEmbryo:[ZENTestDomainObject class]
+												cacheType:ZENObjectRepositoryCacheType_Strong];
+}
+
+- (ZENTestDomainObject *)unsavedObjectNamed:(NSString *)name {
+	ZENTestDTO *dto = [[ZENTestDTO alloc] initWithIdentifier:ZENGetNextObjectIdentifier() name:name];
+	return [[ZENTestDomainObject alloc] initWithDTO:dto];
+}
+
+// The name in table's row for identifier, or nil if there's no row
+- (NSString *)storedNameOfObject:(ZENIdentifier)identifier inTable:(NSString *)table {
+	__block NSString *name = nil;
+	[self.queue fetchSync:^(ZENDatabase *database) {
+		ZENResultSet *rs = [database executeQuery:[NSString stringWithFormat:@"SELECT name FROM %@ WHERE identifier = ?;", table], @(identifier)];
+		if ([rs next]) {
+			name = [rs stringForColumnIndex:0];
+		}
+		[rs close];
+	}];
+	return name;
+}
+
+- (void)testBatchSavesWritesAcrossRepositories {
+	ZENObjectRepository *repo = self.repository;
+	ZENObjectRepository *other = self.otherRepository;
+	ZENTestDomainObject *kept = [self addObjectNamed:@"Kept" toRepository:repo];
+	ZENTestDomainObject *removed = [self addObjectNamed:@"Removed" toRepository:repo];
+	ZENTestDomainObject *added = [self unsavedObjectNamed:@"Added"];
+
+	XCTestExpectation *addedPosted = [self expectationForNotification:ZENObjectRepositoryObjectAddedNotification object:other handler:nil];
+	XCTestExpectation *updatedPosted = [self expectationForNotification:ZENObjectRepositoryObjectUpdatedNotification
+																 object:repo
+																handler:^BOOL(NSNotification *notification) {
+																	// Up to date by the time observers hear about it
+																	ZENTestDomainObject *object = notification.userInfo[ZENObjectRepositoryNotificationObjectKey];
+																	return object == kept && [object.name isEqualToString:@"Renamed"];
+																}];
+	XCTestExpectation *deletedPosted = [self expectationForNotification:ZENObjectRepositoryObjectDeletedNotification object:repo handler:nil];
+
+	NSError *error = [self performWrites:^(ZENRepositoryWriteBatch *batch) {
+		[batch addObject:added toRepository:other];
+		[batch updateObjectWithIdentifier:kept.identifier
+							 inRepository:repo
+								   change:^(ZENTestDTO *dto) {
+									   dto.name = @"Renamed";
+								   }];
+		[batch deleteObjectWithIdentifier:removed.identifier fromRepository:repo];
+	}];
+	[self waitForExpectations:@[addedPosted, updatedPosted, deletedPosted] timeout:5.0];
+	XCTAssertNil(error);
+
+	// In memory: the update went into the loaded object's DTO, and through its hook
+	XCTAssertEqualObjects(((ZENTestDTO *)kept.basicDTO).name, @"Renamed");
+	XCTAssertEqualObjects(kept.name, @"Renamed");
+	XCTAssertEqual(kept.dtoUpdateCount, 1u);
+	XCTAssertEqualObjects([self fetchObjectWithIdentifier:added.identifier fromRepository:other], @[added]);
+	XCTAssertEqualObjects([self fetchObjectWithIdentifier:removed.identifier fromRepository:repo], @[]);
+
+	// And in the database
+	XCTAssertEqualObjects([self storedNameOfObject:kept.identifier inTable:@"test_objects"], @"Renamed");
+	XCTAssertEqualObjects([self storedNameOfObject:added.identifier inTable:@"other_test_objects"], @"Added");
+	XCTAssertNil([self storedNameOfObject:removed.identifier inTable:@"test_objects"]);
+}
+
+- (void)testBatchThatDoesntCommitChangesNothing {
+	ZENObjectRepository *repo = self.repository;
+	ZENObjectRepository *other = self.otherRepository;
+	ZENTestDomainObject *kept = [self addObjectNamed:@"Kept" toRepository:repo];
+	ZENTestDomainObject *added = [self unsavedObjectNamed:@"Added"];
+	[self failCommitsAfter:@"UPDATE"];
+
+	XCTestExpectation *noUpdate = [self expectNo:ZENObjectRepositoryObjectUpdatedNotification fromRepository:repo];
+	XCTestExpectation *noAdd = [self expectNo:ZENObjectRepositoryObjectAddedNotification fromRepository:other];
+	NSError *error = [self performWrites:^(ZENRepositoryWriteBatch *batch) {
+		[batch addObject:added toRepository:other];
+		[batch updateObjectWithIdentifier:kept.identifier
+							 inRepository:repo
+								   change:^(ZENTestDTO *dto) {
+									   dto.name = @"Renamed";
+								   }];
+	}];
+	[self waitForExpectations:@[noUpdate, noAdd] timeout:0.5];
+	XCTAssertEqualObjects(error.domain, ZENDatabaseErrorDomain);
+	XCTAssertEqual(error.code, ZENDatabaseErrorCommitFailed);
+
+	// The loaded object didn't change, and the added one wasn't cached or stored
+	XCTAssertEqualObjects(((ZENTestDTO *)kept.basicDTO).name, @"Kept");
+	XCTAssertEqualObjects(kept.name, @"Kept");
+	XCTAssertEqual(kept.dtoUpdateCount, 0u);
+	XCTAssertEqualObjects([self storedNameOfObject:kept.identifier inTable:@"test_objects"], @"Kept");
+	XCTAssertNil([self storedNameOfObject:added.identifier inTable:@"other_test_objects"]);
+	XCTAssertEqualObjects([self fetchObjectWithIdentifier:added.identifier fromRepository:other], @[]);
+}
+
+- (void)testBatchWhoseTableRefusesAWriteUndoesTheOthers {
+	ZENObjectRepository *other = self.otherRepository;
+	ZENObjectRepository *refusing = [[ZENObjectRepository alloc] initWithDataModel:nil
+																		tableClass:[ZENRefusingTestTable class]
+																	 databaseQueue:self.queue
+																domainObjectEmbryo:[ZENTestDomainObject class]
+																		 cacheType:ZENObjectRepositoryCacheType_Strong];
+	ZENTestDomainObject *added = [self unsavedObjectNamed:@"Added"];
+
+	NSError *error = [self performWrites:^(ZENRepositoryWriteBatch *batch) {
+		[batch addObject:added toRepository:other];
+		[batch addObject:[self unsavedObjectNamed:@"Refused"] toRepository:refusing];
+	}];
+	XCTAssertEqualObjects(error.domain, ZENDatabaseErrorDomain);
+	XCTAssertEqual(error.code, ZENDatabaseErrorWriteFailed);
+	XCTAssertNil([self storedNameOfObject:added.identifier inTable:@"other_test_objects"], @"The add before the refused one should roll back");
+	XCTAssertEqualObjects([self fetchObjectWithIdentifier:added.identifier fromRepository:other], @[]);
+}
+
+- (void)testBatchUpdatesObjectsThatArentLoaded {
+	ZENObjectRepository *repo = self.repository;
+	ZENIdentifier identifier = [self insertRowsNamed:@[@"Stored"]].firstObject.longLongValue;
+
+	NSError *error = [self performWrites:^(ZENRepositoryWriteBatch *batch) {
+		[batch updateObjectWithIdentifier:identifier
+							 inRepository:repo
+								   change:^(ZENTestDTO *dto) {
+									   XCTAssertEqualObjects(dto.name, @"Stored");
+									   dto.name = @"Renamed";
+								   }];
+	}];
+	XCTAssertNil(error);
+	XCTAssertEqualObjects([self storedNameOfObject:identifier inTable:@"test_objects"], @"Renamed");
+
+	// Loading it now gets the new values
+	ZENTestDomainObject *loaded = [self fetchObjectWithIdentifier:identifier fromRepository:repo].firstObject;
+	XCTAssertEqualObjects(loaded.name, @"Renamed");
+	XCTAssertEqual(loaded.dtoUpdateCount, 0u);
+}
+
+- (void)testBatchUpdatingAMissingObjectFails {
+	ZENObjectRepository *repo = self.repository;
+	ZENTestDomainObject *kept = [self addObjectNamed:@"Kept" toRepository:repo];
+
+	NSError *error = [self performWrites:^(ZENRepositoryWriteBatch *batch) {
+		[batch updateObjectWithIdentifier:kept.identifier
+							 inRepository:repo
+								   change:^(ZENTestDTO *dto) {
+									   dto.name = @"Renamed";
+								   }];
+		[batch updateObjectWithIdentifier:ZENGetNextObjectIdentifier()
+							 inRepository:repo
+								   change:^(ZENTestDTO *dto) {
+									   dto.name = @"Nobody";
+								   }];
+	}];
+	XCTAssertEqual(error.code, ZENDatabaseErrorWriteFailed);
+	XCTAssertEqualObjects(kept.name, @"Kept");
+	XCTAssertEqualObjects([self storedNameOfObject:kept.identifier inTable:@"test_objects"], @"Kept");
+}
+
+- (void)testBatchWithTwoWritesForOneObjectFails {
+	ZENObjectRepository *repo = self.repository;
+	ZENTestDomainObject *kept = [self addObjectNamed:@"Kept" toRepository:repo];
+
+	NSError *error = [self performWrites:^(ZENRepositoryWriteBatch *batch) {
+		[batch updateObjectWithIdentifier:kept.identifier
+							 inRepository:repo
+								   change:^(ZENTestDTO *dto) {
+									   dto.name = @"First";
+								   }];
+		[batch deleteObjectWithIdentifier:kept.identifier fromRepository:repo];
+	}];
+	XCTAssertEqual(error.code, ZENDatabaseErrorWriteFailed);
+	XCTAssertEqualObjects(kept.name, @"Kept");
+	XCTAssertEqualObjects([self storedNameOfObject:kept.identifier inTable:@"test_objects"], @"Kept");
+}
+
+- (void)testBatchAcrossDatabaseQueuesFails {
+	ZENObjectRepository *repo = self.repository;
+	ZENDatabaseQueue *otherQueue = [ZENDatabaseQueue databaseQueueInMemory];
+	[otherQueue transactionSync:^(ZENDatabase *database) {
+		[ZENTestTable updateSchema:database version:1];
+	}];
+	ZENObjectRepository *elsewhere = [[ZENObjectRepository alloc] initWithDataModel:nil
+																		 tableClass:[ZENTestTable class]
+																	  databaseQueue:otherQueue
+																 domainObjectEmbryo:[ZENTestDomainObject class]
+																		  cacheType:ZENObjectRepositoryCacheType_Strong];
+	ZENTestDomainObject *here = [self unsavedObjectNamed:@"Here"];
+
+	NSError *error = [self performWrites:^(ZENRepositoryWriteBatch *batch) {
+		[batch addObject:here toRepository:repo];
+		[batch addObject:[self unsavedObjectNamed:@"Elsewhere"] toRepository:elsewhere];
+	}];
+	[otherQueue shutdown];
+	XCTAssertEqual(error.code, ZENDatabaseErrorWriteFailed);
+	XCTAssertNil([self storedNameOfObject:here.identifier inTable:@"test_objects"]);
+}
+
+- (void)testEmptyBatchSucceeds {
+	XCTAssertNil([self performWrites:^(ZENRepositoryWriteBatch *batch){}]);
+}
+
+- (void)testBatchUICompletionIsOnMainThread {
+	ZENObjectRepository *repo = self.repository;
+	XCTestExpectation *finished = [self expectationWithDescription:@"batch"];
+	[ZENObjectRepository performWrites:^(ZENRepositoryWriteBatch *batch) {
+		[batch addObject:[self unsavedObjectNamed:@"Added"] toRepository:repo];
+	}
+		uiCompletion:^(NSError *error) {
+			XCTAssertNil(error);
+			XCTAssertTrue(NSThread.isMainThread);
+			[finished fulfill];
+		}];
+	[self waitForExpectations:@[finished] timeout:5.0];
+}
+
+- (void)testUpdateObjectRunsTheUpdateHook {
+	ZENObjectRepository *repo = self.repository;
+	ZENTestDomainObject *object = [self addObjectNamed:@"Original" toRepository:repo];
+	((ZENTestDTO *)object.basicDTO).name = @"Updated";
+	XCTAssertNil([self updateObject:object inRepository:repo]);
+	XCTAssertEqualObjects(object.name, @"Updated");
+	XCTAssertEqual(object.dtoUpdateCount, 1u);
 }
 
 @end

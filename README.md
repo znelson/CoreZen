@@ -39,6 +39,14 @@ CoreZen logs to the unified log, under the subsystem `com.zdnelson.CoreZen`, in 
 log stream --level info --predicate 'subsystem == "com.zdnelson.CoreZen"'
 ```
 
+### Versions
+
+CoreZen follows [Semantic Versioning](https://semver.org). Each release is a git tag such as `v0.1.0`, with a [GitHub release](https://github.com/znelson/CoreZen/releases) whose notes come from [`CHANGELOG.md`](https://github.com/znelson/CoreZen/blob/main/CHANGELOG.md). Until 1.0.0, a release that breaks the API raises the middle number (0.1.0 to 0.2.0), and any other release raises the last (0.1.0 to 0.1.1). At run time, the framework bundle's `CFBundleShortVersionString` is its version.
+
+To release a version:
+1. In a pull request, rename CHANGELOG.md's Unreleased section to the version and date, such as `## 0.2.0 - 2026-12-01`, and add an empty Unreleased section above it. Set the CoreZen target's Version in Xcode (`MARKETING_VERSION`) to the same number. CI runs `Scripts/check_version.py`, which checks that the two match.
+2. Once it's merged, tag the merge commit on main and push the tag: `git tag v0.2.0 && git push origin v0.2.0`. The Release workflow checks the tag against both, then publishes the GitHub release.
+
 ## What's In CoreZen.framework?
 
 `CoreZen` has three parts: a persistence layer for a domain model stored in SQLite, media playback and frame rendering built on mpv and FFmpeg, and smaller AppKit and Foundation helpers. The public headers say which values can be `nil`.

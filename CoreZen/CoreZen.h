@@ -7,10 +7,12 @@
 
 #import <Foundation/Foundation.h>
 
-//! Project version number for CoreZen.
+// CoreZen's version, such as 0.1.0, is its bundle's CFBundleShortVersionString.
+// These two come from Xcode's build number for the framework instead, which
+// stays 1 (CURRENT_PROJECT_VERSION).
+
 FOUNDATION_EXPORT double CoreZenVersionNumber;
 
-//! Project version string for CoreZen.
 FOUNDATION_EXPORT const unsigned char CoreZenVersionString[];
 
 // In this header, you should import all the public headers of your framework using statements like #import <CoreZen/PublicHeader.h>

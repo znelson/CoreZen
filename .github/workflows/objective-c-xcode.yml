@@ -30,6 +30,11 @@ jobs:
           brew install clang-format
           Scripts/format.sh --check
 
+      # The project's version and CHANGELOG.md's newest version should match
+      - name: Check Version
+        run: |
+          Scripts/check_version.py
+
       - name: Prepare Keychain For Signing
         env:
           SECRET_MACOS_CERTIFICATE_B64: ${{ secrets.MACOS_CERTIFICATE }}

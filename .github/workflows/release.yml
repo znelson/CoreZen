@@ -1,0 +1,40 @@
+name: Release
+
+# When a version tag like v0.1.0 is pushed, publish a GitHub release for it, with
+# that version's CHANGELOG.md entry as its notes. The tag has to be on main,
+# whose commits CI has built and tested, and has to name the version that the
+# project and CHANGELOG.md give.
+on:
+  push:
+    tags: [ "v*" ]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Publish a release for a version tag
+    runs-on: ubuntu-latest
+
+    steps:
+      # All of the history, to see whether main contains the tag
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Check Tag
+        run: |
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "::error::$GITHUB_REF_NAME isn't on main. Tag a commit from main instead."
+            exit 1
+          fi
+          Scripts/check_version.py --tag "$GITHUB_REF_NAME"
+
+      - name: Create Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          Scripts/check_version.py --notes > notes.md
+          gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --verify-tag \
+            --title "CoreZen ${GITHUB_REF_NAME#v}" --notes-file notes.md

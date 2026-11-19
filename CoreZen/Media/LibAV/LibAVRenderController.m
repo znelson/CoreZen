@@ -17,12 +17,16 @@
 #import <libavcodec/avcodec.h>
 #import <libavformat/avformat.h>
 #import <libavutil/imgutils.h>
+#import <libavutil/pixdesc.h>
 #import <libswscale/swscale.h>
 
 #pragma clang diagnostic pop
 
 @interface ZENLibAVRenderController () {
 	AVCodecContext *_codecContext;
+	// Converts frames to RGB images, set up anew for each frame's size and colors.
+	// Only the work queue uses it.
+	SwsContext *_scaler;
 }
 
 @property (nonatomic, weak) ZENLibAVInfoController *infoController;
@@ -104,6 +108,7 @@
 	if (_codecContext) {
 		avcodec_free_context(&_codecContext);
 	}
+	sws_free_context(&_scaler);
 }
 
 // Decodes the first frame from the keyframe at or before timestamp
@@ -191,26 +196,26 @@
 	rgbFrame->height = scaledY;
 	rgbFrame->format = AV_PIX_FMT_RGBA;
 
+	// Full-range sRGB, as the image is tagged
+	rgbFrame->color_range = AVCOL_RANGE_JPEG;
+	rgbFrame->colorspace = AVCOL_SPC_RGB;
+	rgbFrame->color_primaries = AVCOL_PRI_BT709;
+	rgbFrame->color_trc = AVCOL_TRC_IEC61966_2_1;
+
 	int result = av_frame_get_buffer(rgbFrame, 1);
 
 	if (result >= 0) {
-		// Cast to get around rules about adding `const` more than one level deep: https://stackoverflow.com/a/5055789
-		const uint8_t *const *frameData = (const uint8_t *const *)sourceFrame->data;
-
-		// Describe the source from the frame itself: its buffers have its size and
-		// format, which needn't match what the codec context last reported
-		struct SwsContext *scaleContext = sws_getContext(sourceFrame->width, sourceFrame->height, sourceFrame->format,
-														 rgbFrame->width, rgbFrame->height, rgbFrame->format,
-														 SWS_BILINEAR, NULL, NULL, NULL);
-		if (scaleContext) {
-			// Scale and convert colorspace to new frame
-			result = sws_scale(scaleContext, frameData, sourceFrame->linesize, 0, sourceFrame->height,
-							   rgbFrame->data, rgbFrame->linesize);
-			sws_freeContext(scaleContext);
-		} else {
-			NSLog(@"sws_getContext failed for pixel format %d", sourceFrame->format);
-			result = AVERROR(EINVAL);
+		ZENGuessUnspecifiedColorspace(sourceFrame);
+		if (!_scaler) {
+			_scaler = sws_alloc_context();
+			if (_scaler) {
+				_scaler->flags = SWS_BILINEAR;
+			}
 		}
+		// sws_scale_frame takes the size, format and colors of each frame from the
+		// frames themselves: the source's YUV matrix, range, primaries and transfer
+		// function, so it also tone maps HDR to SDR
+		result = _scaler ? sws_scale_frame(_scaler, rgbFrame, sourceFrame) : AVERROR(ENOMEM);
 
 		if (result >= 0) {
 			frameToFree = sourceFrame;
@@ -218,7 +223,7 @@
 			success = YES;
 
 		} else {
-			NSLog(@"sws_scale failed: %d", result);
+			NSLog(@"sws_scale_frame failed: %d", result);
 		}
 	} else {
 		NSLog(@"av_frame_get_buffer failed: %d", result);
@@ -227,6 +232,21 @@
 	av_frame_free(&frameToFree);
 
 	return success;
+}
+
+// Most video says which YUV matrix it was stored with. For video that doesn't,
+// guess as players such as mpv do: HD's BT.709 for HD sizes, and standard
+// definition's BT.601 otherwise. Without this, the scaler would assume BT.601.
+static void ZENGuessUnspecifiedColorspace(AVFrame *frame) {
+	if (frame->colorspace != AVCOL_SPC_UNSPECIFIED) {
+		return;
+	}
+	const AVPixFmtDescriptor *descriptor = av_pix_fmt_desc_get(frame->format);
+	if (!descriptor || (descriptor->flags & AV_PIX_FMT_FLAG_RGB)) {
+		return;
+	}
+	BOOL hd = frame->width >= 1280 || frame->height > 576;
+	frame->colorspace = hd ? AVCOL_SPC_BT709 : AVCOL_SPC_SMPTE170M;
 }
 
 // image turned clockwise by rotation degrees, a multiple of 90
@@ -256,7 +276,8 @@ static CGImageRef ZENCreateRotatedImage(CGImageRef image, NSUInteger rotation) C
 
 - (NSImage *)convertRawFrameToImage:(AVFrame *)frame
 						   rotation:(NSUInteger)rotation {
-	CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+	// The scaler made sRGB, so say so, and macOS shows it as intended on any display
+	CGColorSpaceRef colorSpace = CGColorSpaceCreateWithName(kCGColorSpaceSRGB);
 
 	void *frameData = frame->data[0];
 	size_t width = frame->width;

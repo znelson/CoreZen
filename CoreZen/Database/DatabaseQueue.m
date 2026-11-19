@@ -7,6 +7,7 @@
 
 #import "DatabaseQueue+Private.h"
 #import "Database+Private.h"
+#import "ResultSet.h"
 #import "WorkQueue.h"
 
 #import <stdatomic.h>
@@ -24,14 +25,16 @@
 }
 
 - (void)internalInit:(NSString *)queueLabel;
-- (instancetype)initInMemory;
-- (instancetype)initWithURL:(NSURL *)URL;
+- (instancetype)initInMemoryWithOptions:(ZENDatabaseQueueOptions)options;
+- (instancetype)initWithURL:(NSURL *)URL options:(ZENDatabaseQueueOptions)options;
 - (ZENDatabase *)database;
+- (void)configureDatabase:(ZENDatabase *)database;
 - (void)closeDatabase;
 - (NSError *)runTransaction:(ZENDatabaseBlock)updateBlock;
 - (void)runAsync:(ZENWorkQueueBlock)work;
 
 @property (nonatomic, strong, readonly) NSURL *databaseURL;
+@property (nonatomic, readonly) ZENDatabaseQueueOptions options;
 @property (nonatomic, strong, readonly) ZENWorkQueue *workQueue;
 
 @end
@@ -42,11 +45,12 @@
 	_workQueue = [ZENWorkQueue workQueue:queueLabel];
 }
 
-- (instancetype)initInMemory {
+- (instancetype)initInMemoryWithOptions:(ZENDatabaseQueueOptions)options {
 	self = [super init];
 	if (self) {
 		NSLog(@"Database in memory");
 		_databaseURL = nil;
+		_options = options;
 
 		static atomic_uint_fast64_t nextIdentifier = 0;
 		uint64_t queueID = atomic_fetch_add(&nextIdentifier, 1);
@@ -58,14 +62,19 @@
 }
 
 + (instancetype)databaseQueueInMemory {
-	return [[ZENDatabaseQueue alloc] initInMemory];
+	return [self databaseQueueInMemoryWithOptions:0];
 }
 
-- (instancetype)initWithURL:(NSURL *)URL {
++ (instancetype)databaseQueueInMemoryWithOptions:(ZENDatabaseQueueOptions)options {
+	return [[ZENDatabaseQueue alloc] initInMemoryWithOptions:options];
+}
+
+- (instancetype)initWithURL:(NSURL *)URL options:(ZENDatabaseQueueOptions)options {
 	self = [super init];
 	if (self) {
 		NSLog(@"Database at: %@", URL);
 		_databaseURL = URL;
+		_options = options;
 
 		NSString *queueLabel = [NSString stringWithFormat:@"ZENDatabaseQueue-%@", [URL lastPathComponent]];
 		[self internalInit:queueLabel];
@@ -74,7 +83,11 @@
 }
 
 + (instancetype)databaseQueueWithURL:(NSURL *)URL {
-	return [[ZENDatabaseQueue alloc] initWithURL:URL];
+	return [self databaseQueueWithURL:URL options:0];
+}
+
++ (instancetype)databaseQueueWithURL:(NSURL *)URL options:(ZENDatabaseQueueOptions)options {
+	return [[ZENDatabaseQueue alloc] initWithURL:URL options:options];
 }
 
 - (void)shutdown {
@@ -124,14 +137,41 @@
 		}
 
 		_database = [ZENDatabase databaseWithFMDatabase:fmdb];
-		[_database executeUpdate:@"PRAGMA synchronous = 1;"];
-		[_database setShouldCacheStatements:YES];
+		[self configureDatabase:_database];
 	}
 
 	// Set every time, so a change reaches a database opened before it
 	[_database setTraceExecution:self.traceExecution];
 
 	return _database;
+}
+
+// Runs once, as the connection opens. That's before any transaction begins, which
+// matters: inside one, SQLite ignores changes to the journal mode and foreign keys.
+- (void)configureDatabase:(ZENDatabase *)database {
+	// In-memory databases have no file to keep a log next to
+	if (self.databaseURL) {
+		// The mode is kept in the file, so this changes it only the first time
+		ZENResultSet *rs = [database executeQuery:@"PRAGMA journal_mode = WAL;"];
+		NSString *mode = [rs next] ? [rs stringForColumnIndex:0] : nil;
+		[rs close];
+		if (![mode isEqualToString:@"wal"]) {
+			NSLog(@"WARNING: %@ couldn't switch to a write-ahead log, so it keeps its %@ journal",
+				  self.databaseURL.lastPathComponent, mode ?: @"current");
+		}
+	}
+
+	// With the write-ahead log, NORMAL syncs at checkpoints rather than every
+	// commit. A power loss can then undo the last commits, but SQLite's
+	// documentation says it can't corrupt the database. With the rollback journal
+	// it only calls NORMAL "probably" safe, on modern filesystems.
+	[database executeUpdate:@"PRAGMA synchronous = NORMAL;"];
+
+	if (self.options & ZENDatabaseQueueOptionForeignKeys) {
+		[database executeUpdate:@"PRAGMA foreign_keys = ON;"];
+	}
+
+	[database setShouldCacheStatements:YES];
 }
 
 // Runs on the work queue, last. Releasing the queue without shutting it down also

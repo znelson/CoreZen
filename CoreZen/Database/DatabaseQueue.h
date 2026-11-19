@@ -20,9 +20,29 @@ typedef void (^ZENDatabaseBlock)(ZENDatabase *_Nullable database);
 // to a connection, like a temporary table, lasts from one block to the next.
 @interface ZENDatabaseQueue : NSObject
 
+typedef NS_OPTIONS(NSUInteger, ZENDatabaseQueueOptions) {
+	// Enforce the REFERENCES clauses in the database's tables, which SQLite
+	// ignores unless asked. A change that would leave a row referring to one that
+	// doesn't exist fails, or does what the clause's ON DELETE or ON UPDATE action
+	// says. Schema updates run in a transaction, where SQLite can't turn this off,
+	// so a migration that drops a table other tables refer to, as rebuilding a
+	// table does, deletes its rows under those rules first.
+	ZENDatabaseQueueOptionForeignKeys = 1 << 0,
+};
+
 // Each in-memory queue has a database of its own, gone once the queue closes it
 + (instancetype)databaseQueueInMemory;
++ (instancetype)databaseQueueInMemoryWithOptions:(ZENDatabaseQueueOptions)options;
+
+// A database file uses SQLite's write-ahead log (WAL), which it keeps in the
+// file once switched. A write doesn't wait for other connections' reads, nor
+// they for it. A power loss or system crash can undo the last few commits, but
+// can't corrupt the database. WAL needs the file on a local volume, and adds two
+// more next to it: name-wal and name-shm. Copy or move all three together. Once
+// the database closes cleanly, the first alone holds all its data, but after a
+// crash, name-wal can hold the latest commits.
 + (instancetype)databaseQueueWithURL:(NSURL *)URL;
++ (instancetype)databaseQueueWithURL:(NSURL *)URL options:(ZENDatabaseQueueOptions)options;
 
 // Runs the async blocks already queued, then updateBlock if there is one, then
 // closes the database. Calls after this don't run their blocks, and neither does

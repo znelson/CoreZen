@@ -126,6 +126,13 @@ jobs:
         run: |
           xcodebuild build -scheme CoreZen -project CoreZen.xcodeproj
 
+      # Builds the documentation from the headers' /// comments and the articles
+      # in CoreZen/CoreZen.docc. A DocC warning, such as a link to a symbol that
+      # doesn't exist, fails the step.
+      - name: Build Documentation
+        run: |
+          xcodebuild docbuild -scheme CoreZen -project CoreZen.xcodeproj OTHER_DOCC_FLAGS="--warnings-as-errors"
+
       - name: Test
         run: |
           xcodebuild test -scheme CoreZen -project CoreZen.xcodeproj \

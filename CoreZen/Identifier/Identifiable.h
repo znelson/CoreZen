@@ -9,8 +9,10 @@
 
 @import Foundation;
 
+/// An object with an identifier.
 @protocol ZENIdentifiable
 
+/// The object's identifier.
 @property (nonatomic, readonly) ZENIdentifier identifier;
 
 @end

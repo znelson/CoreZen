@@ -6,6 +6,10 @@ To note a change, add a line under Unreleased, in a group such as Added, Changed
 
 ## Unreleased
 
+### Added
+
+- Documentation for the persistence API, built with DocC: doc comments in its headers, which Xcode shows in Quick Help, and a Persistence article with an example.
+
 ## 0.1.0 - 2026-11-19
 
 The first tagged version, with the persistence layer, media playback and frame rendering, and utilities that the README describes. Changes made before it are in the git history.

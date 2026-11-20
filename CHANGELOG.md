@@ -9,6 +9,11 @@ To note a change, add a line under Unreleased, in a group such as Added, Changed
 ### Added
 
 - Documentation for the persistence and media APIs, built with DocC: doc comments in their headers, which Xcode shows in Quick Help, and an article with examples for each.
+- `-[ZENFrameRenderer renderExactFrameAtSeconds:width:height:completion:]`, which renders the frame a player shows at a time, rather than the keyframe at or before it.
+
+### Fixed
+
+- Frames rendered from a file whose timestamps don't start at 0, such as an MPEG transport stream, come from the time asked for. Before, times counted from timestamp 0, so frames came from too early and their actual times were off by the file's start, and a rough seek could land a keyframe or more late.
 
 ## 0.1.0 - 2026-11-19
 

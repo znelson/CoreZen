@@ -33,6 +33,20 @@ ZENFrameRenderer *renderer = [ZENFrameRenderer frameRendererWithMediaFile:file];
 
 Making a media file reads from disk, so for a file that may be slow to reach, make it on a background queue. Terminate the media file once you're done with it, which also stops any renders still waiting.
 
+These renders show keyframes, which are quick to find, so a frame can come from a few seconds before the position asked for.
+
+### Render the Frame a Player Shows
+
+To capture the frame a player is showing, such as for a poster, render the exact frame at its position:
+
+```objc
+[renderer renderExactFrameAtSeconds:player.positionSeconds width:640 height:640 completion:^(ZENRenderedFrame *frame) {
+    // frame.image is the frame on screen, and frame.actualSeconds its time
+}];
+```
+
+It decodes every frame from the keyframe before the position up to it, so it's slower than rendering a keyframe.
+
 ### Quit Cleanly
 
 Before the app quits, call ``ZENMediaPlayer/terminateAllPlayers`` and ``ZENMediaFile/terminateAllMediaFiles``, so that every player shuts its mpv instance down, and every media file closes its file.

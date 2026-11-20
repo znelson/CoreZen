@@ -37,10 +37,16 @@
 - (void)avInitWithCodec:(const AVCodec *)codec
 				 stream:(const AVStream *)stream;
 
+- (BOOL)decodeRawFrame:(AVFrame *)frame
+		 formatContext:(AVFormatContext *)formatContext
+				stream:(const AVStream *)stream
+			 threshold:(int64_t)threshold;
+
 - (BOOL)renderRawFrame:(AVFrame *)frame
 		 formatContext:(AVFormatContext *)formatContext
 				stream:(const AVStream *)stream
-			 timestamp:(int64_t)timestamp;
+			 timestamp:(int64_t)timestamp
+				 exact:(BOOL)exact;
 
 - (BOOL)resizeRawFrame:(AVFrame **)frame
 			   maxSize:(NSSize)size
@@ -112,55 +118,123 @@
 	sws_free_context(&_scaler);
 }
 
-// Decodes the first frame from the keyframe at or before timestamp
-- (BOOL)renderRawFrame:(AVFrame *)frame
+// A seek that lands after the time asked for is tried again further back, at most
+// this many times in all, going back 1 s, then 2 s, 4 s and so on: 255 s at most
+static const int kMaxSeekAttempts = 8;
+
+// Decodes frames into frame, from where the last seek or decode left off, until
+// one's timestamp is at or after threshold, or the stream ends. frame keeps the
+// last frame decoded. Returns NO if no frame was decoded.
+- (BOOL)decodeRawFrame:(AVFrame *)frame
 		 formatContext:(AVFormatContext *)formatContext
 				stream:(const AVStream *)stream
-			 timestamp:(int64_t)timestamp {
+			 threshold:(int64_t)threshold {
 	int streamIndex = stream->index;
 
-	int result = av_seek_frame(formatContext, streamIndex, timestamp, AVSEEK_FLAG_BACKWARD);
-	if (result < 0) {
-		os_log_error(ZENLogMedia(), "av_seek_frame failed: %{public}s (%d)", av_err2str(result), result);
-		return NO;
-	}
-
-	// Drop what the decoder holds from the last render. This also resets a
-	// decoder that was drained at the end of the file.
-	avcodec_flush_buffers(_codecContext);
-
 	AVPacket *packet = av_packet_alloc();
-	if (!packet) {
-		os_log_error(ZENLogMedia(), "av_packet_alloc failed");
+	AVFrame *decodedFrame = av_frame_alloc();
+	if (!packet || !decodedFrame) {
+		os_log_error(ZENLogMedia(), "av_packet_alloc or av_frame_alloc failed");
+		av_packet_free(&packet);
+		av_frame_free(&decodedFrame);
 		return NO;
 	}
 
-	// The decoder may hold frames back to put them in display order, so feed it
-	// packets until it has a frame for us
-	while ((result = avcodec_receive_frame(_codecContext, frame)) == AVERROR(EAGAIN)) {
-		result = av_read_frame(formatContext, packet);
-		if (result == AVERROR_EOF) {
-			// Out of packets: an empty packet tells the decoder to output the
-			// frames it's still holding, then report the end
-			result = avcodec_send_packet(_codecContext, NULL);
-		} else if (result >= 0) {
-			if (packet->stream_index == streamIndex) {
-				result = avcodec_send_packet(_codecContext, packet);
+	BOOL decoded = NO;
+	int result;
+	while (YES) {
+		result = avcodec_receive_frame(_codecContext, decodedFrame);
+		if (result == AVERROR(EAGAIN)) {
+			// The decoder may hold frames back to put them in display order, so
+			// feed it packets until it has a frame for us
+			result = av_read_frame(formatContext, packet);
+			if (result == AVERROR_EOF) {
+				// Out of packets: an empty packet tells the decoder to output the
+				// frames it's still holding, then report the end
+				result = avcodec_send_packet(_codecContext, NULL);
+			} else if (result >= 0) {
+				if (packet->stream_index == streamIndex) {
+					result = avcodec_send_packet(_codecContext, packet);
+				}
+				av_packet_unref(packet);
 			}
-			av_packet_unref(packet);
+			if (result < 0) {
+				break;
+			}
+			continue;
 		}
 		if (result < 0) {
+			break;
+		}
+
+		// Keep each frame, in case the stream ends before one reaches threshold
+		av_frame_unref(frame);
+		av_frame_move_ref(frame, decodedFrame);
+		decoded = YES;
+		int64_t frameTimestamp = frame->best_effort_timestamp;
+		if (frameTimestamp == AV_NOPTS_VALUE || frameTimestamp >= threshold) {
 			break;
 		}
 	}
 
 	av_packet_free(&packet);
+	av_frame_free(&decodedFrame);
 
 	// AVERROR_EOF only means the stream ended without another frame
 	if (result < 0 && result != AVERROR_EOF) {
 		os_log_error(ZENLogMedia(), "Decoding a frame failed: %{public}s (%d)", av_err2str(result), result);
 	}
-	return (result >= 0);
+	return decoded;
+}
+
+// Decodes the first frame from the keyframe at or before timestamp. With exact,
+// goes on decoding to the first frame at or after timestamp, as a player shows
+// after seeking there, or the last frame if the stream ends first.
+- (BOOL)renderRawFrame:(AVFrame *)frame
+		 formatContext:(AVFormatContext *)formatContext
+				stream:(const AVStream *)stream
+			 timestamp:(int64_t)timestamp
+				 exact:(BOOL)exact {
+	// A position from a player, turned into a timestamp, can round to just after
+	// the frame it came from, so a frame this close before timestamp is at it
+	int64_t tolerance = MAX(1, av_rescale_q(1000, (AVRational){ 1, 1000000 }, stream->time_base));
+
+	// Some formats only seek roughly. An MPEG transport stream seeks by its clock,
+	// which runs ahead of its video's timestamps, so a seek can land a keyframe or
+	// more after timestamp. Then seek further back, until the first frame is at or
+	// before timestamp, or seeking back finds nothing earlier: the file's start.
+	int64_t seekTimestamp = timestamp;
+	int64_t backoff = MAX(1, av_rescale_q(1, (AVRational){ 1, 1 }, stream->time_base));
+	int64_t previousFirstTimestamp = AV_NOPTS_VALUE;
+	for (int attempt = 0; attempt < kMaxSeekAttempts; attempt++) {
+		int result = av_seek_frame(formatContext, stream->index, seekTimestamp, AVSEEK_FLAG_BACKWARD);
+		if (result < 0) {
+			os_log_error(ZENLogMedia(), "av_seek_frame failed: %{public}s (%d)", av_err2str(result), result);
+			return NO;
+		}
+
+		// Drop what the decoder holds from the last render. This also resets a
+		// decoder that was drained at the end of the file.
+		avcodec_flush_buffers(_codecContext);
+
+		if (![self decodeRawFrame:frame formatContext:formatContext stream:stream threshold:INT64_MIN]) {
+			return NO;
+		}
+		int64_t firstTimestamp = frame->best_effort_timestamp;
+		if (firstTimestamp == AV_NOPTS_VALUE || firstTimestamp <= timestamp + tolerance || firstTimestamp == previousFirstTimestamp) {
+			break;
+		}
+		previousFirstTimestamp = firstTimestamp;
+		seekTimestamp -= backoff;
+		backoff *= 2;
+	}
+
+	int64_t frameTimestamp = frame->best_effort_timestamp;
+	if (exact && frameTimestamp != AV_NOPTS_VALUE && frameTimestamp < timestamp - tolerance) {
+		// frame keeps the last frame before timestamp if the stream ends first
+		[self decodeRawFrame:frame formatContext:formatContext stream:stream threshold:timestamp - tolerance];
+	}
+	return YES;
 }
 
 // Scales frame to fit maxSize as it's shown, with its pixels stretched to
@@ -310,7 +384,8 @@ static CGImageRef ZENCreateRotatedImage(CGImageRef image, NSUInteger rotation) C
 // to render: no video stream (audio-only files), a file libav couldn't open, a
 // decoder that didn't open, or an unknown duration.
 - (void)renderFrameOnWorkQueue:(ZENRenderedFrame *)renderedFrame
-						  size:(NSSize)size {
+						  size:(NSSize)size
+						 exact:(BOOL)exact {
 	ZENLibAVInfoController *infoController = self.infoController;
 
 	double durationSeconds = infoController.durationSeconds;
@@ -338,16 +413,26 @@ static CGImageRef ZENCreateRotatedImage(CGImageRef image, NSUInteger rotation) C
 	if (durationStreamTicks <= 0) {
 		return;
 	}
-	int64_t frameTimestamp = durationStreamTicks * renderedFrame.requestedPercentage;
+	// Times count from the start of the file, as players show them, which needn't
+	// be timestamp 0: an MPEG transport stream's often starts a second or so in.
+	// mpv counts from the start of the file as a whole, as libav works it out, so
+	// a player's position renders the frame it shows.
+	int64_t startStreamTicks = 0;
+	if (formatContext->start_time != AV_NOPTS_VALUE) {
+		startStreamTicks = av_rescale_q(formatContext->start_time, AV_TIME_BASE_Q, stream->time_base);
+	} else if (stream->start_time != AV_NOPTS_VALUE) {
+		startStreamTicks = stream->start_time;
+	}
+	int64_t frameTimestamp = startStreamTicks + llround(durationStreamTicks * renderedFrame.requestedPercentage);
 
 	renderedFrame.requestedTimestamp = frameTimestamp;
 
 	AVFrame *rawFrame = av_frame_alloc();
 
 	// Render the frame at timestamp from media file
-	if ([self renderRawFrame:rawFrame formatContext:formatContext stream:stream timestamp:frameTimestamp]) {
+	if ([self renderRawFrame:rawFrame formatContext:formatContext stream:stream timestamp:frameTimestamp exact:exact]) {
 		renderedFrame.actualTimestamp = rawFrame->best_effort_timestamp;
-		renderedFrame.actualPercentage = renderedFrame.actualTimestamp / (double)durationStreamTicks;
+		renderedFrame.actualPercentage = (renderedFrame.actualTimestamp - startStreamTicks) / (double)durationStreamTicks;
 		renderedFrame.actualSeconds = renderedFrame.actualPercentage * durationSeconds;
 
 		// The image is turned upright last, so a quarter turn means fitting the
@@ -371,6 +456,7 @@ static CGImageRef ZENCreateRotatedImage(CGImageRef image, NSUInteger rotation) C
 
 - (ZENWorkQueueToken *)renderFrame:(ZENRenderedFrame *)renderedFrame
 							  size:(NSSize)size
+							 exact:(BOOL)exact
 						completion:(ZENRenderFrameResultsBlock)completion {
 	void (^complete)(void) = ^{
 		dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
@@ -380,7 +466,7 @@ static CGImageRef ZENCreateRotatedImage(CGImageRef image, NSUInteger rotation) C
 
 	ZENWorkQueueToken *token = [self.workQueue async:^(ZENWorkQueueToken *canceled) {
 		if (!canceled.canceled) {
-			[self renderFrameOnWorkQueue:renderedFrame size:size];
+			[self renderFrameOnWorkQueue:renderedFrame size:size exact:exact];
 		}
 		complete();
 	}];

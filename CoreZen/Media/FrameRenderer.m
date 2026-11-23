@@ -44,7 +44,18 @@
 	frame.requestType = ZENFrameRequestTypeSeconds;
 	frame.requestedSeconds = seconds;
 
-	return [self.frameRenderController renderFrame:frame size:NSMakeSize(width, height) completion:completion];
+	return [self.frameRenderController renderFrame:frame size:NSMakeSize(width, height) exact:NO completion:completion];
+}
+
+- (ZENWorkQueueToken *)renderExactFrameAtSeconds:(double)seconds
+										   width:(NSUInteger)width
+										  height:(NSUInteger)height
+									  completion:(ZENRenderFrameResultsBlock)completion {
+	ZENRenderedFrame *frame = [ZENRenderedFrame new];
+	frame.requestType = ZENFrameRequestTypeSeconds;
+	frame.requestedSeconds = seconds;
+
+	return [self.frameRenderController renderFrame:frame size:NSMakeSize(width, height) exact:YES completion:completion];
 }
 
 - (ZENWorkQueueToken *)renderFrameAtPercentage:(double)percentage
@@ -55,7 +66,7 @@
 	frame.requestType = ZENFrameRequestTypePercentage;
 	frame.requestedPercentage = percentage;
 
-	return [self.frameRenderController renderFrame:frame size:NSMakeSize(width, height) completion:completion];
+	return [self.frameRenderController renderFrame:frame size:NSMakeSize(width, height) exact:NO completion:completion];
 }
 
 - (ZENWorkQueueToken *)renderFrames:(NSUInteger)count

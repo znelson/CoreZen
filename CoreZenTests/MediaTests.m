@@ -241,6 +241,78 @@ static const NSTimeInterval kRenderTimeout = 10.0;
 	XCTAssertEqualWithAccuracy(frame.actualSeconds, 1.0, 0.05, @"Should render the keyframe at 1 s");
 }
 
+#pragma mark - Exact frames
+
+- (ZENRenderedFrame *)renderFrameAtSeconds:(double)seconds
+									 exact:(BOOL)exact
+							   ofMediaFile:(ZENMediaFile *)mediaFile {
+	ZENFrameRenderer *renderer = [ZENFrameRenderer frameRendererWithMediaFile:mediaFile];
+	XCTestExpectation *rendered = [self expectationWithDescription:@"frame rendered"];
+	__block ZENRenderedFrame *result = nil;
+	ZENRenderFrameResultsBlock completion = ^(ZENRenderedFrame *frame) {
+		result = frame;
+		[rendered fulfill];
+	};
+	if (exact) {
+		[renderer renderExactFrameAtSeconds:seconds width:32 height:32 completion:completion];
+	} else {
+		[renderer renderFrameAtSeconds:seconds width:32 height:32 completion:completion];
+	}
+	[self waitForExpectations:@[rendered] timeout:kRenderTimeout];
+	return result;
+}
+
+// video.mp4 has 10 frames a second, and a keyframe every half second
+- (void)testRenderExactFrameBetweenKeyframes {
+	ZENMediaFile *mediaFile = [self mediaFileNamed:@"video.mp4"];
+
+	ZENRenderedFrame *keyframe = [self renderFrameAtSeconds:0.7 exact:NO ofMediaFile:mediaFile];
+	XCTAssertNotNil(keyframe.image);
+	XCTAssertEqualWithAccuracy(keyframe.actualSeconds, 0.5, 0.001, @"Should render the keyframe before");
+
+	ZENRenderedFrame *exact = [self renderFrameAtSeconds:0.7 exact:YES ofMediaFile:mediaFile];
+	XCTAssertNotNil(exact.image);
+	XCTAssertEqualWithAccuracy(exact.actualSeconds, 0.7, 0.001, @"Should render the frame at 0.7 s");
+	XCTAssertEqualWithAccuracy(exact.requestedSeconds, 0.7, 0.001);
+}
+
+- (void)testRenderExactFrameFromAPlayerPosition {
+	ZENMediaFile *mediaFile = [self mediaFileNamed:@"video.mp4"];
+	// A position can be a hair either side of the frame's time
+	XCTAssertEqualWithAccuracy([self renderFrameAtSeconds:0.6996 exact:YES ofMediaFile:mediaFile].actualSeconds, 0.7, 0.001);
+	XCTAssertEqualWithAccuracy([self renderFrameAtSeconds:0.7004 exact:YES ofMediaFile:mediaFile].actualSeconds, 0.7, 0.001);
+	// Between frames, the next one, as a player shows after seeking there
+	XCTAssertEqualWithAccuracy([self renderFrameAtSeconds:0.75 exact:YES ofMediaFile:mediaFile].actualSeconds, 0.8, 0.001);
+	// At a keyframe, the keyframe
+	XCTAssertEqualWithAccuracy([self renderFrameAtSeconds:1.0 exact:YES ofMediaFile:mediaFile].actualSeconds, 1.0, 0.001);
+}
+
+- (void)testRenderExactFramePastTheEnd {
+	ZENMediaFile *mediaFile = [self mediaFileNamed:@"video.mp4"];
+	ZENRenderedFrame *frame = [self renderFrameAtSeconds:5.0 exact:YES ofMediaFile:mediaFile];
+	XCTAssertNotNil(frame.image);
+	XCTAssertEqualWithAccuracy(frame.actualSeconds, 1.9, 0.001, @"Should render the last frame");
+}
+
+// start-offset.ts is video.mp4 in an MPEG transport stream, whose timestamps
+// start 1.58 s in, and whose first frame is at 1.6 s
+- (void)testRenderTimesCountFromTheStartOfTheFile {
+	ZENMediaFile *mediaFile = [self mediaFileNamed:@"start-offset.ts"];
+
+	ZENRenderedFrame *first = [self renderFrameAtSeconds:0.0 exact:NO ofMediaFile:mediaFile];
+	XCTAssertNotNil(first.image);
+	XCTAssertEqualWithAccuracy(first.actualSeconds, 0.023, 0.002, @"The first frame is just after the start");
+
+	ZENRenderedFrame *exact = [self renderFrameAtSeconds:0.7 exact:YES ofMediaFile:mediaFile];
+	XCTAssertNotNil(exact.image);
+	XCTAssertGreaterThanOrEqual(exact.actualSeconds, 0.7);
+	XCTAssertLessThan(exact.actualSeconds, 0.8, @"Should render the first frame at or after 0.7 s");
+
+	// The frame's own time renders it again, as a player's position would
+	ZENRenderedFrame *again = [self renderFrameAtSeconds:exact.actualSeconds exact:YES ofMediaFile:mediaFile];
+	XCTAssertEqual(again.actualTimestamp, exact.actualTimestamp);
+}
+
 #pragma mark - Rotation
 
 // The red, green and blue values of image, from 0 to 255 in sRGB, at a point given

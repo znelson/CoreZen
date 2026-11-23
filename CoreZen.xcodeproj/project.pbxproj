@@ -111,6 +111,7 @@
 		CC00000228860A0000000006 /* TestDomainObject.m in Sources */ = {isa = PBXBuildFile; fileRef = CC00000128860A0000000009 /* TestDomainObject.m */; };
 		0313158D2D7374094EFBE6DC /* MediaTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D27F0ECF10C39A3A06669EF /* MediaTests.m */; };
 		030EFFD5692EA63A973B2FE9 /* video.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 7C383F9E59E944DEF41405A3 /* video.mp4 */; };
+		90A1511436EE99CABA7C9CA0 /* interlaced.mpg in Resources */ = {isa = PBXBuildFile; fileRef = 2029B56C07490693742A1C38 /* interlaced.mpg */; };
 		CCD9DDD06C5517F511A366AC /* start-offset.ts in Resources */ = {isa = PBXBuildFile; fileRef = 2431BF153CB5C75BE727866E /* start-offset.ts */; };
 		3A881C011BDBA50B90143879 /* audio.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 318D307DF615F0093C6C9C47 /* audio.m4a */; };
 		7C83D0F62FF8F1D1569E4B13 /* silent.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 75E34DE8F29716419674A2D5 /* silent.mp4 */; };
@@ -301,6 +302,7 @@
 		CC00000128860A0000000009 /* TestDomainObject.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestDomainObject.m; sourceTree = "<group>"; };
 		7D27F0ECF10C39A3A06669EF /* MediaTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MediaTests.m; sourceTree = "<group>"; };
 		7C383F9E59E944DEF41405A3 /* video.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = video.mp4; sourceTree = "<group>"; };
+		2029B56C07490693742A1C38 /* interlaced.mpg */ = {isa = PBXFileReference; lastKnownFileType = file; path = interlaced.mpg; sourceTree = "<group>"; };
 		2431BF153CB5C75BE727866E /* start-offset.ts */ = {isa = PBXFileReference; lastKnownFileType = file; path = "start-offset.ts"; sourceTree = "<group>"; };
 		318D307DF615F0093C6C9C47 /* audio.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = audio.m4a; sourceTree = "<group>"; };
 		75E34DE8F29716419674A2D5 /* silent.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = silent.mp4; sourceTree = "<group>"; };
@@ -846,6 +848,7 @@
 			isa = PBXGroup;
 			children = (
 				7C383F9E59E944DEF41405A3 /* video.mp4 */,
+				2029B56C07490693742A1C38 /* interlaced.mpg */,
 				2431BF153CB5C75BE727866E /* start-offset.ts */,
 				318D307DF615F0093C6C9C47 /* audio.m4a */,
 				75E34DE8F29716419674A2D5 /* silent.mp4 */,
@@ -1221,6 +1224,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				030EFFD5692EA63A973B2FE9 /* video.mp4 in Resources */,
+				90A1511436EE99CABA7C9CA0 /* interlaced.mpg in Resources */,
 				CCD9DDD06C5517F511A366AC /* start-offset.ts in Resources */,
 				3A881C011BDBA50B90143879 /* audio.m4a in Resources */,
 				7C83D0F62FF8F1D1569E4B13 /* silent.mp4 in Resources */,

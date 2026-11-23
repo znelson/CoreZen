@@ -281,6 +281,10 @@ static const int kMaxSeekAttempts = 8;
 
 	if (result >= 0) {
 		ZENGuessUnspecifiedColorspace(sourceFrame);
+		// The scaler won't turn an interlaced frame into a progressive one, so scale
+		// its two fields together, as one picture, the way a player shows it without
+		// deinterlacing. Motion between the fields can show as combing.
+		sourceFrame->flags &= ~(AV_FRAME_FLAG_INTERLACED | AV_FRAME_FLAG_TOP_FIELD_FIRST);
 		if (!_scaler) {
 			_scaler = sws_alloc_context();
 			if (_scaler) {

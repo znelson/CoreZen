@@ -46,7 +46,9 @@ typedef NS_ENUM(NSInteger, ZENFrameRequestType) {
 /// The frame's image, or nil if it couldn't be rendered.
 ///
 /// It fits within the width and height asked for, in the shape the video is
-/// shown in: stretched to its pixel aspect ratio and turned upright.
+/// shown in: stretched to its pixel aspect ratio and turned upright. An
+/// interlaced frame's two fields are scaled together, as one picture, the way a
+/// player shows it without deinterlacing.
 @property (nonatomic, strong, nullable) NSImage *image;
 
 /// Whether the frame was asked for by time or by fraction of the duration.

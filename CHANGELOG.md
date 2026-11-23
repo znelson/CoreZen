@@ -14,6 +14,7 @@ To note a change, add a line under Unreleased, in a group such as Added, Changed
 ### Fixed
 
 - Frames rendered from a file whose timestamps don't start at 0, such as an MPEG transport stream, come from the time asked for. Before, times counted from timestamp 0, so frames came from too early and their actual times were off by the file's start, and a rough seek could land a keyframe or more late.
+- Frames render from interlaced video, such as a DVD's MPEG-2. FFmpeg's scaler refused to turn an interlaced frame into a progressive image, so every render of one had no image.
 
 ## 0.1.0 - 2026-11-19
 

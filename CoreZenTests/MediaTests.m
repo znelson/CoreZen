@@ -313,6 +313,21 @@ static const NSTimeInterval kRenderTimeout = 10.0;
 	XCTAssertEqual(again.actualTimestamp, exact.actualTimestamp);
 }
 
+// interlaced.mpg is MPEG-2 at 128x96, with every frame interlaced, top field first
+- (void)testRenderInterlacedFrames {
+	ZENMediaFile *mediaFile = [self mediaFileNamed:@"interlaced.mpg"];
+
+	ZENRenderedFrame *keyframe = [self renderFrameAtPercentage:0.5 ofMediaFile:mediaFile];
+	XCTAssertNotNil(keyframe.image);
+	XCTAssertEqual(keyframe.image.size.width, 32);
+	XCTAssertEqual(keyframe.image.size.height, 24);
+
+	ZENRenderedFrame *exact = [self renderFrameAtSeconds:0.5 exact:YES ofMediaFile:mediaFile];
+	XCTAssertNotNil(exact.image);
+	XCTAssertGreaterThanOrEqual(exact.actualSeconds, 0.49);
+	XCTAssertLessThan(exact.actualSeconds, 0.54, @"Should render the first frame at or after 0.5 s");
+}
+
 #pragma mark - Rotation
 
 // The red, green and blue values of image, from 0 to 255 in sRGB, at a point given

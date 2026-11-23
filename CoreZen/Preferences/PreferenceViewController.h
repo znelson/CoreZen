@@ -44,19 +44,21 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/// A view controller that's a pane in a ``ZENPreferencesWindowController``.
 @protocol ZENPreferenceViewController
 
-// UI display name for preference window
+/// The pane's name, shown on its toolbar item and as the window's title.
 - (NSString *)preferenceDisplayName;
 
-// Internal unique identifier for preference window
+/// A unique identifier for the pane, which identifies its toolbar item.
 - (NSString *)preferenceIdentifier;
 
-// Icon to display in the preferences window menu bar
+/// The image on the pane's toolbar item.
 - (nullable NSImage *)preferenceIcon;
 
 @optional
 
+/// The tool tip for the pane's toolbar item.
 - (nullable NSString *)preferenceToolTip;
 
 @end

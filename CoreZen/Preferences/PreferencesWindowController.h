@@ -44,11 +44,24 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/// A preferences window with a toolbar item for each pane.
+///
+/// Each pane is a view controller that conforms to
+/// ``ZENPreferenceViewController``. Choosing a toolbar item shows its pane, and
+/// resizes the window to fit the pane's view. It's adapted from
+/// [CCNPreferencesWindowController](https://github.com/phranck/CCNPreferencesWindowController).
 @interface ZENPreferencesWindowController : NSWindowController
 
+/// Sets the window's panes, in the order of their toolbar items.
+///
+/// Each must be an `NSViewController` that conforms to
+/// ``ZENPreferenceViewController``.
 - (void)setPreferenceViewControllers:(NSArray *)viewControllers;
 
+/// Shows the window, with the first pane.
 - (void)showPreferencesWindow;
+
+/// Closes the window.
 - (void)dismissPreferencesWindow;
 
 @end

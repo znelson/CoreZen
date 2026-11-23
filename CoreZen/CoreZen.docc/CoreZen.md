@@ -18,3 +18,9 @@ CoreZen's [README](https://github.com/znelson/CoreZen#readme) says how to get it
 
 - <doc:Persistence>
 - <doc:Media>
+- <doc:Utilities>
+
+### Framework Version
+
+- ``CoreZenVersionNumber``
+- ``CoreZenVersionString``

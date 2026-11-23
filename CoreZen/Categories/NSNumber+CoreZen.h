@@ -9,6 +9,9 @@
 
 @interface NSNumber (CoreZen)
 
+/// A random integer, from a cryptographically secure generator.
+///
+/// It can be any `NSInteger` value, negative ones included.
 + (NSInteger)zen_randomInteger;
 
 @end

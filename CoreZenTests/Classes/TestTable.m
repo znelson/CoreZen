@@ -104,6 +104,26 @@
 
 @end
 
+@implementation ZENUncommittableMigrationTestTable
+
++ (NSString *)tableName {
+	return @"uncommittable_migration_objects";
+}
+
++ (BOOL)updateSchema:(ZENDatabase *)database version:(NSUInteger)version {
+	BOOL updated = [super updateSchema:database version:version];
+	if (version == 1) {
+		// SQLite checks a deferred foreign key only at COMMIT
+		[database executeUpdate:@"CREATE TABLE parents (identifier INTEGER PRIMARY KEY);"];
+		[database executeUpdate:@"CREATE TABLE orphans "
+								@"(parent INTEGER REFERENCES parents (identifier) DEFERRABLE INITIALLY DEFERRED);"];
+		[database executeUpdate:@"INSERT INTO orphans VALUES (-1);"];
+	}
+	return updated;
+}
+
+@end
+
 @implementation ZENRefusingTestTable
 
 - (BOOL)insertDTO:(ZENDataTransferObject *)dto database:(ZENDatabase *)database {

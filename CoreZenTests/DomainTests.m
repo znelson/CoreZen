@@ -44,7 +44,7 @@
 
 	ZENDatabaseSchema *schema = [ZENDatabaseSchema schemaWithTableClasses:@[[ZENTestTable class]]];
 	[self.queue transactionSync:^(ZENDatabase *database) {
-		[schema initializeDatabase:database];
+		XCTAssertTrue([schema initializeDatabase:database error:NULL]);
 	}];
 }
 

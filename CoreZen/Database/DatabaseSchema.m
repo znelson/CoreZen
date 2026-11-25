@@ -39,7 +39,7 @@
 	return [[ZENDatabaseSchema alloc] initWithTableClasses:tables];
 }
 
-- (void)initializeDatabase:(ZENDatabase *)database {
+- (BOOL)initializeDatabase:(ZENDatabase *)database error:(NSError **)outError {
 	// Update the database schema to the latest version, in a transaction of its
 	// own unless the caller has one open. A failed statement makes the caller's
 	// transaction roll back too.
@@ -48,20 +48,47 @@
 		[database beginTransaction];
 	}
 	BOOL versionChanged = [self updateDatabaseSchema:database];
-	NSError *rollbackError = database.rollbackError;
-	if (rollbackError) {
-		os_log_error(ZENLogDatabase(), "Rolling back the schema update: %{public}@", rollbackError.localizedDescription);
+	NSError *updateError = database.rollbackError;
+	if (updateError) {
+		os_log_error(ZENLogDatabase(), "Rolling back the schema update: %{public}@", updateError.localizedDescription);
 	}
 	if (ownsTransaction) {
-		if (versionChanged && !rollbackError) {
-			[database commit];
+		if (versionChanged && !updateError) {
+			if (![database commit]) {
+				NSString *description =
+					[NSString stringWithFormat:@"Couldn't commit the schema update: %@", database.lastErrorMessage];
+				os_log_error(ZENLogDatabase(), "%{public}@, so rolling it back", description);
+				updateError = ZENDatabaseErrorMake(ZENDatabaseErrorCommitFailed, description);
+				// A failed commit can leave the transaction open, which would swallow
+				// the queue's next transaction
+				if (database.inTransaction) {
+					[database rollback];
+				}
+			}
 		} else {
 			[database rollback];
 		}
 	}
-	// Initialize the global identifiers from database tables
+	// Raise the global identifier counter past the tables' rows, which exist even
+	// when the update failed
 	[self initializeIdentifiers:database];
+
+	if (updateError) {
+		if (outError) {
+			*outError = updateError;
+		}
+		return NO;
+	}
+	return YES;
 }
+
+// Deprecated, but still part of the API
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
+- (void)initializeDatabase:(ZENDatabase *)database {
+	[self initializeDatabase:database error:NULL];
+}
+#pragma clang diagnostic pop
 
 - (NSArray *)tableNames {
 	NSMutableArray *tableNames = [NSMutableArray array];

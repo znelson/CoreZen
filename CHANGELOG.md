@@ -10,11 +10,17 @@ To note a change, add a line under Unreleased, in a group such as Added, Changed
 
 - Documentation for the whole API, built with DocC: doc comments in the public headers, which Xcode shows in Quick Help, and an article with examples for each of CoreZen's three parts: persistence, media and utilities.
 - `-[ZENFrameRenderer renderExactFrameAtSeconds:width:height:completion:]`, which renders the frame a player shows at a time, rather than the keyframe at or before it.
+- `-[ZENDatabaseSchema initializeDatabase:error:]`, which says whether the schema update worked, and why not when it didn't. An app can stop there, instead of going on to use tables the update didn't change.
+
+### Deprecated
+
+- `-[ZENDatabaseSchema initializeDatabase:]`, which can't say that the update failed. Use `initializeDatabase:error:`.
 
 ### Fixed
 
 - Frames rendered from a file whose timestamps don't start at 0, such as an MPEG transport stream, come from the time asked for. Before, times counted from timestamp 0, so frames came from too early and their actual times were off by the file's start, and a rough seek could land a keyframe or more late.
 - Frames render from interlaced video, such as a DVD's MPEG-2. FFmpeg's scaler refused to turn an interlaced frame into a progressive image, so every render of one had no image.
+- A schema update whose commit fails rolls back. Before, the update's transaction could stay open, so the queue's next transaction ran inside it and was lost with it.
 
 ## 0.1.0 - 2026-11-19
 

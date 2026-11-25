@@ -58,7 +58,7 @@ static NSUInteger ZENOpenDescriptorCount(NSURL *URL) {
 
 	ZENDatabaseSchema *schema = [ZENDatabaseSchema schemaWithTableClasses:@[[ZENTestTable class]]];
 	[self.queue transactionSync:^(ZENDatabase *database) {
-		[schema initializeDatabase:database];
+		XCTAssertTrue([schema initializeDatabase:database error:NULL]);
 	}];
 }
 
@@ -89,49 +89,164 @@ static NSUInteger ZENOpenDescriptorCount(NSURL *URL) {
 	}];
 }
 
-// The schema version and whether the broken migration's table exists, after
-// initializing a fresh database with it, either on its own or inside a transaction
-- (void)initializeBrokenMigrationInTransaction:(BOOL)inTransaction
-								 schemaVersion:(long long *)schemaVersion
-								   tableExists:(BOOL *)tableExists {
-	ZENDatabaseQueue *queue = [ZENDatabaseQueue databaseQueueInMemory];
-	ZENDatabaseSchema *schema = [ZENDatabaseSchema schemaWithTableClasses:@[[ZENBrokenMigrationTestTable class]]];
+// Initializes the queue's database with a schema of one table, either on its
+// own or inside a transaction, and returns what initializeDatabase:error: did
+- (BOOL)initializeTableClass:(Class)tableClass
+					 onQueue:(ZENDatabaseQueue *)queue
+			   inTransaction:(BOOL)inTransaction
+					   error:(NSError **)outError {
+	ZENDatabaseSchema *schema = [ZENDatabaseSchema schemaWithTableClasses:@[tableClass]];
+	__block BOOL initialized = NO;
+	__block NSError *error = nil;
 	ZENDatabaseBlock initialize = ^(ZENDatabase *database) {
-		[schema initializeDatabase:database];
+		initialized = [schema initializeDatabase:database error:&error];
 	};
 	if (inTransaction) {
 		[queue transactionSync:initialize];
 	} else {
 		[queue fetchSync:initialize];
 	}
+	if (outError) {
+		*outError = error;
+	}
+	return initialized;
+}
+
+- (BOOL)tableExists:(NSString *)tableName onQueue:(ZENDatabaseQueue *)queue {
+	__block BOOL exists = NO;
 	[queue fetchSync:^(ZENDatabase *database) {
-		ZENResultSet *rs = [database executeQuery:@"PRAGMA user_version;"];
-		XCTAssertTrue([rs next]);
-		*schemaVersion = [rs longLongIntForColumnIndex:0];
-		[rs close];
-		rs = [database executeQuery:@"SELECT name FROM sqlite_master WHERE type='table' AND name='broken_migration_objects';"];
-		*tableExists = [rs next];
+		ZENResultSet *rs = [database executeQuery:@"SELECT name FROM sqlite_master WHERE type='table' AND name=?;", tableName];
+		exists = [rs next];
 		[rs close];
 	}];
+	return exists;
+}
+
+- (void)testSchemaUpdateReportsSuccess {
+	ZENDatabaseQueue *queue = [ZENDatabaseQueue databaseQueueInMemory];
+	NSError *error = nil;
+	XCTAssertTrue([self initializeTableClass:[ZENTestTable class] onQueue:queue inTransaction:NO error:&error]);
+	XCTAssertNil(error);
+	XCTAssertEqualObjects([self valueOfPragma:@"user_version" onQueue:queue], @"1");
 	[queue shutdown];
 }
 
-- (void)testFailedSchemaUpdateRollsBack {
-	// Rolling back the whole update leaves the database at version 0, so the
-	// update runs again next time instead of skipping the broken migration
-	long long schemaVersion = -1;
-	BOOL tableExists = YES;
-	[self initializeBrokenMigrationInTransaction:NO schemaVersion:&schemaVersion tableExists:&tableExists];
-	XCTAssertEqual(schemaVersion, 0);
-	XCTAssertFalse(tableExists, @"Version 1's table should roll back with the failed version 2");
+- (void)testSchemaUpdateAtLatestVersionReportsSuccess {
+	// setUp already brought the queue's database to the latest version, so this
+	// update has nothing to do
+	NSError *error = nil;
+	XCTAssertTrue([self initializeTableClass:[ZENTestTable class] onQueue:self.queue inTransaction:NO error:&error]);
+	XCTAssertNil(error);
+	XCTAssertEqualObjects([self valueOfPragma:@"user_version" onQueue:self.queue], @"1");
 }
 
-- (void)testFailedSchemaUpdateInsideTransactionRollsBack {
-	long long schemaVersion = -1;
-	BOOL tableExists = YES;
-	[self initializeBrokenMigrationInTransaction:YES schemaVersion:&schemaVersion tableExists:&tableExists];
-	XCTAssertEqual(schemaVersion, 0);
-	XCTAssertFalse(tableExists, @"Version 1's table should roll back with the failed version 2");
+// Version 2 of the broken migration fails after version 1 made its table
+- (void)checkFailedSchemaUpdateInTransaction:(BOOL)inTransaction {
+	ZENDatabaseQueue *queue = [ZENDatabaseQueue databaseQueueInMemory];
+	NSError *error = nil;
+	XCTAssertFalse([self initializeTableClass:[ZENBrokenMigrationTestTable class]
+									  onQueue:queue
+								inTransaction:inTransaction
+										error:&error]);
+	XCTAssertEqualObjects(error.domain, ZENDatabaseErrorDomain);
+	XCTAssertEqual(error.code, ZENDatabaseErrorStatementFailed);
+	XCTAssertTrue([error.localizedDescription containsString:@"no such table: no_such_table"],
+				  @"The error should have SQLite's message: %@", error.localizedDescription);
+
+	// Rolling back the whole update leaves the database at version 0, so the
+	// update runs again next time instead of skipping the broken migration
+	XCTAssertEqualObjects([self valueOfPragma:@"user_version" onQueue:queue], @"0");
+	XCTAssertFalse([self tableExists:@"broken_migration_objects" onQueue:queue],
+				   @"Version 1's table should roll back with the failed version 2");
+	[queue shutdown];
+}
+
+- (void)testFailedSchemaUpdateRollsBackAndReportsTheStatement {
+	[self checkFailedSchemaUpdateInTransaction:NO];
+}
+
+- (void)testFailedSchemaUpdateInsideTransactionRollsBackAndReportsTheStatement {
+	[self checkFailedSchemaUpdateInTransaction:YES];
+}
+
+- (void)testSchemaUpdateInsideCanceledTransactionFails {
+	// The update would work, but it joins a transaction that's set to roll back
+	ZENDatabaseQueue *queue = [ZENDatabaseQueue databaseQueueInMemory];
+	ZENDatabaseSchema *schema = [ZENDatabaseSchema schemaWithTableClasses:@[[ZENTestTable class]]];
+	__block BOOL initialized = YES;
+	__block NSError *error = nil;
+	[queue transactionSync:^(ZENDatabase *database) {
+		[database cancelTransaction];
+		initialized = [schema initializeDatabase:database error:&error];
+	}];
+	XCTAssertFalse(initialized);
+	XCTAssertEqualObjects(error.domain, ZENDatabaseErrorDomain);
+	XCTAssertEqual(error.code, ZENDatabaseErrorTransactionCanceled);
+	XCTAssertEqualObjects([self valueOfPragma:@"user_version" onQueue:queue], @"0");
+	[queue shutdown];
+}
+
+- (void)testFailedSchemaCommitRollsBackAndReportsTheCommit {
+	ZENDatabaseQueue *queue = [ZENDatabaseQueue databaseQueueInMemoryWithOptions:ZENDatabaseQueueOptionForeignKeys];
+	NSError *error = nil;
+	XCTAssertFalse([self initializeTableClass:[ZENUncommittableMigrationTestTable class]
+									  onQueue:queue
+								inTransaction:NO
+										error:&error]);
+	XCTAssertEqualObjects(error.domain, ZENDatabaseErrorDomain);
+	XCTAssertEqual(error.code, ZENDatabaseErrorCommitFailed);
+	XCTAssertTrue([error.localizedDescription containsString:@"FOREIGN KEY constraint failed"],
+				  @"The error should have SQLite's message: %@", error.localizedDescription);
+	XCTAssertEqualObjects([self valueOfPragma:@"user_version" onQueue:queue], @"0");
+	XCTAssertFalse([self tableExists:@"uncommittable_migration_objects" onQueue:queue]);
+	[queue shutdown];
+}
+
+- (void)testFailedSchemaCommitDoesNotHoldTheNextTransaction {
+	// A failed commit can leave its transaction open. The next transaction would
+	// then run inside it, and roll back with it.
+	ZENDatabaseQueue *queue = [ZENDatabaseQueue databaseQueueInMemoryWithOptions:ZENDatabaseQueueOptionForeignKeys];
+	[self initializeTableClass:[ZENUncommittableMigrationTestTable class] onQueue:queue inTransaction:NO error:NULL];
+	[queue transactionSync:^(ZENDatabase *database) {
+		XCTAssertTrue([database executeUpdate:@"CREATE TABLE later (value INTEGER);"]);
+	}];
+	XCTAssertTrue([self tableExists:@"later" onQueue:queue], @"The next transaction should commit on its own");
+	[queue shutdown];
+}
+
+- (void)testFailedSchemaUpdateStillRaisesIdentifiers {
+	// A database from an earlier version has rows, though its update fails, as an
+	// app's might when its newest migration doesn't fit the database. New objects
+	// mustn't reuse the rows' identifiers.
+	ZENDatabaseQueue *queue = [ZENDatabaseQueue databaseQueueInMemory];
+	[queue fetchSync:^(ZENDatabase *database) {
+		XCTAssertTrue([database executeUpdate:@"CREATE TABLE broken_migration_objects (identifier INTEGER PRIMARY KEY, name TEXT);"]);
+		XCTAssertTrue([database executeUpdate:@"INSERT INTO broken_migration_objects VALUES (100, 'row');"]);
+	}];
+	XCTAssertFalse([self initializeTableClass:[ZENBrokenMigrationTestTable class] onQueue:queue inTransaction:NO error:NULL]);
+	XCTAssertEqual(ZENGetNextObjectIdentifier(), 101);
+	[queue shutdown];
+}
+
+- (void)testDeprecatedInitializeDatabaseStillUpdates {
+	ZENDatabaseQueue *queue = [ZENDatabaseQueue databaseQueueInMemory];
+	ZENDatabaseQueue *brokenQueue = [ZENDatabaseQueue databaseQueueInMemory];
+	ZENDatabaseSchema *schema = [ZENDatabaseSchema schemaWithTableClasses:@[[ZENTestTable class]]];
+	ZENDatabaseSchema *brokenSchema = [ZENDatabaseSchema schemaWithTableClasses:@[[ZENBrokenMigrationTestTable class]]];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+	[queue fetchSync:^(ZENDatabase *database) {
+		[schema initializeDatabase:database];
+	}];
+	// It has no error to give back when the update fails
+	[brokenQueue fetchSync:^(ZENDatabase *database) {
+		[brokenSchema initializeDatabase:database];
+	}];
+#pragma clang diagnostic pop
+	XCTAssertEqualObjects([self valueOfPragma:@"user_version" onQueue:queue], @"1");
+	XCTAssertEqualObjects([self valueOfPragma:@"user_version" onQueue:brokenQueue], @"0");
+	[queue shutdown];
+	[brokenQueue shutdown];
 }
 
 #pragma mark - Identifiers
@@ -152,7 +267,7 @@ static NSUInteger ZENOpenDescriptorCount(NSURL *URL) {
 	ZENDatabaseQueue *queue = [ZENDatabaseQueue databaseQueueInMemory];
 	ZENDatabaseSchema *schema = [ZENDatabaseSchema schemaWithTableClasses:tableClasses];
 	[queue fetchSync:^(ZENDatabase *database) {
-		[schema initializeDatabase:database];
+		XCTAssertTrue([schema initializeDatabase:database error:NULL]);
 	}];
 	[queue transactionSync:^(ZENDatabase *database) {
 		[tableClasses enumerateObjectsUsingBlock:^(Class tableClass, NSUInteger index, BOOL *stop) {
@@ -166,7 +281,7 @@ static NSUInteger ZENOpenDescriptorCount(NSURL *URL) {
 
 	ZENSetLargestObjectIdentifier(counter);
 	[queue fetchSync:^(ZENDatabase *database) {
-		[schema initializeDatabase:database];
+		XCTAssertTrue([schema initializeDatabase:database error:NULL]);
 	}];
 	[queue shutdown];
 }
@@ -810,7 +925,7 @@ static NSUInteger ZENOpenDescriptorCount(NSURL *URL) {
 	ZENDatabaseQueue *reader = [ZENDatabaseQueue databaseQueueWithURL:URL];
 	ZENDatabaseSchema *schema = [ZENDatabaseSchema schemaWithTableClasses:@[[ZENTestTable class]]];
 	[writer transactionSync:^(ZENDatabase *database) {
-		[schema initializeDatabase:database];
+		XCTAssertTrue([schema initializeDatabase:database error:NULL]);
 		XCTAssertTrue([self insertRowNamed:@"Alpha" database:database]);
 	}];
 

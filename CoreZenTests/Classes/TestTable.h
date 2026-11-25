@@ -25,6 +25,13 @@
 
 @end
 
+// Its schema update to version 1 creates its table, then leaves a row whose
+// deferred foreign key refers to no row. With foreign keys enforced, the update's
+// statements succeed and its commit fails.
+@interface ZENUncommittableMigrationTestTable : ZENTestTable
+
+@end
+
 // Reads test_objects like ZENTestTable, but its writes report failure without
 // running a statement, as a table with checks of its own might
 @interface ZENRefusingTestTable : ZENTestTable

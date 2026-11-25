@@ -67,14 +67,22 @@ A later version of the schema adds a branch for version 2, and so on. Each versi
 
 ### Open the Database
 
-A ``ZENDatabaseSchema`` brings the database up to the latest version of every table's schema:
+A ``ZENDatabaseSchema`` brings the database up to the latest version of every table's schema. Outside a transaction, as in a fetch block, the update commits in a transaction of its own, so its result says whether it saved:
 
 ```objc
 ZENDatabaseQueue *queue = [ZENDatabaseQueue databaseQueueWithURL:databaseURL];
 ZENDatabaseSchema *schema = [ZENDatabaseSchema schemaWithTableClasses:@[NoteTable.class]];
-[queue transactionSync:^(ZENDatabase *database) {
-    [schema initializeDatabase:database];
+__block BOOL updated = NO;
+__block NSError *error = nil;
+[queue fetchSync:^(ZENDatabase *database) {
+    updated = [schema initializeDatabase:database error:&error];
 }];
+if (!updated) {
+    // The update rolled back, so the database has its earlier version, which
+    // the tables' code may not fit. The error says which statement failed.
+    [NSApp presentError:error];
+    return;
+}
 ```
 
 ### Load and Save Objects

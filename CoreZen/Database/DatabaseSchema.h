@@ -24,13 +24,32 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)schemaWithTableClasses:(NSArray *)tables;
 
 /// Updates a database to the latest version, then moves the identifier counter
-/// past its largest identifier.
+/// past its largest identifier, and says whether the update worked.
 ///
-/// The update runs in a transaction, joining the caller's if one is open. If any
-/// statement fails, the whole update rolls back, so it runs again the next time.
-/// Then it raises the counter that ``ZENGetNextObjectIdentifier`` uses past the
-/// largest identifier in any of the tables.
-- (void)initializeDatabase:(ZENDatabase *)database;
+/// The update runs in a transaction of its own, or joins the caller's if one is
+/// open. If any statement in it fails, or its commit does, the whole update rolls
+/// back, so the database keeps the version it had, and the update runs again the
+/// next time. Joined to the caller's transaction, the update saves only when that
+/// transaction commits, and it fails if that transaction is already set to roll
+/// back.
+///
+/// It returns YES once the database is at the latest version, including when it
+/// already was. It returns NO, with the error set, if the update failed. The
+/// error is in ``ZENDatabaseErrorDomain``, and for a failed statement, its
+/// description has SQLite's message. The error pointer may be NULL.
+///
+/// Either way, it then raises the counter that ``ZENGetNextObjectIdentifier``
+/// uses past the largest identifier in any of the tables, which can hold rows
+/// even when the update fails.
+- (BOOL)initializeDatabase:(ZENDatabase *)database error:(NSError *_Nullable *_Nullable)outError;
+
+/// Updates a database to the latest version, then moves the identifier counter
+/// past its largest identifier, without saying whether the update worked.
+///
+/// It does what ``initializeDatabase:error:`` does, but a caller can't tell that
+/// the update failed, and goes on to use tables the update didn't change.
+- (void)initializeDatabase:(ZENDatabase *)database
+	__attribute__((deprecated("Use initializeDatabase:error:, which says whether the update worked")));
 
 @end
 
